@@ -35,7 +35,7 @@ export default function GameCanvas (props) {
   return (
     <div style={{position: "relative"}} className="game-container">
       {linkContainer}
-      <canvas id="canvas" width="600" height="400"></canvas>
+      <canvas id="canvas" style={{width: "100%", height: "100%"}} />
       {/*{ */}
       {/*  props.inGame ?*/}
       {/*    <>*/}

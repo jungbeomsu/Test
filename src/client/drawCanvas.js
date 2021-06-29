@@ -34,6 +34,9 @@ var directionCoors = [
   { x: 178, y: 0 },
 ];
 
+var curCanvasWidth = 0;
+var curCanvasHeight = 0;
+
 export function drawInit() {
   // TODO: optimization, only load when necessary and not all at once
   let canvas = document.getElementById("canvas");
@@ -97,8 +100,25 @@ function draw(x, y, map, players) {
   top_x = clamp(top_x, 0, max(0, imageDimensionsMap[map][0] - w - 1));
   top_y = clamp(top_y, 0, max(0, imageDimensionsMap[map][1] - h - 1));
 
+  var needFill = false;
+  if (curCanvasWidth !== w) {
+    canvas.width  = w;
+    curCanvasWidth = w;
+    needFill = true;
+  }
+
+  if (curCanvasHeight !== h) {
+    canvas.height  = h;
+    curCanvasHeight = h;
+    needFill = true;
+  }
+
   if (map !== lastMap) {
     lastMap = map;
+    needFill = true;
+  }
+
+  if (needFill) {
     ctx.fillStyle = "#00FFFF";
     ctx.fillRect(0, 0, w, h);
   }
@@ -119,8 +139,8 @@ function draw(x, y, map, players) {
   ctx.rect(
     2,
     2,
-    596,
-    396
+    w - 4,
+    h - 4
   );
   ctx.stroke();
   ctx.closePath();

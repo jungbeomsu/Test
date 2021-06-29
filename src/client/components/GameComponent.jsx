@@ -389,6 +389,7 @@ export default function GameComponent(props) {
 
   return (
     <ModContext.Provider value={modContext}>
+      <div style={{width: "100vw", height: "100vh", paddingLeft: "100px", backgroundColor: "yellow"}}>
       {/*{props.inGame ?*/}
       {/*  <RoomTitle*/}
       {/*    isPrivate={props.isPrivate}*/}
@@ -429,12 +430,16 @@ export default function GameComponent(props) {
       :
         <></>
       }
-      {videoContainer}
+      <div style={{position: "absolute", bottom: "0px", left: "0px"}}>
+        {videoContainer}
+      </div>
+
       <div className="mobileShow" style={{ width: "250px", fontSize: "18px", textAlign: "center" }}>
         We don't support mobile right now. Please visit us on desktop!
       </div>
       <canvas id="take-picture-canvas" width="90" height="50" hidden></canvas>
       <canvas id="get-picture-canvas" hidden></canvas>
+      </div>
     </ModContext.Provider>
   );
 }
