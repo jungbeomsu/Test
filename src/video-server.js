@@ -3,14 +3,14 @@ var https = require('https');
 var fs = require('fs');
 
 const server = https.createServer({
-  cert: fs.readFileSync('BLANK'),
-  key: fs.readFileSync('BLANK'),
+  cert: fs.readFileSync('./ws-fullchain.pem'),
+  key: fs.readFileSync('./ws-privkey.pem'),
 });
 
 const wss = new WebSocket.Server({ server });
 
-id_to_socket = {};
-pending_handshake = {};
+const id_to_socket = {};
+const pending_handshake = {};
 
 wss.on('connection', client => {
   console.log('connected client');
@@ -24,10 +24,10 @@ wss.on('connection', client => {
     }
   });
   client.on('message', payload => {
-    dec = JSON.parse(payload);
-    evt = dec.event;
-    data = dec.data;
-    room = dec.room;
+    const dec = JSON.parse(payload);
+    const evt = dec.event;
+    const data = dec.data;
+    const room = dec.room;
 
     if (!(room in id_to_socket)) {
       id_to_socket[room] = {};

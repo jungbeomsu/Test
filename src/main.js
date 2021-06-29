@@ -29,14 +29,7 @@ if (process.env.STAGING === "true") {
   }
 } else {
   GAME_SERVERS = {
-    "BLANK": 0,
-    "BLANK": 0,
-    "BLANK": 0,
-    "BLANK": 0,
-    "BLANK": 0,
-    "BLANK": 0,
-    "BLANK": 0,
-    "BLANK": 0,
+    "https://dev-town-game.tenuto.co.kr": 0,
   }
 }
 
@@ -120,8 +113,8 @@ server.post('/api/getGameServer', (req, res) => {
       // Doing it after so this call isn't blocked on updating the counts
       Object.keys(GAME_SERVERS).forEach(gameServer => {
         let urlSplit = gameServer.split(":");
-        axios.get("https:" + urlSplit[1] + "/serverInfo").then(jsonData => {
-          GAME_SERVERS[gameServer] = JSON.parse(jsonData)["numPlayers"];
+        axios.get("https:" + urlSplit[1] + "/serverInfo").then((jsonData) => {
+          GAME_SERVERS[gameServer] = jsonData["data"]["numPlayers"];
         })
       })
     }

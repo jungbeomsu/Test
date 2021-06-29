@@ -83,15 +83,22 @@ export default function setupGameServer(server, httpServer) {
 if (require.main === module) {
   const PORT = process.env.port || 4000;
   let credentials = {
-    cert: fs.readFileSync('BLANK'),
-    key: fs.readFileSync('BLANK'),
+    cert: fs.readFileSync('./game-fullchain.pem'),
+    key: fs.readFileSync('./game-privkey.pem'),
   };
 
   console.log("Running prod https server");
   const server = express();
   let httpsServer = https.createServer(credentials, server);
   httpsServer.listen(PORT);
-  server.use(cors());
-  server.options('*', cors())
+
+  const options = {
+    origin: 'https://dev-town-http.tenuto.co.kr', // 접근 권한을 부여하는 도메인
+    credentials: true, // 응답 헤더에 Access-Control-Allow-Credentials 추가
+    optionsSuccessStatus: 200 // 응답 상태 200으로 설정 
+  };
+
+  server.use(cors(options));
+  // server.options('*', cors());
   setupGameServer(server, httpsServer);
 }

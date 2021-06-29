@@ -238,7 +238,7 @@ export default class TownServerEngine extends ServerEngine {
           this.playerVideoMetric[socket.playerId][data.playerId].time) {
           let interactedTime = (data.time - this.playerVideoMetric[socket.playerId][data.playerId].time) / 1000;
           console.log("interacted for ", interactedTime);
-          logAmpEvent(data.userId, "Exit Video Call", { "duration_seconds": interactedTime }, data.isProd);
+          // logAmpEvent(data.userId, "Exit Video Call", { "duration_seconds": interactedTime }, data.isProd);
           delete this.playerVideoMetric[socket.playerId][data.playerId];
         }
       }
@@ -256,7 +256,7 @@ export default class TownServerEngine extends ServerEngine {
             this.playerOnVideoMetric[socket.playerId] &&
             this.playerOnVideoMetric[socket.playerId].time) {
             let interactedTime = (data.time - this.playerOnVideoMetric[socket.playerId].time) / 1000;
-            logAmpEvent(data.userId, "Exit On Video Call", { "duration_seconds": interactedTime }, data.isProd);
+            // logAmpEvent(data.userId, "Exit On Video Call", { "duration_seconds": interactedTime }, data.isProd);
             this.playerOnVideoMetric[socket.playerId] = null;
         }
       }
@@ -314,12 +314,12 @@ export default class TownServerEngine extends ServerEngine {
       let metricData = this.playerVideoMetric[playerId][otherPlayerId];
       let interactedTime = (nowTime - metricData.time) / 1000;
       // console.log("disconnect with ", otherPlayerId, "interacted for ", interactedTime);
-      logAmpEvent(metricData.userId, "Exit Video Call", { "duration_seconds": interactedTime }, metricData.isProd);
+      // logAmpEvent(metricData.userId, "Exit Video Call", { "duration_seconds": interactedTime }, metricData.isProd);
     })
     if (this.playerOnVideoMetric[playerId]) {
       let metricData = this.playerOnVideoMetric[playerId];
       let interactedTime = (nowTime - metricData.time) / 1000;
-      logAmpEvent(metricData.userId, "Exit On Video Call", { "duration_seconds": interactedTime }, metricData.isProd);
+      // logAmpEvent(metricData.userId, "Exit On Video Call", { "duration_seconds": interactedTime }, metricData.isProd);
     }
 
     let curRoom = this.playerToRoom[playerId];

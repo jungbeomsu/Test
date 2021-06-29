@@ -72,6 +72,7 @@ export default function GameCanvas (props) {
               3) You can block users by hovering your mouse over their video
             </div>
             <div onClick={() => { seenTutorial() }}>
+              [click to close]
               <i 
                 className="fas fa-times selection-icon-fas red"
                 style={{position: "absolute", top: "10px", right: "10px"}}

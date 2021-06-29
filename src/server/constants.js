@@ -1,7 +1,7 @@
 import admin from 'firebase-admin';
 
 // firebase admin stuff
-let serviceAccount = require('../../onlinetown-401f0-firebase-adminsdk-gab3z-1a7a54c2da.json');
+let serviceAccount = require('../../town-fd22d-firebase-adminsdk-4wvg4-f91896103a.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)

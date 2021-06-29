@@ -11,8 +11,8 @@ import GameScreenVideo from './GameScreenVideo.jsx';
 
 import './GameVideosContainer.css';
 
-let DEV_ENDPOINT = `BLANK`;
-let PROD_ENDPOINT = `BLANK`;
+let DEV_ENDPOINT = `wss://dev-town-ws.tenuto.co.kr:9009`;
+let PROD_ENDPOINT = `wss://dev-town-ws.tenuto.co.kr:9009`;
 
 let MAX_VIDEOS_DEFAULT = 10000;
 
@@ -184,6 +184,7 @@ export default function GameVideosContainer(props) {
 
       ws.addEventListener("message", json => {
         let data = JSON.parse(json.data);
+
         console.log("message", data);
         if (data.event === "handshake") {
           if (data.from in peers.current) {
@@ -216,14 +217,12 @@ export default function GameVideosContainer(props) {
           reconnectTimer: 100,
           iceTransportPolicy: 'relay',
           config: {
-            iceServers: [
-              { urls: 'BLANK' },
-              {
-                urls: 'BLANK',
-                username: 'user',
-                credential: 'credential',
-              }
-            ]
+            iceServers: [{
+              urls: [
+                'stun:stun.l.google.com:19302',
+                'stun:stun1.l.google.com:19302',
+              ],
+            }]
           },
           streams: streams
         })

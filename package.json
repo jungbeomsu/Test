@@ -12,6 +12,7 @@
     "dev": "webpack --config webpack.dev.js --watch",
     "start-http": "node dist-server/main.js",
     "start-game": "node dist-server/game-server.js",
+    "start-video": "node dist-server/video-server.js",
     "start-http-keepalive": "sh ./src/keep_alive.sh npm run start-http",
     "start-game-keepalive": "sh ./src/keep_alive.sh npm run start-game"
   },
