@@ -18,34 +18,51 @@ import {
   characterMap as characterMapStandalone,
 } from './maps/standalone';
 
+import {
+  imageMap as imageMapTenuto,
+  imageDimensionsMap as imageDimensionsMapTenuto,
+  collisionMap as collisionMapTenuto,
+  portalDirectionMap as portalDirectionMapTenuto,
+  audioMap as audioMapTenuto,
+  animMap as animMapTenuto,
+  characterMap as characterMapTenuto,
+} from './maps/tenuto';
+
 export const imageMap = Object.assign({},
   imageMapNYC,
   imageMapStandalone,
+  imageMapTenuto,
 );
 export const imageDimensionsMap = Object.assign({},
   imageDimensionsMapNYC,
   imageDimensionsMapStandalone,
+  imageDimensionsMapTenuto,
 );
 export const collisionMap = Object.assign({},
   collisionMapNYC,
   collisionMapStandalone,
+  collisionMapTenuto,
 );
 export const portalDirectionMap = Object.assign({},
   portalDirectionMapNYC,
   portalDirectionMapStandalone,
+  portalDirectionMapTenuto,
 );
 export const audioMap = Object.assign({},
   audioMapNYC,
   audioMapStandalone,
+  audioMapTenuto,
 );
 export const animMap = Object.assign({},
   animMapNYC,
   animMapStandalone,
+  animMapTenuto,
 );
 
 let characterMapMerge = Object.assign({},
   characterMapNYC,
   characterMapStandalone,
+  characterMapTenuto,
 );
 Object.keys(imageMap).forEach(mapId => {
   if (!(mapId in characterMapMerge)) {

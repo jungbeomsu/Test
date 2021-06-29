@@ -36,29 +36,29 @@ export default function GameCanvas (props) {
     <div style={{position: "relative"}} className="game-container">
       {linkContainer}
       <canvas id="canvas" width="600" height="400"></canvas>
-      { 
-        props.inGame ?
-          <>
-            <GameChat
-              sendChatMessage={props.sendChatMessage}
-              chatMessages={props.chatMessages}
-              playerInfoMap={props.playerInfoMap}
-              hasLinks={props.hasLinks}
-            />
-            <GameNamesContainer
-              playerInfoMap={props.playerInfoMap}
-              playerVideoMap={props.playerVideoMap}
-              profPics={props.profPics}
-            />
-            <GameChangeCharacter
-              setCharacterId={props.setCharacterId}
-              characterId={props.characterId}
-              currentMap={props.currentMap}
-            />
-          </>
-        :
-          null
-      }
+      {/*{ */}
+      {/*  props.inGame ?*/}
+      {/*    <>*/}
+      {/*      <GameChat*/}
+      {/*        sendChatMessage={props.sendChatMessage}*/}
+      {/*        chatMessages={props.chatMessages}*/}
+      {/*        playerInfoMap={props.playerInfoMap}*/}
+      {/*        hasLinks={props.hasLinks}*/}
+      {/*      />*/}
+      {/*      <GameNamesContainer*/}
+      {/*        playerInfoMap={props.playerInfoMap}*/}
+      {/*        playerVideoMap={props.playerVideoMap}*/}
+      {/*        profPics={props.profPics}*/}
+      {/*      />*/}
+      {/*      <GameChangeCharacter*/}
+      {/*        setCharacterId={props.setCharacterId}*/}
+      {/*        characterId={props.characterId}*/}
+      {/*        currentMap={props.currentMap}*/}
+      {/*      />*/}
+      {/*    </>*/}
+      {/*  :*/}
+      {/*    null*/}
+      {/*}*/}
       {Object.keys(props.playerInfoMap).map(key =>
         <div key={key} className="map-name-container" id={"map-name-container-"+key}></div>
       )}
@@ -73,7 +73,7 @@ export default function GameCanvas (props) {
             </div>
             <div onClick={() => { seenTutorial() }}>
               [click to close]
-              <i 
+              <i
                 className="fas fa-times selection-icon-fas red"
                 style={{position: "absolute", top: "10px", right: "10px"}}
               ></i>

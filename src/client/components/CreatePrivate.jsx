@@ -10,6 +10,7 @@ import './CreatePrivate.css';
 
 const Logo = '/images/site/logo.png';
 const Return = '/images/site/return.png';
+const PreviewTenutoOffice = '/images/maps/preview/preview-apartment.png';
 const PreviewApartment = '/images/maps/preview/preview-apartment.png';
 const PreviewConference = '/images/maps/preview/preview-conference.png';
 const PreviewOffice = '/images/maps/preview/preview-office.png';
@@ -97,7 +98,7 @@ const CreatePrivateForm = () => {
   let canSubmit = map !== 0 && name !== "";
 
   let createRoomDescription = (
-    <div style={{ marginTop: "40px", marginBottom: "10px", maxWidth: "424px", lineHeight: "24px" }}>
+    <div style={{ marginTop: "40px", marginBottom: "10px", lineHeight: "24px" }}>
       <div style={{textAlign: "center"}}>
         <h2>Create your own room</h2>
       </div>
@@ -106,7 +107,7 @@ const CreatePrivateForm = () => {
   );
 
   let addRoomName = (
-    <div style={{ marginTop: "0px", marginBottom: "20px", maxWidth: "424px", lineHeight: "24px" }}>
+    <div style={{ marginTop: "0px", marginBottom: "20px", lineHeight: "24px" }}>
       <div
         style={{ position: "relative" }}
         className={classNames({ "space-container": true, "green": name !== "" })}
@@ -139,7 +140,7 @@ const CreatePrivateForm = () => {
   let customMaps_ = customMaps();
 
   let addEnvironment = (
-    <div style={{ marginTop: "20px", maxWidth: "424px", lineHeight: "24px" }}>
+    <div style={{ marginTop: "20px", lineHeight: "24px"}}>
       <div
         style={{ position: "relative" }}
         className={classNames({ "space-container": true, "green": map !== 0 })}
@@ -152,25 +153,25 @@ const CreatePrivateForm = () => {
         <h3>2) Environment</h3>
       </div>
       <p>Select a room type:</p>
-      <div className="preview-buttons space-container vertical-center-container">
+      <div className="preview-buttons space-container vertical-center-container" style={{alignItems: "flex-start"}}>
         <div className="horizontal-container" style={{ marginBottom: "30px" }}>
+          {mapSelect("테누토 사무실", PreviewTenutoOffice, 301)}
+        </div>
+        <div className="horizontal-container" style={{ marginBottom: "10px" }}>
           {mapSelect("Apartment", PreviewApartment, 110)}
           {mapSelect("Ocean Beach", PreviewGolden, 215)}
           {mapSelect("Black Chairs", PreviewBlackChairs, 140)}
-          
-        </div>
-        <div className="horizontal-container" style={{ marginBottom: "10px" }}>
           {mapSelect("Office", PreviewOffice, 120)}
           {mapSelect("Conference", PreviewConference, 130)}
           {mapSelect("Times Square", PreviewTimesSquare, 160)}
         </div>
         {customMaps_}
       </div>
-    </div>   
+    </div>
   );
 
   let addPassword = (
-    <div style={{ marginTop: "30px", marginBottom: "20px", maxWidth: "424px", lineHeight: "24px" }}>
+    <div style={{ marginTop: "30px", marginBottom: "20px", lineHeight: "24px" }}>
       <div
         style={{ position: "relative" }}
         className={classNames({ "space-container": true, "green": password !== "" })}
@@ -197,11 +198,11 @@ const CreatePrivateForm = () => {
           >
           </input>
         </div>
-    </div>  
+    </div>
   );
 
   let addModeratorPassword = (
-    <div style={{ marginTop: "20px", marginBottom: "20px", maxWidth: "424px", lineHeight: "24px" }}>
+    <div style={{ marginTop: "20px", marginBottom: "20px", lineHeight: "24px" }}>
       <div
         style={{ position: "relative" }}
         className={classNames({ "space-container": true, "green": modPassword !== "" })}
@@ -228,7 +229,7 @@ const CreatePrivateForm = () => {
         >
         </input>
       </div>
-    </div>   
+    </div>
   );
 
   let createButton = (
@@ -254,12 +255,12 @@ const CreatePrivateForm = () => {
   );
 
   return (
-    <div className="vertical-center-container create-private">
+    <div className="vertical-center-container create-private" style={{alignItems: "flex-start"}}>
       {createRoomDescription}
       {addRoomName}
       {addEnvironment}
-      {addPassword}
-      {addModeratorPassword}
+      {/*{addPassword}*/}
+      {/*{addModeratorPassword}*/}
       {createButton}
     </div>
   );
@@ -268,9 +269,9 @@ const CreatePrivateForm = () => {
 export default function CreatePrivate() {
   return (
     <div className="vertical-center-container">
-      <GameHeader 
-        showCreateNewRoom={false}
-      />
+      {/*<GameHeader*/}
+      {/*  showCreateNewRoom={false}*/}
+      {/*/>*/}
       <CreatePrivateForm />
     </div>
   );

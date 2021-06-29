@@ -150,14 +150,14 @@ export default function PrivateRoom() {
       {doneWithIntro ?
         ((hasPassword && !password && !hasAccess) ?
           <div>
-            <GameHeader />
+            {/*<GameHeader />*/}
             <PasswordPrompt
               gotPassword={(password) => startGame(password)}
             />
           </div>
           :
           <div>
-            {hasAlternateLayout ? 
+            {hasAlternateLayout ?
               <AltGameComponent
                 inGame={true}
                 isPrivate={true}
@@ -166,11 +166,11 @@ export default function PrivateRoom() {
               />
               :
               <div>
-                {showHeader ? 
-                  <GameHeader />
-                  :
-                  <div> </div>
-                }
+                {/*{showHeader ?*/}
+                {/*  <GameHeader />*/}
+                {/*  :*/}
+                {/*  <div> </div>*/}
+                {/*}*/}
                 <GameComponent
                   inGame={true}
                   isPrivate={true}
@@ -194,7 +194,7 @@ export default function PrivateRoom() {
         )
         :
         <div>
-          <GameHeader />
+          {/*<GameHeader />*/}
           <EnterPrivateIntro
             onYes={() => { setDoneWithIntro(true) }}
             onNo={() => { window.location.href = "/" }}

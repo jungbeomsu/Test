@@ -294,7 +294,7 @@ export default function GameComponent(props) {
       setModResult({failure: true});
     })
   }
-  
+
   function setRoomClosedServer(closed) {
     axios.post(gameServerAPIURL() + 'setRoomClosed', {
       room: getRoomFromPath(),
@@ -306,7 +306,7 @@ export default function GameComponent(props) {
       setModResult({failure: true});
     })
   }
-  
+
   function changeModPassword(newPassword) {
     axios.post(gameServerAPIURL() + 'changeModPassword', {
       room: getRoomFromPath(),
@@ -389,14 +389,14 @@ export default function GameComponent(props) {
 
   return (
     <ModContext.Provider value={modContext}>
-      {props.inGame ? 
-        <RoomTitle
-          isPrivate={props.isPrivate}
-          closed={roomClosed}
-          playerInfoMap={playerInfoMap}
-          modMessage={modMessage}
-        />
-      : null}
+      {/*{props.inGame ?*/}
+      {/*  <RoomTitle*/}
+      {/*    isPrivate={props.isPrivate}*/}
+      {/*    closed={roomClosed}*/}
+      {/*    playerInfoMap={playerInfoMap}*/}
+      {/*    modMessage={modMessage}*/}
+      {/*  />*/}
+      {/*: null}*/}
       {roomClosed ?
         <div className="ot-gamecomponent-closed-message"><div>This room is currently closed. Come back later!</div></div>
         :

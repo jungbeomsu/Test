@@ -99,7 +99,7 @@ function draw(x, y, map, players) {
 
   if (map !== lastMap) {
     lastMap = map;
-    ctx.fillStyle = "#FFFFFF";
+    ctx.fillStyle = "#00FFFF";
     ctx.fillRect(0, 0, w, h);
   }
 
