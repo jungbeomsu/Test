@@ -5,7 +5,7 @@ import { isBlocked } from '../common/utils';
 import { imageMap, imageDimensionsMap, collisionMap, characterMap } from '../common/maps';
 import { characterIds } from './constants';
 
-export var objectSizes = 20 * 2;
+export var objectSizes = 64;
 
 var lastMap;
 var terrainImages = {};
@@ -22,16 +22,28 @@ var mouseCoorY = 0;
 
 var showNames = false;
 
+// var directionCoors = [
+//   { x: 0, y: 0 },
+//   { x: 17, y: 0 },
+//   { x: 34, y: 0 },
+//   { x: 125, y: 0 },
+//   { x: 143, y: 0 },
+//   { x: 51, y: 0 },
+//   { x: 69, y: 0 },
+//   { x: 160, y: 0 },
+//   { x: 178, y: 0 },
+// ];
+
 var directionCoors = [
   { x: 0, y: 0 },
-  { x: 17, y: 0 },
-  { x: 34, y: 0 },
-  { x: 125, y: 0 },
-  { x: 143, y: 0 },
-  { x: 51, y: 0 },
-  { x: 69, y: 0 },
-  { x: 160, y: 0 },
-  { x: 178, y: 0 },
+  { x: objectSizes, y: 0 },
+  { x: objectSizes * 2, y: 0 },
+  { x: objectSizes * 7, y: 0 },
+  { x: objectSizes * 8, y: 0 },
+  { x: objectSizes * 3, y: 0 },
+  { x: objectSizes * 4, y: 0 },
+  { x: objectSizes * 9, y: 0 },
+  { x: objectSizes * 10, y: 0 },
 ];
 
 var curCanvasWidth = 0;
@@ -173,7 +185,7 @@ function draw(x, y, map, players) {
     if (drawX >= 0 && drawX < w && drawY >= 0 && drawY < h) {
       ctx.drawImage(
         playerImages[player.characterId],
-        direction.x * 2,
+        direction.x,
         direction.y,
         objectSizes - 2,
         objectSizes,

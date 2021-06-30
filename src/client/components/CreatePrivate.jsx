@@ -10,7 +10,7 @@ import './CreatePrivate.css';
 
 const Logo = '/images/site/logo.png';
 const Return = '/images/site/return.png';
-const PreviewTenutoOffice = '/images/maps/preview/preview-apartment.png';
+const PreviewTenutoOffice = '/images/maps/preview/preview-tenuto.png';
 const PreviewApartment = '/images/maps/preview/preview-apartment.png';
 const PreviewConference = '/images/maps/preview/preview-conference.png';
 const PreviewOffice = '/images/maps/preview/preview-office.png';
