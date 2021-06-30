@@ -22,6 +22,8 @@ var mouseCoorY = 0;
 
 var showNames = false;
 
+var playersCurMap = {}
+
 // var directionCoors = [
 //   { x: 0, y: 0 },
 //   { x: 17, y: 0 },
@@ -178,9 +180,9 @@ function draw(x, y, map, players) {
   }
   players.forEach(player => {
     let direction = directionCoors[player.currentDirection];
-
-    let drawX = player.position.x * objectSizes - top_x;
-    let drawY = player.position.y * objectSizes - top_y;
+    let playerCur = playersCurMap[player.playerId];
+    let drawX = playerCur.x * objectSizes - top_x;
+    let drawY = playerCur.y * objectSizes - top_y;
 
     if (drawX >= 0 && drawX < w && drawY >= 0 && drawY < h) {
       ctx.drawImage(
@@ -240,10 +242,10 @@ function draw(x, y, map, players) {
     }
   });
 
-  let blockedText = document.getElementById("blocked-text");
-  if (blockedText) {
-    blockedText.hidden = !isBlocked(x, y, players, collisionMap[map]);
-  }
+  // let blockedText = document.getElementById("blocked-text");
+  // if (blockedText) {
+  //   blockedText.hidden = !isBlocked(x, y, players, collisionMap[map]);
+  // }
 }
 
 export function setShowNames(newShowNames) {
@@ -262,14 +264,59 @@ export function update(myPlayer, players) {
   if (!myPlayer) {
     return;
   }
+  let myCurX;
+  let myCurY;
   players.forEach(player => {
     let name = "";
     if (playerMap && player.playerId in playerMap && "name" in playerMap[player.playerId]) {
       name = playerMap[player.playerId]["name"];
     }
     playersNameMap[player.playerId] = name;
+
+    let playerCur = playersCurMap[player.playerId];
+    if (!playerCur) {
+      //init
+      playersCurMap[player.playerId] = {x: player.position.x, y: player.position.y, remainX: 0, remainY: 0}
+      playerCur = playersCurMap[player.playerId];
+    } else {
+
+      let distX = player.position.x - playerCur.x;
+      let distY = player.position.y - playerCur.y;
+
+      if (distX !== 0 && playerCur.remainY === 0) {
+        let newCurX;
+        if (distX > 0) {
+          newCurX = playerCur.x + 0.1;
+        } else {
+          newCurX = playerCur.x - 0.1;
+        }
+        playerCur.x = Math.round(newCurX * 10) / 10;
+        playerCur.remainX = player.position.x - playerCur.x;
+      } else if (distY !== 0 && playerCur.remainX === 0) {
+        let newCurY;
+        if (distY > 0) {
+          newCurY = playerCur.y + 0.1;
+        } else {
+          newCurY = playerCur.y - 0.1;
+        }
+        playerCur.y = Math.round(newCurY * 10) / 10;
+        playerCur.remainY = player.position.y - playerCur.y;
+      } else {
+        // console.log("update", distX, distY, playerCur.remainX, playerCur.remainY);
+      }
+    }
+
+    // console.log("playerCur", playerCur);
+
+    if (myPlayer.playerId === player.playerId) {
+      myCurX = playerCur.x;
+      myCurY = playerCur.y;
+    }
+    // console.log(player.prevX, player.position.x, playersCurMap[player.playerId].curX, player.prevY, player.position.y, playersCurMap[player.playerId].curY);
   })
-  draw(myPlayer.position.x, myPlayer.position.y, myPlayer.currentMap, players);
+
+  // console.log("update", myCurX, myPlayer.position.x, myCurY, myPlayer.position.y);
+  draw(myCurX, myCurY, myPlayer.currentMap, players);
 }
 
 export function publicUpdate(players) {

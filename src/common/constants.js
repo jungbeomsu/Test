@@ -12,7 +12,7 @@ export var directionMap = {
 
 export var SPEED = 100;
 export var MODIFIER = 100;
-export var STEP_INTERVAL = 10;
+export var STEP_INTERVAL = 11;
 export var TELEPORT_INTERVAL = 50;
 
 export var VIDEO_THRESHOLD = 12;
