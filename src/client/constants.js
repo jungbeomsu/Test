@@ -68,7 +68,8 @@ export var characterIds = {
   100: "/images/characters/player_bike_0.png",
   101: "/images/characters/player_bike_6.png",
   102: "/images/characters/player_bike_7.png",
-  164: "/images/characters/james.png"
+  164: "/images/characters/james.png",
+  201: "/images/characters/player_0_2x.png"
 }
 
 

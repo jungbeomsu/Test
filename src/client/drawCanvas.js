@@ -5,7 +5,7 @@ import { isBlocked } from '../common/utils';
 import { imageMap, imageDimensionsMap, collisionMap, characterMap } from '../common/maps';
 import { characterIds } from './constants';
 
-export var objectSizes = 20;
+export var objectSizes = 20 * 2;
 
 var lastMap;
 var terrainImages = {};
@@ -173,7 +173,7 @@ function draw(x, y, map, players) {
     if (drawX >= 0 && drawX < w && drawY >= 0 && drawY < h) {
       ctx.drawImage(
         playerImages[player.characterId],
-        direction.x,
+        direction.x * 2,
         direction.y,
         objectSizes - 2,
         objectSizes,
@@ -183,16 +183,16 @@ function draw(x, y, map, players) {
         objectSizes
       );
 
-      ctx.beginPath();
-      ctx.lineWidth = "2";
-      ctx.strokeStyle = colors[player.playerId % colors.length];
-      ctx.rect(
-        drawX,
-        drawY,
-        objectSizes,
-        objectSizes
-      );
-      ctx.stroke();
+      // ctx.beginPath();
+      // ctx.lineWidth = "2";
+      // ctx.strokeStyle = colors[player.playerId % colors.length];
+      // ctx.rect(
+      //   drawX,
+      //   drawY,
+      //   objectSizes,
+      //   objectSizes
+      // );
+      // ctx.stroke();
 
       let mapNameContainer = document.getElementById("map-name-container-" + player.playerId)
       let mousedOver =

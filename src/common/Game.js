@@ -86,9 +86,9 @@ export default class Game extends GameEngine {
       switch(inputData.input) {
         case "left":
           newX = player.position.x - SPEED / MODIFIER;
-          if(player.currentDirection == directionMap["left-1"]) {
+          if(player.currentDirection === directionMap["left-1"]) {
             player.currentDirection = directionMap["left-2"];
-          } else if(player.currentDirection == directionMap["left-2"]) {
+          } else if(player.currentDirection === directionMap["left-2"]) {
             player.currentDirection = directionMap["left-1"];
           } else {
             player.currentDirection = directionMap["left-1"];
@@ -96,9 +96,9 @@ export default class Game extends GameEngine {
           break;
         case "right":
           newX = player.position.x + SPEED / MODIFIER;
-          if(player.currentDirection == directionMap["right-1"]) {
+          if(player.currentDirection === directionMap["right-1"]) {
             player.currentDirection = directionMap["right-2"];
-          } else if(player.currentDirection == directionMap["right-2"]) {
+          } else if(player.currentDirection === directionMap["right-2"]) {
             player.currentDirection = directionMap["right-1"];
           } else {
             player.currentDirection = directionMap["right-1"];
@@ -106,9 +106,9 @@ export default class Game extends GameEngine {
           break;
         case "up":
           newY = player.position.y - SPEED / MODIFIER;
-          if(player.currentDirection == directionMap["up-1"]) {
+          if(player.currentDirection === directionMap["up-1"]) {
             player.currentDirection = directionMap["up-2"];
-          } else if(player.currentDirection == directionMap["up-2"]) {
+          } else if(player.currentDirection === directionMap["up-2"]) {
             player.currentDirection = directionMap["up-1"];
           } else {
             player.currentDirection = directionMap["up-1"];
@@ -117,9 +117,9 @@ export default class Game extends GameEngine {
           break;
         case "down":
           newY = player.position.y + SPEED / MODIFIER;
-          if(player.currentDirection == directionMap["down-1"]) {
+          if(player.currentDirection === directionMap["down-1"]) {
             player.currentDirection = directionMap["down-2"];
-          } else if(player.currentDirection == directionMap["down-2"]) {
+          } else if(player.currentDirection === directionMap["down-2"]) {
             player.currentDirection = directionMap["down-1"];
           } else {
             player.currentDirection = directionMap["down-1"];

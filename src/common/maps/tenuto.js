@@ -1,9 +1,9 @@
 export var imageMap = {
-  301: '/images/maps/standalone/apartment.png',
+  301: '/images/maps/standalone/apartment_2x.png',
 }
 
 export var imageDimensionsMap = {
-  301: [360, 280]
+  301: [720, 560]
 };
 
 export var collisionMap = {
@@ -51,4 +51,5 @@ export var animMap = {
 }
 
 export var characterMap = {
+  301: [201],
 }
