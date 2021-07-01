@@ -197,16 +197,16 @@ function draw(x, y, map, players) {
         objectSizes
       );
 
-      // ctx.beginPath();
-      // ctx.lineWidth = "2";
-      // ctx.strokeStyle = colors[player.playerId % colors.length];
-      // ctx.rect(
-      //   drawX,
-      //   drawY,
-      //   objectSizes,
-      //   objectSizes
-      // );
-      // ctx.stroke();
+      ctx.beginPath();
+      ctx.lineWidth = "2";
+      ctx.strokeStyle = colors[player.playerId % colors.length];
+      ctx.rect(
+        drawX,
+        drawY,
+        objectSizes,
+        objectSizes
+      );
+      ctx.stroke();
 
       let mapNameContainer = document.getElementById("map-name-container-" + player.playerId)
       let mousedOver =
@@ -260,6 +260,21 @@ export function updatePlayerMap(newPlayerMap) {
   playerMap = newPlayerMap;
 }
 
+function getStep(cur, dest) {
+  let dist = dest - cur;
+  let distAbs = Math.abs(dist);
+  let step = 0.12
+  if (distAbs <= step) {
+    return dist
+  } else {
+    if (dist > 0) {
+      return step;
+    } else {
+      return -step;
+    }
+  }
+}
+
 export function update(myPlayer, players) {
   if (!myPlayer) {
     return;
@@ -280,39 +295,14 @@ export function update(myPlayer, players) {
       playerCur = playersCurMap[player.playerId];
     } else {
 
-      let distX = player.position.x - playerCur.x;
-      let distY = player.position.y - playerCur.y;
-
-      if (distX !== 0 && playerCur.remainY === 0) {
-        let newCurX;
-        if (distX > 0) {
-          newCurX = playerCur.x + 0.1;
-        } else {
-          newCurX = playerCur.x - 0.1;
-        }
-        playerCur.x = Math.round(newCurX * 10) / 10;
-        playerCur.remainX = player.position.x - playerCur.x;
-      } else if (distY !== 0 && playerCur.remainX === 0) {
-        let newCurY;
-        if (distY > 0) {
-          newCurY = playerCur.y + 0.1;
-        } else {
-          newCurY = playerCur.y - 0.1;
-        }
-        playerCur.y = Math.round(newCurY * 10) / 10;
-        playerCur.remainY = player.position.y - playerCur.y;
-      } else {
-        // console.log("update", distX, distY, playerCur.remainX, playerCur.remainY);
-      }
+      playerCur.x += getStep(playerCur.x, player.position.x);
+      playerCur.y += getStep(playerCur.y, player.position.y);
     }
-
-    // console.log("playerCur", playerCur);
 
     if (myPlayer.playerId === player.playerId) {
       myCurX = playerCur.x;
       myCurY = playerCur.y;
     }
-    // console.log(player.prevX, player.position.x, playersCurMap[player.playerId].curX, player.prevY, player.position.y, playersCurMap[player.playerId].curY);
   })
 
   // console.log("update", myCurX, myPlayer.position.x, myCurY, myPlayer.position.y);
