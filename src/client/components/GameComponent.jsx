@@ -430,7 +430,7 @@ export default function GameComponent(props) {
       :
         <></>
       }
-      <div style={{position: "absolute", bottom: "0px", left: "0px"}}>
+      <div style={{position: "absolute", bottom: "100px", left: "150px"}}>
         {videoContainer}
       </div>
 

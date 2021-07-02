@@ -3,7 +3,7 @@
   grid-template-columns: repeat(3, 1fr);
   position: absolute;
   left: -100;
-  top: 30;
+  bottom: 130;
   background-color: #c7c7c7;
 }
 

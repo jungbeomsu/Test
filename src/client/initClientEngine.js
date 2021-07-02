@@ -12,7 +12,7 @@ export default async function initClientEngine() {
     traceLevel: Lib.Trace.TRACE_NONE,
     scheduler: 'fixed',
     syncOptions: {
-      sync: qsOptions.sync || 'extrapolate',
+      sync: qsOptions.sync || 'interpolate',
       localObjBending: 0,
       remoteObjBending: 0,
       bendingIncrements: 12,

@@ -20,7 +20,7 @@ let playersNameMap = {};
 var mouseCoorX = 0;
 var mouseCoorY = 0;
 
-var showNames = false;
+var showNames = true;
 
 // var directionCoors = [
 //   { x: 0, y: 0 },

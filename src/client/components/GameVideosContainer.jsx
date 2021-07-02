@@ -424,33 +424,33 @@ export default function GameVideosContainer(props) {
       <div id="videos" className="videos-container mobileHide">
         {isError ? errorComponent : videoComponents}
       </div>
-      <div className="videos-max-connections mobileHide">
-        { props.hasScreenshare ?
-          (isScreensharing ? 
-            <p><button onClick={() => stopScreenshare()}>stop screenshare</button></p>
-          : 
-            <p><button onClick={() => startScreenshare()}>screenshare</button></p>
-          )
-        :
-        <></>
-        }
-        <p style={{width: "100%"}}>{"Max connections: "}
-          <select value={maxVideos} onChange={(e) => setMaxVideos(e.target.value)}>
-            <option value={1}>1</option>
-            <option value={2}>2</option>
-            <option value={4}>4</option>
-            <option value={8}>8</option>
-            <option value={16}>16</option>
-            <option value={32}>32</option>
-            <option value={10000}>no limit</option>
-          </select>
-        </p>
-        {maxVideos < otherVideoComponents.length ?
-          message1
-          :
-          message2
-        }
-      </div>
+      {/*<div className="videos-max-connections mobileHide">*/}
+      {/*  { props.hasScreenshare ?*/}
+      {/*    (isScreensharing ?*/}
+      {/*      <p><button onClick={() => stopScreenshare()}>stop screenshare</button></p>*/}
+      {/*    :*/}
+      {/*      <p><button onClick={() => startScreenshare()}>screenshare</button></p>*/}
+      {/*    )*/}
+      {/*  :*/}
+      {/*  <></>*/}
+      {/*  }*/}
+      {/*  <p style={{width: "100%"}}>{"Max connections: "}*/}
+      {/*    <select value={maxVideos} onChange={(e) => setMaxVideos(e.target.value)}>*/}
+      {/*      <option value={1}>1</option>*/}
+      {/*      <option value={2}>2</option>*/}
+      {/*      <option value={4}>4</option>*/}
+      {/*      <option value={8}>8</option>*/}
+      {/*      <option value={16}>16</option>*/}
+      {/*      <option value={32}>32</option>*/}
+      {/*      <option value={10000}>no limit</option>*/}
+      {/*    </select>*/}
+      {/*  </p>*/}
+      {/*  {maxVideos < otherVideoComponents.length ?*/}
+      {/*    message1*/}
+      {/*    :*/}
+      {/*    message2*/}
+      {/*  }*/}
+      {/*</div>*/}
     </>
   );
 }
