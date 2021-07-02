@@ -252,7 +252,9 @@ export default class TownClientEngine extends ClientEngine {
 
   getAnnouncerPlayer(players) {
     for (let i = 0; i < players.length; i++) {
-      if (collisionMap[players[i].currentMap][players[i].position.y][players[i].position.x] === 2) {
+      let x = Math.round(players[i].position.x);
+      let y = Math.round(players[i].position.y);
+      if (collisionMap[players[i].currentMap][y][x] === 2) {
         return players[i].playerId;
       }
     }

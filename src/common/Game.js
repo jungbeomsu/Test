@@ -143,6 +143,7 @@ export default class Game extends GameEngine {
         player.position.x = newX;
         player.position.y = newY;
       }
+      console.log("-Game.js", player.position.x, player.position.y)
 
       let endingVal = collisionMap[player.currentMap][player.position.y][player.position.x]
       // Check if portal
