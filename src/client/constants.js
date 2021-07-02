@@ -69,7 +69,17 @@ export var characterIds = {
   101: "/images/characters/player_bike_6.png",
   102: "/images/characters/player_bike_7.png",
   164: "/images/characters/james.png",
-  201: "/images/characters/player_0_64.png"
+  201: "/images/characters/player_0_64.png",
+  211: "/images/characters/gather/1.png",
+  212: "/images/characters/gather/2.png",
+  213: "/images/characters/gather/3.png",
+  214: "/images/characters/gather/4.png",
+  215: "/images/characters/gather/5.png",
+  216: "/images/characters/gather/6.png",
+  217: "/images/characters/gather/7.png",
+  218: "/images/characters/gather/8.png",
+  219: "/images/characters/gather/9.png",
+
 }
 
 

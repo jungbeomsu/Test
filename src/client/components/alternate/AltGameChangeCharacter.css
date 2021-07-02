@@ -1,4 +1,4 @@
-#change-character {
+#change-character1 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   position: absolute;
@@ -6,7 +6,7 @@
   bottom: -110;
 }
 
-#change-character img {
+#change-character1 img {
   object-fit: cover;
   object-position: 0 0;
   width: 20px;
@@ -14,6 +14,6 @@
   margin: 2px 0;
 }
 
-#change-character .not-selected {
+#change-character1 .not-selected {
   opacity: 0.5;
 }

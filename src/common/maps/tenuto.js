@@ -74,5 +74,5 @@ export var animMap = {
 }
 
 export var characterMap = {
-  301: [201],
+  301: [211, 212, 213, 214, 215, 216, 217, 218, 219],
 }

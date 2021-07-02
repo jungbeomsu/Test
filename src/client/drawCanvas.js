@@ -42,8 +42,8 @@ var directionCoors = [
   { x: objectSizes * 8, y: 0 },
   { x: objectSizes * 3, y: 0 },
   { x: objectSizes * 4, y: 0 },
-  { x: objectSizes * 9, y: 0 },
   { x: objectSizes * 10, y: 0 },
+  { x: objectSizes * 11, y: 0 },
 ];
 
 var curCanvasWidth = 0;
@@ -131,7 +131,7 @@ function draw(x, y, map, players) {
   }
 
   if (needFill) {
-    ctx.fillStyle = "#00FFFF";
+    ctx.fillStyle = "#000020";
     ctx.fillRect(0, 0, w, h);
   }
 
@@ -159,7 +159,7 @@ function draw(x, y, map, players) {
 
   updateAnim(map, ctx, top_x, top_y, objectSizes);
 
-  if (!(map in playerImages)) {
+  if (Object.keys(playerImages).length === 0) {
     if (map in characterMap) {
       characterMap[map].forEach(characterId => {
         playerImages[characterId] = new Image();
@@ -194,16 +194,16 @@ function draw(x, y, map, players) {
         objectSizes
       );
 
-      ctx.beginPath();
-      ctx.lineWidth = "2";
-      ctx.strokeStyle = colors[player.playerId % colors.length];
-      ctx.rect(
-        drawX,
-        drawY,
-        objectSizes,
-        objectSizes
-      );
-      ctx.stroke();
+      // ctx.beginPath();
+      // ctx.lineWidth = "2";
+      // ctx.strokeStyle = colors[player.playerId % colors.length];
+      // ctx.rect(
+      //   drawX,
+      //   drawY,
+      //   objectSizes,
+      //   objectSizes
+      // );
+      // ctx.stroke();
 
       let mapNameContainer = document.getElementById("map-name-container-" + player.playerId)
       let mousedOver =
@@ -270,7 +270,7 @@ export function update(myPlayer, players) {
     playersNameMap[player.playerId] = name;
   })
 
-  console.log("update->draw", myPlayer.position.x, myPlayer.position.y);
+  // console.log("update->draw", myPlayer.position.x, myPlayer.position.y);
   draw(myPlayer.position.x, myPlayer.position.y, myPlayer.currentMap, players);
 }
 

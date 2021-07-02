@@ -36,29 +36,29 @@ export default function GameCanvas (props) {
     <div style={{position: "relative"}} className="game-container">
       {linkContainer}
       <canvas id="canvas" style={{width: "100%", height: "100%"}} />
-      {/*{ */}
-      {/*  props.inGame ?*/}
-      {/*    <>*/}
-      {/*      <GameChat*/}
-      {/*        sendChatMessage={props.sendChatMessage}*/}
-      {/*        chatMessages={props.chatMessages}*/}
-      {/*        playerInfoMap={props.playerInfoMap}*/}
-      {/*        hasLinks={props.hasLinks}*/}
-      {/*      />*/}
-      {/*      <GameNamesContainer*/}
-      {/*        playerInfoMap={props.playerInfoMap}*/}
-      {/*        playerVideoMap={props.playerVideoMap}*/}
-      {/*        profPics={props.profPics}*/}
-      {/*      />*/}
-      {/*      <GameChangeCharacter*/}
-      {/*        setCharacterId={props.setCharacterId}*/}
-      {/*        characterId={props.characterId}*/}
-      {/*        currentMap={props.currentMap}*/}
-      {/*      />*/}
-      {/*    </>*/}
-      {/*  :*/}
-      {/*    null*/}
-      {/*}*/}
+      {
+        props.inGame ?
+          <>
+            {/*<GameChat*/}
+            {/*  sendChatMessage={props.sendChatMessage}*/}
+            {/*  chatMessages={props.chatMessages}*/}
+            {/*  playerInfoMap={props.playerInfoMap}*/}
+            {/*  hasLinks={props.hasLinks}*/}
+            {/*/>*/}
+            {/*<GameNamesContainer*/}
+            {/*  playerInfoMap={props.playerInfoMap}*/}
+            {/*  playerVideoMap={props.playerVideoMap}*/}
+            {/*  profPics={props.profPics}*/}
+            {/*/>*/}
+            <GameChangeCharacter
+              setCharacterId={props.setCharacterId}
+              characterId={props.characterId}
+              currentMap={props.currentMap}
+            />
+          </>
+        :
+          null
+      }
       {Object.keys(props.playerInfoMap).map(key =>
         <div key={key} className="map-name-container" id={"map-name-container-"+key}></div>
       )}
