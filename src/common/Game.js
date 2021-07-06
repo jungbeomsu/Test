@@ -31,6 +31,7 @@ export default class Game extends GameEngine {
     this.videosInitialized = false;
     this.lastSteps = {};
     this.lastTeleport = 0;
+    this.localDir = undefined;
   }
 
   filterPlayerFunc(myPlayerId) {
@@ -80,6 +81,7 @@ export default class Game extends GameEngine {
           let targetX = Math.round(players[i].position.x);
           let targetY = Math.round(players[i].position.y)
 
+          // console.log("validMove", x, y, players[i].playerId, targetX, targetY);
           if (x === targetX && y === targetY) {
             return false;
           }
@@ -112,6 +114,7 @@ export default class Game extends GameEngine {
             player.currentDirection = directionMap["left-1"];
             console.log(Date.now(), "left1");
           }
+          this.localDir = player.currentDirection;
           break;
         case "right":
           newX = player.position.x + SPEED / MODIFIER;
@@ -125,6 +128,7 @@ export default class Game extends GameEngine {
             player.currentDirection = directionMap["right-1"];
             console.log(Date.now(), "right1");
           }
+          this.localDir = player.currentDirection;
           break;
         case "up":
           newY = player.position.y - SPEED / MODIFIER;
@@ -138,7 +142,7 @@ export default class Game extends GameEngine {
             player.currentDirection = directionMap["up-1"];
             console.log(Date.now(), "up1");
           }
-
+          this.localDir = player.currentDirection;
           break;
         case "down":
           newY = player.position.y + SPEED / MODIFIER;
@@ -150,10 +154,9 @@ export default class Game extends GameEngine {
             console.log(Date.now(), "down2 -> down1");
           } else {
             player.currentDirection = directionMap["down-1"];
-            player.currentDirection = directionMap["down-1"];
             console.log(Date.now(), "down1");
           }
-
+          this.localDir = player.currentDirection;
           break;
         case "space":
           if (isBlocked(player.position.x, player.position.y, players, collisionMap[player.currentMap])) {

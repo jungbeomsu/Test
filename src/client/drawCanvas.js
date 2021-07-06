@@ -4,6 +4,7 @@ import { updateAnim } from './environmentAnimation';
 import { isBlocked } from '../common/utils';
 import { imageMap, imageDimensionsMap, collisionMap, characterMap } from '../common/maps';
 import { characterIds } from './constants';
+import {directionMap} from "../common/constants";
 
 export var objectSizes = 64;
 
@@ -185,20 +186,21 @@ function draw(x, y, map, myPlayer, players) {
     mapNameContainer.hidden = true;
   }
   players.forEach(player => {
-    let direction = directionCoors[player.currentDirection];
-
+    let direction;
     let drawX;
     let drawY;
     if (myPlayer.playerId === player.playerId) {
+      direction = directionCoors[myPlayer.localDir];
       drawX = x * objectSizes - top_x;
       drawY = y * objectSizes - top_y;
 
       let now = Date.now();
       let diff = now - prevtime;
-      console.log(diff, player.currentDirection, x, y);
+      // console.log("drawCanvas", diff, myPlayer.localDir, x, y);
       prevtime = now;
 
     } else {
+      direction = directionCoors[player.currentDirection];
       drawX = player.position.x * objectSizes - top_x;
       drawY = player.position.y * objectSizes - top_y;
     }

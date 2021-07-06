@@ -231,6 +231,10 @@ export default class TownClientEngine extends ClientEngine {
         this.characterId = myPlayer.characterId;
         this.eventProvider.fire("characterChanged", this.characterId);
       }
+      myPlayer.localDir = this.gameEngine.localDir;
+      if (!myPlayer.localDir) {
+        myPlayer.localDir = myPlayer.currentDirection;
+      }
     }
 
     if (this.isPublic && !this.playerInitialized) {
