@@ -1,4 +1,4 @@
-import { GameEngine } from 'lance-gg';
+import { GameEngine, SimplePhysicsEngine } from 'lance-gg';
 import {
   directionMap,
   SPEED,
@@ -21,14 +21,15 @@ export default class Game extends GameEngine {
 
   constructor(options) {
     super(options);
-    this.ignoreInputs = true;
+    this.physicsEngine = new SimplePhysicsEngine({ gameEngine: this });
+    // this.ignoreInputs = true;
 
     // common code
     this.on('postStep', this.gameLogic.bind(this));
 
     this.traceLevel = 0;
     this.videosInitialized = false;
-    this.lastStep = {};
+    this.lastSteps = {};
     this.lastTeleport = 0;
   }
 
@@ -50,14 +51,22 @@ export default class Game extends GameEngine {
   gameLogic() {
   }
 
-  processInput(inputData, playerId) {
-    super.processInput(inputData, playerId);
+  processInput(inputDesc, playerId) {
+    super.processInput(inputDesc, playerId);
 
-    if (this.lastStep[playerId] && inputData.step - this.lastStep[playerId] < STEP_INTERVAL) {
+    if (!this.lastSteps[playerId]) {
+      this.lastSteps[playerId] = {
+        up: -1, down: -1,
+        left: -1, right: -1
+      };
+    }
+    const lastStep = this.lastSteps[playerId];
+
+    if (inputDesc.step - lastStep[inputDesc.input] < STEP_INTERVAL) {
       return;
     }
-    this.lastStep[playerId] = inputData.step;
-    
+    lastStep[inputDesc.input] = inputDesc.step;
+
     let player = this.world.queryObject({ playerId });
     if (player) {
       let players = this.world.queryObjects({ instanceType: Player });
@@ -79,39 +88,49 @@ export default class Game extends GameEngine {
         if (collisionMap[player.currentMap][y][x] === 1) return false;
         return true;
       }
-    
+
       let newX = player.position.x;
       let newY = player.position.y;
 
-      switch(inputData.input) {
+      // console.log(inputDesc.input);
+      switch(inputDesc.input) {
         case "left":
           newX = player.position.x - SPEED / MODIFIER;
           if(player.currentDirection === directionMap["left-1"]) {
             player.currentDirection = directionMap["left-2"];
+            console.log(Date.now(), "left1 -> left2");
           } else if(player.currentDirection === directionMap["left-2"]) {
             player.currentDirection = directionMap["left-1"];
+            console.log(Date.now(), "left2 -> left1");
           } else {
             player.currentDirection = directionMap["left-1"];
+            console.log(Date.now(), "left1");
           }
           break;
         case "right":
           newX = player.position.x + SPEED / MODIFIER;
           if(player.currentDirection === directionMap["right-1"]) {
             player.currentDirection = directionMap["right-2"];
+            console.log(Date.now(), "right1 -> right2");
           } else if(player.currentDirection === directionMap["right-2"]) {
             player.currentDirection = directionMap["right-1"];
+            console.log(Date.now(), "right2 -> right1");
           } else {
             player.currentDirection = directionMap["right-1"];
+            console.log(Date.now(), "right1");
           }
           break;
         case "up":
           newY = player.position.y - SPEED / MODIFIER;
           if(player.currentDirection === directionMap["up-1"]) {
             player.currentDirection = directionMap["up-2"];
+            console.log(Date.now(), "up1 -> up2");
           } else if(player.currentDirection === directionMap["up-2"]) {
             player.currentDirection = directionMap["up-1"];
+            console.log(Date.now(), "up2 -> up1");
           } else {
             player.currentDirection = directionMap["up-1"];
+            console.log(Date.now(), "up1");
           }
 
           break;
@@ -119,10 +138,14 @@ export default class Game extends GameEngine {
           newY = player.position.y + SPEED / MODIFIER;
           if(player.currentDirection === directionMap["down-1"]) {
             player.currentDirection = directionMap["down-2"];
+            console.log(Date.now(), "down1 -> down2");
           } else if(player.currentDirection === directionMap["down-2"]) {
             player.currentDirection = directionMap["down-1"];
+            console.log(Date.now(), "down2 -> down1");
           } else {
             player.currentDirection = directionMap["down-1"];
+            player.currentDirection = directionMap["down-1"];
+            console.log(Date.now(), "down1");
           }
 
           break;
@@ -143,11 +166,11 @@ export default class Game extends GameEngine {
         player.position.x = newX;
         player.position.y = newY;
       }
-      console.log("-Game.js", player.position.x, player.position.y)
+      // console.log("-Game.js", player.position.x, player.position.y)
 
       let endingVal = collisionMap[player.currentMap][player.position.y][player.position.x]
       // Check if portal
-      if (endingVal >= 100 && (inputData.step - this.lastTeleport) > TELEPORT_INTERVAL) {
+      if (endingVal >= 100 && (inputDesc.step - this.lastTeleport) > TELEPORT_INTERVAL) {
         let temp = (endingVal + "").split(".")
         let newMap = parseInt(temp[0]);
         let portalId = parseInt(temp[1]);
@@ -164,7 +187,7 @@ export default class Game extends GameEngine {
                 }
               })
             })
- 
+
             let oppositeMap = {
               "up": 1,
               "right": 5,
@@ -176,7 +199,7 @@ export default class Game extends GameEngine {
               player.position.y = portalY;
               player.currentDirection = oppositeMap[portalDirectionMap[newMap][portalId]];
               player.currentMap = newMap;
-              this.lastTeleport = inputData.step;
+              this.lastTeleport = inputDesc.step;
             }
         }
       }

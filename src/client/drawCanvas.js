@@ -22,6 +22,14 @@ var mouseCoorY = 0;
 
 var showNames = true;
 
+var smooth = {
+  prevFrame: 10,
+  prevX: -1,
+  prevY: -1,
+}
+
+var prevtime = 0;
+
 // var directionCoors = [
 //   { x: 0, y: 0 },
 //   { x: 17, y: 0 },
@@ -101,7 +109,7 @@ function offScreenLine(x, y) {
 }
 
 
-function draw(x, y, map, players) {
+function draw(x, y, map, myPlayer, players) {
   var canvas = document.getElementById("canvas");
   var ctx = canvas.getContext("2d");
   var w = document.getElementById("canvas").offsetWidth;
@@ -178,8 +186,23 @@ function draw(x, y, map, players) {
   }
   players.forEach(player => {
     let direction = directionCoors[player.currentDirection];
-    let drawX = player.position.x * objectSizes - top_x;
-    let drawY = player.position.y * objectSizes - top_y;
+
+    let drawX;
+    let drawY;
+    if (myPlayer.playerId === player.playerId) {
+      drawX = x * objectSizes - top_x;
+      drawY = y * objectSizes - top_y;
+
+      let now = Date.now();
+      let diff = now - prevtime;
+      console.log(diff, player.currentDirection, x, y);
+      prevtime = now;
+
+    } else {
+      drawX = player.position.x * objectSizes - top_x;
+      drawY = player.position.y * objectSizes - top_y;
+    }
+
 
     if (drawX >= 0 && drawX < w && drawY >= 0 && drawY < h) {
       ctx.drawImage(
@@ -270,8 +293,38 @@ export function update(myPlayer, players) {
     playersNameMap[player.playerId] = name;
   })
 
-  // console.log("update->draw", myPlayer.position.x, myPlayer.position.y);
-  draw(myPlayer.position.x, myPlayer.position.y, myPlayer.currentMap, players);
+  if (smooth.prevX === -1 && smooth.prevY === -1) {
+    smooth.prevX = myPlayer.position.x;
+    smooth.prevY = myPlayer.position.y;
+  }
+
+  let delta = 1 / smooth.prevFrame;
+  let diffX = myPlayer.position.x - smooth.prevX;
+  // console.log(delta, Math.abs(diffX));
+
+  if (Math.abs(diffX) > delta) {
+    if (diffX > 0) {
+      smooth.prevX += delta;
+    } else {
+      smooth.prevX -= delta;
+    }
+  } else {
+    smooth.prevX = myPlayer.position.x;
+  }
+
+  let diffY = myPlayer.position.y - smooth.prevY;
+  if (Math.abs(diffY) > delta) {
+    if (diffY > 0) {
+      smooth.prevY += delta;
+    } else {
+      smooth.prevY -= delta;
+    }
+  } else {
+    smooth.prevY = myPlayer.position.y;
+  }
+
+  // console.log("update->draw", myPlayer.position.x, myPlayer.position.y, smooth.prevX, smooth.prevY);
+  draw(smooth.prevX, smooth.prevY, myPlayer.currentMap, myPlayer, players);
 }
 
 export function publicUpdate(players) {

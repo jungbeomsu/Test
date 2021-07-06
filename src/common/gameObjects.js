@@ -17,11 +17,11 @@ export class Player extends DynamicObject {
     }, super.netScheme);
   }
 
-  get bending() {
-    return {
-      position: {percent: 1.0}
-    }
-  }
+  // get bending() {
+  //   return {
+  //     position: {percent: 1.0}
+  //   }
+  // }
 
   syncTo(other) {
     super.syncTo(other);

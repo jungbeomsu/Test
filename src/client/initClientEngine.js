@@ -10,12 +10,12 @@ const qsOptions = querystring.parse(location.search);
 export default async function initClientEngine() {
   const defaults = {
     traceLevel: Lib.Trace.TRACE_NONE,
-    scheduler: 'fixed',
+    scheduler: 'render-schedule',
     syncOptions: {
-      sync: qsOptions.sync || 'interpolate',
+      sync: qsOptions.sync || 'extrapolate',
       localObjBending: 0,
-      remoteObjBending: 0,
-      bendingIncrements: 12,
+      remoteObjBending: 1,
+      bendingIncrements: 6,
     },
   };
 
@@ -32,7 +32,7 @@ export default async function initClientEngine() {
   }
 
   let response = await gameServerPromise;
-  
+
   if (response) {
     if (response.status !== 200) {
       console.error('Could not get game server URL!');

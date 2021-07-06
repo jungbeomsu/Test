@@ -12,6 +12,7 @@ import { collisionMap } from '../common/maps';
 import EventProvider from '../common/EventProvider';
 
 import deepEqual from 'fast-deep-equal';
+import { Key } from 'ts-keycode-enum';
 
 export default class TownClientEngine extends ClientEngine {
   constructor(gameEngine, inputOptions, renderer) {
@@ -56,6 +57,11 @@ export default class TownClientEngine extends ClientEngine {
     */
     // TODO this is hack
     window.sendPrivatePrompt = this.sendPrivatePrompt.bind(this);
+
+    this.keyStatus = {
+      up: -1, down: -1,
+      left: -1, right: -1
+    };
   }
 
   connect() {
@@ -132,7 +138,7 @@ export default class TownClientEngine extends ClientEngine {
       this.pendingInitPlayer = true;
       return;
     }
-    
+
     this.socket.emit("initPlayer", getRoomFromPath());
     this.videosEnabled = true;
     this.playerInitialized = true;
@@ -174,12 +180,30 @@ export default class TownClientEngine extends ClientEngine {
 
   initKeyboardControls() {
     this.gameEngine.controls = newKeyboardControls(this);
-    this.gameEngine.controls.bindKey(['up', 'w'], 'up', { repeat: true } );
-    this.gameEngine.controls.bindKey(['down', 's'], 'down', { repeat: true } );
-    this.gameEngine.controls.bindKey(['left', 'a'], 'left', { repeat: true } );
-    this.gameEngine.controls.bindKey(['right', 'd'], 'right', { repeat: true } );
+    // this.gameEngine.controls.bindKey(['up', 'w'], 'up', { repeat: true } );
+    // this.gameEngine.controls.bindKey(['down', 's'], 'down', { repeat: true } );
+    // this.gameEngine.controls.bindKey(['left', 'a'], 'left', { repeat: true } );
+    // this.gameEngine.controls.bindKey(['right', 'd'], 'right', { repeat: true } );
     this.gameEngine.controls.bindKey('space', 'space', { repeat: false } );
     this.gameEngine.controls.bindKey('k', 'k', { repeat: false } );
+
+    window.addEventListener("keydown", this.keyDown.bind(this));
+    window.addEventListener("keyup", this.keyUp.bind(this));
+
+    setInterval(() => {
+      // console.log(this.keyStatus);
+      let recentPressedTime = -1;
+      let recentDir;
+      for (const [dir, pressedTime] of Object.entries(this.keyStatus)) {
+        if (recentPressedTime < pressedTime) {
+          recentDir = dir;
+          recentPressedTime = pressedTime;
+        }
+      }
+      if (recentDir) {
+        this.sendInput(recentDir, {});
+      }
+    }, 30)
   }
 
   clientSideInit() {
@@ -221,7 +245,7 @@ export default class TownClientEngine extends ClientEngine {
       players = players.filter((tempPlayer) => {
         return myPlayer.currentMap === tempPlayer.currentMap;
       });
-          
+
       updateSound(myPlayer);
       update(myPlayer, players);
     }
@@ -275,4 +299,44 @@ export default class TownClientEngine extends ClientEngine {
   sendChatMessage(message, blockedMap) {
     this.socket.emit("chatMessage", message, blockedMap);
   }
+
+
+  getKeyIdx(keyCode) {
+    let keyIdx;
+    switch (keyCode) {
+      case Key.UpArrow:
+        keyIdx = "up";
+        break;
+      case Key.DownArrow:
+        keyIdx = "down";
+        break;
+      case Key.LeftArrow:
+        keyIdx = "left";
+        break;
+      case Key.RightArrow:
+        keyIdx = "right";
+        break;
+      default:
+        break;
+    }
+    return keyIdx;
+  }
+
+  keyDown(ev) {
+
+    let keyIdx = this.getKeyIdx(ev.keyCode);
+    if (keyIdx && this.keyStatus[keyIdx] === -1) {
+      this.keyStatus[keyIdx] = Date.now();
+    }
+
+  }
+
+  keyUp(ev) {
+
+    let keyIdx = this.getKeyIdx(ev.keyCode);
+    if (keyIdx) {
+      this.keyStatus[keyIdx] = -1;
+    }
+  }
+
 }
