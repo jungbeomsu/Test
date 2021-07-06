@@ -10,7 +10,7 @@ const qsOptions = querystring.parse(location.search);
 export default async function initClientEngine() {
   const defaults = {
     traceLevel: Lib.Trace.TRACE_NONE,
-    scheduler: 'render-schedule',
+    scheduler: 'fixed',
     syncOptions: {
       sync: qsOptions.sync || 'extrapolate',
       localObjBending: 0,

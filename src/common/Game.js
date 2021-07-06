@@ -21,7 +21,7 @@ export default class Game extends GameEngine {
 
   constructor(options) {
     super(options);
-    this.physicsEngine = new SimplePhysicsEngine({ gameEngine: this });
+    // this.physicsEngine = new SimplePhysicsEngine({ gameEngine: this });
     // this.ignoreInputs = true;
 
     // common code
@@ -76,7 +76,13 @@ export default class Game extends GameEngine {
       function validMove(player, x, y) {
         // Collides with player
         for (let i = 0; i < players.length; i++) {
-          if (x === players[i].position.x && y === players[i].position.y) return false;
+
+          let targetX = Math.round(players[i].position.x);
+          let targetY = Math.round(players[i].position.y)
+
+          if (x === targetX && y === targetY) {
+            return false;
+          }
         }
 
         // Out of bounds of map
