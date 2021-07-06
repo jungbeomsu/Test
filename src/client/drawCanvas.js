@@ -24,12 +24,13 @@ var mouseCoorY = 0;
 var showNames = true;
 
 var smooth = {
-  prevFrame: 10,
   prevX: -1,
   prevY: -1,
 }
 
 var prevtime = 0;
+
+var maxDiff = 0;
 
 // var directionCoors = [
 //   { x: 0, y: 0 },
@@ -49,8 +50,8 @@ var directionCoors = [
   { x: objectSizes * 2, y: 0 },
   { x: objectSizes * 7, y: 0 },
   { x: objectSizes * 8, y: 0 },
-  { x: objectSizes * 3, y: 0 },
   { x: objectSizes * 4, y: 0 },
+  { x: objectSizes * 5, y: 0 },
   { x: objectSizes * 10, y: 0 },
   { x: objectSizes * 11, y: 0 },
 ];
@@ -300,32 +301,33 @@ export function update(myPlayer, players) {
     smooth.prevY = myPlayer.position.y;
   }
 
-  let delta = 1 / smooth.prevFrame;
-  let diffX = myPlayer.position.x - smooth.prevX;
-  // console.log(delta, Math.abs(diffX));
+  function getSmooth(cur, target) {
 
-  if (Math.abs(diffX) > delta) {
-    if (diffX > 0) {
-      smooth.prevX += delta;
-    } else {
-      smooth.prevX -= delta;
+    const minDelta = 0.1;
+    let isPositive = target > cur;
+    let diff = Math.abs(target - cur);
+    let delta = diff / 7;
+    if (diff < minDelta) {
+      return target;
     }
-  } else {
-    smooth.prevX = myPlayer.position.x;
+
+    delta = Math.max(delta, minDelta);
+    if (isPositive) {
+      return cur + delta;
+    } else {
+      return cur - delta;
+    }
   }
 
-  let diffY = myPlayer.position.y - smooth.prevY;
-  if (Math.abs(diffY) > delta) {
-    if (diffY > 0) {
-      smooth.prevY += delta;
-    } else {
-      smooth.prevY -= delta;
-    }
-  } else {
-    smooth.prevY = myPlayer.position.y;
+  smooth.prevX = getSmooth(smooth.prevX, myPlayer.position.x);
+  smooth.prevY = getSmooth(smooth.prevY, myPlayer.position.y);
+
+  if (maxDiff < Math.abs(myPlayer.position.x - smooth.prevX)) {
+    maxDiff = Math.abs(myPlayer.position.x - smooth.prevX);
   }
 
-  // console.log("update->draw", myPlayer.position.x, myPlayer.position.y, smooth.prevX, smooth.prevY);
+    // console.log("update->draw", myPlayer.position.x, smooth.prevX, myPlayer.position.y, smooth.prevY);
+  console.log("update->draw", maxDiff, myPlayer.position.x - smooth.prevX, myPlayer.position.y - smooth.prevY);
   draw(smooth.prevX, smooth.prevY, myPlayer.currentMap, myPlayer, players);
 }
 
