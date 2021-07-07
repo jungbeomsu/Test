@@ -23,16 +23,30 @@ const INDEX = path.join(__dirname, '../dist/index.html');
 // get the count of when they've left, but that's for later
 // Ideally we don't have both "PROD" and "STAGING" env variables
 let GAME_SERVERS;
-if (process.env.STAGING === "true") {
-  GAME_SERVERS = {
-    "BLANK": 0
+// if (process.env.STAGING === "true") {
+//   GAME_SERVERS = {
+//     "BLANK": 0
+//   }
+// } else {
+//   GAME_SERVERS = {
+//     "https://dev-town-game.tenuto.co.kr": 0,
+//   }
+// }
+process.argv.forEach((val, index) => {
+  if(val == 'localhost'){
+    GAME_SERVERS = {
+      "https://localhost": 0,
+    }
+  } else if(val == 'dev'){
+    GAME_SERVERS = {
+      "https://dev-town-game.tenuto.co.kr": 0,
+    }
+  } else if(val == 'prod'){
+    GAME_SERVERS = {
+      "https://dev-town-game.tenuto.co.kr": 0,
+    }
   }
-} else {
-  GAME_SERVERS = {
-    "https://dev-town-game.tenuto.co.kr": 0,
-  }
-}
-
+});
 // define routes and socket
 const server = express();
 
@@ -350,6 +364,7 @@ server.post('/api/publicRoomInfo', (req, res) => {
   });
 })
 
+/*
 if (process.env.PROD === "true") {
   // run only http server
   let credentials = {
@@ -366,3 +381,31 @@ if (process.env.PROD === "true") {
   let requestHandler = server.listen(PORT, () => console.log(`Listening on ${PORT}`));
   setupGameServer(server, requestHandler);
 }
+*/
+process.argv.forEach((val, index) => {
+  if(val == 'localhost'){
+
+    // run http server and game server
+    console.log("Running localhost http and game server");      
+    let requestHandler = server.listen(PORT, () => console.log(`Listening on ${PORT}`));
+    setupGameServer(server, requestHandler);
+
+  } else if(val == 'dev'){
+
+    // run http server and game server
+    console.log("Running dev http and game server");      
+    let requestHandler = server.listen(PORT, () => console.log(`Listening on ${PORT}`));
+    setupGameServer(server, requestHandler);
+
+  } else if(val == 'prod'){
+    // run only http server
+    let credentials = {
+      cert: fs.readFileSync('BLANK'),
+      key: fs.readFileSync('BLANK'),
+    };
+
+    console.log("Running prod https server");
+    let httpsServer = https.createServer(credentials, server);
+    httpsServer.listen(PORT);
+  }
+});

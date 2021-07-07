@@ -10,9 +10,9 @@
     "build": "npm run build-client && npm run build-server",
     "build-prod": "webpack --config webpack.prod.js && babel src --out-dir dist-server",
     "dev": "webpack --config webpack.dev.js --watch",
-    "start-http": "node dist-server/main.js",
-    "start-game": "node dist-server/game-server.js",
-    "start-video": "node dist-server/video-server.js",
+    "start-http": "node dist-server/main.js ${npm_config_env}",
+    "start-game": "node dist-server/game-server.js ${npm_config_env}",
+    "start-video": "node dist-server/video-server.js ${npm_config_env}",
     "start-http-keepalive": "sh ./src/keep_alive.sh npm run start-http",
     "start-game-keepalive": "sh ./src/keep_alive.sh npm run start-game"
   },

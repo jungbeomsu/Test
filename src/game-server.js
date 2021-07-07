@@ -87,13 +87,34 @@ if (require.main === module) {
     key: fs.readFileSync('./game-privkey.pem'),
   };
 
-  console.log("Running prod https server");
+  var environment = '';
+  let domain;
+  process.argv.forEach((val, index) => {
+    
+    if(val == 'localhost'){
+      domain = 'http://localhost';
+      environment = 'localhost';
+    } else if(val == 'dev'){
+      domain = 'https://dev-town-http.tenuto.co.kr';
+      environment = 'dev';
+    } else if(val == 'prod'){
+      domain = 'https://dev-town-http.tenuto.co.kr';
+      environment = 'prod';
+    }
+  });
+
+  console.log("Running " + environment + " https server port " + PORT);
   const server = express();
   let httpsServer = https.createServer(credentials, server);
   httpsServer.listen(PORT);
 
+  // const options = {
+  //   origin: 'https://dev-town-http.tenuto.co.kr', // 접근 권한을 부여하는 도메인
+  //   credentials: true, // 응답 헤더에 Access-Control-Allow-Credentials 추가
+  //   optionsSuccessStatus: 200 // 응답 상태 200으로 설정 
+  // };
   const options = {
-    origin: 'https://dev-town-http.tenuto.co.kr', // 접근 권한을 부여하는 도메인
+    origin: domain, // 접근 권한을 부여하는 도메인
     credentials: true, // 응답 헤더에 Access-Control-Allow-Credentials 추가
     optionsSuccessStatus: 200 // 응답 상태 200으로 설정 
   };
