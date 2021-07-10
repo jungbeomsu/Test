@@ -3,8 +3,6 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import axios from 'axios';
 
-import './index.html';
-
 import './reset.css';
 import './fonts.css';
 import './main.css';
@@ -69,4 +67,5 @@ let App = () => {
   );
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+// ReactDOM.render(<App />, document.getElementById('root'));
+export default App;
