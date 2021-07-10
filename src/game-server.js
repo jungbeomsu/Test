@@ -96,7 +96,7 @@ if (require.main === module) {
     }));
     httpServer.listen(PORT);
     setupGameServer(server, httpServer);
-    console.log('Running localhost http game server');
+    console.log('Localhost, http Game Server running on port 4000');
 
   } else if (process.env.NODE_ENV == 'development') {
 
@@ -116,7 +116,7 @@ if (require.main === module) {
     server.use(cors(options));
     // server.options('*', cors());
     setupGameServer(server, httpsServer);
-    console.log("Running dev https game server");
+    console.log('Dev, https Game Server running on port 4000');
 
   } else {
 
@@ -136,7 +136,7 @@ if (require.main === module) {
     server.use(cors(options));
     // server.options('*', cors());
     setupGameServer(server, httpsServer);
-    console.log("Running prod https game server");
+    console.log('Prod, https Game Server running on port 4000');
   }
 }
 // if (require.main === module) {

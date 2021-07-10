@@ -34,7 +34,7 @@ let GAME_SERVERS;
 //   }
 // }
 
-if (process.env.NODE_ENV === "localhost") {
+if (process.env.NODE_ENV === "none") {
   GAME_SERVERS = {
     "http://localhost": 0,
   }
