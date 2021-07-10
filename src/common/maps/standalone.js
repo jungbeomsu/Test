@@ -1,11 +1,11 @@
 export var imageMap = {
-  110: '/images/maps/standalone/apartment.png',
-  120: '/images/maps/standalone/office.png',
-  130: '/images/maps/standalone/conference_entrance.png',
-  131: '/images/maps/standalone/ml_conference.png',
-  132: '/images/maps/standalone/keynote.png',
-  140: '/images/maps/standalone/black_chairs.png',
-  215: '/images/maps/standalone/golden_park.png',
+  110: 'images/maps/standalone/apartment.png',
+  120: 'images/maps/standalone/office.png',
+  130: 'images/maps/standalone/conference_entrance.png',
+  131: 'images/maps/standalone/ml_conference.png',
+  132: 'images/maps/standalone/keynote.png',
+  140: 'images/maps/standalone/black_chairs.png',
+  215: 'images/maps/standalone/golden_park.png',
 }
 
 export var imageDimensionsMap = {
@@ -427,7 +427,7 @@ export var audioMap = {
   110: [
     {
       id: "fireplace",
-      path: "/sounds/fireplace.wav",
+      path: "sounds/fireplace.wav",
       volume: [1.0, 1.0, 0.8, 0.5, 0.2],
       pos: [3, 12]
     }
@@ -435,19 +435,19 @@ export var audioMap = {
   215: [
     {
       id: "outdoors",
-      path: "/sounds/outdoors.wav",
+      path: "sounds/outdoors.wav",
       volume: [...Array(100)].map(_ => 0.85),
       pos: [72, 50]
     },
     {
       id: "waves1",
-      path: "/sounds/wave1.wav",
+      path: "sounds/wave1.wav",
       volume: [...Array(30)].map((_, x) => (Math.min(0.2, (30-x)/30))),
       pos: [147, 30]
     },
     {
       id: "waves2",
-      path: "/sounds/wave2.wav",
+      path: "sounds/wave2.wav",
       volume: [...Array(30)].map((_, x) => (Math.min(0.2, (30-x)/30))),
       pos: [147, 70]
     },
@@ -457,7 +457,7 @@ export var audioMap = {
 export var animMap = {
   110: [
     {
-      frames: [...Array(4)].map((_, i) => "/images/maps/shared/fireplace_animation/fireplace" + (i + 1) + ".png"),
+      frames: [...Array(4)].map((_, i) => "images/maps/shared/fireplace_animation/fireplace" + (i + 1) + ".png"),
       pos: [2, 12],
       frameGap: 5
     }

@@ -1,10 +1,10 @@
 export var imageMap = {
-  160: '/images/maps/nyc/times_square.png',
-  161: '/images/maps/nyc/nyc_black_chairs.png',
-  162: '/images/maps/nyc/nyc_apartment.png',
-  163: '/images/maps/nyc/nyc_office.png',
-  164: '/images/maps/standalone/ml_conference.png',
-  165: '/images/maps/standalone/keynote.png',
+  160: 'images/maps/nyc/times_square.png',
+  161: 'images/maps/nyc/nyc_black_chairs.png',
+  162: 'images/maps/nyc/nyc_apartment.png',
+  163: 'images/maps/nyc/nyc_office.png',
+  164: 'images/maps/standalone/ml_conference.png',
+  165: 'images/maps/standalone/keynote.png',
 };
 
 export var imageDimensionsMap = {
@@ -326,7 +326,7 @@ export var audioMap = {
   160: [
     {
       id: "nyc-ambience1",
-      path: "/sounds/nyc-ambience.wav",
+      path: "sounds/nyc-ambience.wav",
       volume: [...Array(300)].map(_ => 0.2),
       pos: [30,78]
     }
@@ -334,7 +334,7 @@ export var audioMap = {
   162: [
     {
       id: "fireplace",
-      path: "/sounds/fireplace.wav",
+      path: "sounds/fireplace.wav",
       volume: [1.0, 1.0, 0.8, 0.5, 0.2],
       pos: [3, 12]
     }
@@ -344,7 +344,7 @@ export var audioMap = {
 export var animMap = {
   162: [
     {
-      frames: [...Array(4)].map((_, i) => "/images/maps/shared/fireplace_animation/fireplace" + (i + 1) + ".png"),
+      frames: [...Array(4)].map((_, i) => "images/maps/shared/fireplace_animation/fireplace" + (i + 1) + ".png"),
       pos: [2, 12],
       frameGap: 5
     }

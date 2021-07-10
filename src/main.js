@@ -16,6 +16,7 @@ const mg = mailgun({
 });
 
 import setupGameServer from './game-server'
+import cors from "cors";
 
 const PORT = process.env.PORT || 3000;
 const INDEX = path.join(__dirname, '../dist/index.html');
@@ -36,7 +37,7 @@ let GAME_SERVERS;
 
 if (process.env.NODE_ENV === "none") {
   GAME_SERVERS = {
-    "http://localhost": 0,
+    "http://localhost:4000": 0,
   }
 } else if (process.env.NODE_ENV === "development") {
   GAME_SERVERS = {
@@ -50,6 +51,12 @@ if (process.env.NODE_ENV === "none") {
 
 // define routes and socket
 const server = express();
+
+server.use(cors({
+  origin: 'http://localhost:3100',
+  credentials: true,
+  optionsSuccessStatus: 200,
+}));
 
 // parse application/json
 server.use(bodyParser.json());
@@ -386,13 +393,13 @@ if (process.env.NODE_ENV === "none") {
   console.log("Running localhost http server");
   server.listen(PORT, () => console.log(`Listening on ${PORT}, ${process.env.NODE_ENV}`));
 
-} else if (process.env.NODE_ENV === "development") {  
+} else if (process.env.NODE_ENV === "development") {
 
   console.log("Running dev http server");
   server.listen(PORT, () => console.log(`Listening on ${PORT}, ${process.env.NODE_ENV}`));
 
 } else {
-  
+
   let credentials = {
     cert: fs.readFileSync('BLANK'),
     key: fs.readFileSync('BLANK'),

@@ -10,8 +10,6 @@ import { collisionMap, portalDirectionMap } from './maps';
 import { isBlocked, getNearbyTeleportSquare } from './utils';
 import { Player } from './gameObjects';
 
-import { setShowName } from '../client/drawCanvas';
-
 // /////////////////////////////////////////////////////////
 //
 // GAME ENGINE

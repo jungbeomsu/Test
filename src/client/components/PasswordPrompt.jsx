@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-import { auth } from '../constants';
+import {apiServerPrefix, auth} from '../constants';
 import { getRoomFromPath } from '../utils.js'
 
 import './PasswordPrompt.css';
@@ -29,7 +29,7 @@ export default function PasswordPrompt(props) {
       passwordPayload["authUser"] = auth.currentUser.uid;
     }
 
-    axios.post(window.location.origin + '/api/submitPassword', passwordPayload)
+    axios.post(apiServerPrefix + '/api/submitPassword', passwordPayload)
     .then(response => {
       if (response.status === 200) {
         props.gotPassword(password);

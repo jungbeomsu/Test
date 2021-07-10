@@ -159,11 +159,12 @@ export default function GameVideosContainer(props) {
       })
 
     function initialize(stream) {
-      
+
+      console.log(process.env.REACT_APP_ENV)
       let serverURL;
-      if(process.env.NODE_ENV == 'none'){
+      if(process.env.REACT_APP_ENV === 'local'){
         serverURL = LOCAL_ENDPOINT;
-      } else if(process.env.NODE_ENV == 'development'){
+      } else if(process.env.REACT_APP_ENV === 'development'){
         serverURL = DEV_ENDPOINT;
       } else {
         serverURL = PROD_ENDPOINT;
@@ -218,7 +219,7 @@ export default function GameVideosContainer(props) {
           newOwnStreamMap[idIdx] = streamClone;
           return newOwnStreamMap;
         });
-       
+
         let streams = [];
         if (streamClone) streams.push(streamClone);
         if (screenStreamRef.current) streams.push(screenStreamRef.current);

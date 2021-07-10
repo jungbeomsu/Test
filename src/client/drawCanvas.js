@@ -2,9 +2,10 @@ import { colors, PUBLIC_MAP } from './constants';
 import { clamp, max, getSubDomain } from './utils';
 import { updateAnim } from './environmentAnimation';
 import { isBlocked } from '../common/utils';
-import { imageMap, imageDimensionsMap, collisionMap, characterMap } from '../common/maps';
+import { imageDimensionsMap, collisionMap, characterMap } from '../common/maps';
+import { imageMap } from '../common/mapsResource';
 import { characterIds } from './constants';
-import {directionMap} from "../common/constants";
+import { directionMap } from "../common/constants";
 
 export var objectSizes = 64;
 
@@ -147,7 +148,7 @@ function draw(x, y, map, myPlayer, players) {
 
   if (!(map in terrainImages)) {
     terrainImages[map] = new Image;
-    terrainImages[map].src = imageMap[map];
+    terrainImages[map].src = require(`./${imageMap[map]}`).default;
   }
 
   ctx.drawImage(
@@ -173,11 +174,13 @@ function draw(x, y, map, myPlayer, players) {
     if (map in characterMap) {
       characterMap[map].forEach(characterId => {
         playerImages[characterId] = new Image();
-        playerImages[characterId].src = characterIds[characterId];
+        playerImages[characterId].src = require(`./${characterIds[characterId]}`).default;
       });
     } else {
-      playerImages[1] = new Image();
-      playerImages[1].src = "/images/characters/player.png";
+      characterMap[0].forEach(characterId => {
+        playerImages[characterId] = new Image();
+        playerImages[characterId].src = require(`./${characterIds[characterId]}`).default;
+      });
     }
   }
 
@@ -327,7 +330,7 @@ export function update(myPlayer, players) {
   }
 
     // console.log("update->draw", myPlayer.position.x, smooth.prevX, myPlayer.position.y, smooth.prevY);
-  console.log("update->draw", maxDiff, myPlayer.position.x - smooth.prevX, myPlayer.position.y - smooth.prevY);
+  // console.log("update->draw", maxDiff, myPlayer.position.x - smooth.prevX, myPlayer.position.y - smooth.prevY);
   draw(smooth.prevX, smooth.prevY, myPlayer.currentMap, myPlayer, players);
 }
 

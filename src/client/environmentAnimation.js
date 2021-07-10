@@ -1,4 +1,4 @@
-import { animMap } from "../common/maps";
+import { animMap } from "../common/mapsResource";
 
 var imagesMap;
 var animCounters;
@@ -16,7 +16,7 @@ export function updateAnim(map, ctx, top_x, top_y, objectSizes) {
       let tempFrames = [];
       animation.frames.forEach(frame => {
         let tempFrame = new Image();
-        tempFrame.src = frame;
+        tempFrame.src = require(`./${frame}`).default;
         tempFrames.push(tempFrame);
       });
       imagesMap.push(tempFrames);

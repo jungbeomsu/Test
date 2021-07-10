@@ -60,7 +60,7 @@ export default class TownServerEngine extends ServerEngine {
     if (map in characterMap) {
       newPlayer.characterId = characterMap[map][0];
     } else {
-      newPlayer.characterId = 1;
+      newPlayer.characterId = characterMap[0][0];
     }
     newPlayer.playerId = playerId;
     this.assignObjectToRoom(newPlayer, room);
@@ -75,8 +75,14 @@ export default class TownServerEngine extends ServerEngine {
     if (!myPlayer) {
       return;
     }
-    if (characterMap[myPlayer.currentMap].includes(characterId)) {
-      myPlayer.characterId = characterId;
+    if (myPlayer.currentMap in characterMap) {
+      if (characterMap[myPlayer.currentMap].includes(characterId)) {
+        myPlayer.characterId = characterId;
+      }
+    } else {
+      if (characterMap[0].includes(characterId)) {
+        myPlayer.characterId = characterId;
+      }
     }
   }
 
@@ -145,7 +151,7 @@ export default class TownServerEngine extends ServerEngine {
               socket.emit("roomSettings", this.roomSettings[room]);
             }
           }
-          
+
           if ("password" in doc.data()) {
             if (password && bcrypt.compareSync(password, doc.data()["password"])) {
               initialize();
@@ -375,14 +381,14 @@ export default class TownServerEngine extends ServerEngine {
       })
   }
 
-  checkModPassword(room, password) {	
-    let roomFirebase = room.replace("/", "\\");	
-    return this.checkModPasswordInternal(room, password).then((roomData) => {	
-      if (roomData.bannedIPs) {	
-        return Object.values(roomData.bannedIPs);	
-      }	
-      return [];	
-    })	
+  checkModPassword(room, password) {
+    let roomFirebase = room.replace("/", "\\");
+    return this.checkModPasswordInternal(room, password).then((roomData) => {
+      if (roomData.bannedIPs) {
+        return Object.values(roomData.bannedIPs);
+      }
+      return [];
+    })
   };
 
   banPlayer(room, password, player) {

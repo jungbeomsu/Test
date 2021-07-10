@@ -7,7 +7,7 @@ import './reset.css';
 import './fonts.css';
 import './main.css';
 
-import { auth } from './constants';
+import {apiServerPrefix, auth} from './constants';
 import { dataOnSignIn } from './userData';
 import { localPreferences } from './LocalPreferences';
 import { amplitudeInstance } from './amplitude';
@@ -25,7 +25,7 @@ if (!userStorage) {
   let newId = makeId(20);
   let data = {id: newId, overAge: false, analytics: false, seenTutorial: false};
   localPreferences.set('user', data);
-  axios.post(window.location.origin + '/api/addId', {
+  axios.post(apiServerPrefix + '/api/addId', {
     id: newId,
   });
 

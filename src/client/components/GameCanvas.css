@@ -9,8 +9,8 @@
 #blocked-text {
   position: absolute;
   width: 250px;
-  top: 50;
-  left: 175;
+  top: 50px;
+  left: 175px;
   background-color: rgba(255, 255, 255, 0.8);
   padding: 10px;
   border: solid 2px black;
@@ -21,14 +21,14 @@
   font-size: 16px;
   line-height: 22px;
   width: 420px;
-  top: 30;
-  left: 85;
+  top: 30px;
+  left: 85px;
   background-color: rgba(255, 255, 255, 1.0);
   padding: 20px;
   border-radius: 5px;
 }
 
-@media only screen  
+@media only screen
   and (min-device-width: 320px)
   and (max-device-width: 480px) {
   .game-container {

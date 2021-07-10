@@ -16,7 +16,7 @@ export default function GameChangeCharacter (props) {
             return (
               <div key={id}>
                 <img
-                  src={characterIds[id]}
+                  src={require(`../${characterIds[id]}`).default}
                   onClick={() => props.setCharacterId(id)}
                   className={classNames({"not-selected": id !== props.characterId})}
                 />
