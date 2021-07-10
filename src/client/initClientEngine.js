@@ -20,8 +20,11 @@ export default async function initClientEngine() {
   };
 
   let gameServerPromise;
-  if (window.location.origin.includes('localhost')) {
-    gameServerPromise = Promise.resolve({status: 200, data: window.location.origin});
+  
+  //if (window.location.origin.includes('localhost')) {
+  if (process.env.NODE_ENV === "none") {  
+    // gameServerPromise = Promise.resolve({status: 200, data: window.location.origin});
+    gameServerPromise = Promise.resolve({status: 200, data: 'http://localhost:4000'});
   } else {
     gameServerPromise = axios.post(
       window.location.origin + '/api/getGameServer',

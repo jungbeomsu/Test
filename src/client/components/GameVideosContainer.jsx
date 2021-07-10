@@ -11,8 +11,9 @@ import GameScreenVideo from './GameScreenVideo.jsx';
 
 import './GameVideosContainer.css';
 
-let DEV_ENDPOINT = `wss://dev-town-ws.tenuto.co.kr:9009`;
-let PROD_ENDPOINT = `wss://dev-town-ws.tenuto.co.kr:9009`;
+let LOCAL_ENDPOINT = `wss://localhost:9009`;
+let DEV_ENDPOINT = `wss://dev-town-http.tenuto.co.kr:9009`;
+let PROD_ENDPOINT = `wss://dev-town-http.tenuto.co.kr:9009`;
 
 let MAX_VIDEOS_DEFAULT = 10000;
 
@@ -158,7 +159,17 @@ export default function GameVideosContainer(props) {
       })
 
     function initialize(stream) {
-      const ws = new WebSocket(window.location.origin.includes("localhost") ? DEV_ENDPOINT : PROD_ENDPOINT);
+      console.log(process.env.NODE_ENV + '-process.env.NODE_ENV');
+      let serverURL;
+      if(process.env.NODE_ENV == 'none'){
+        serverURL = LOCAL_ENDPOINT;
+      } else if(process.env.NODE_ENV == 'development'){
+        serverURL = DEV_ENDPOINT;
+      } else {
+        serverURL = PROD_ENDPOINT;
+      }
+      
+      const ws = new WebSocket(serverURL);
       ws.isConnected = false;
 
       setOwnStreamMap((prevOwnStreamMap) => {

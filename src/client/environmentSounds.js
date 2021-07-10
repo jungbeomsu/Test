@@ -18,7 +18,11 @@ export function updateSound(myPlayer) {
   if (oldMap !== myPlayer.currentMap) {
     // Clear audio from the old map
     let audioEls = document.getElementsByTagName("audio");
+    
     for (let i = audioEls.length - 1; i >= 0; i--) {
+      
+      if(!audioEls[i].id.includes("audio-"))
+        continue;
       document.body.removeChild(audioEls[i]);
     }
     oldMap = myPlayer.currentMap;
