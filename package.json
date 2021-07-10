@@ -24,7 +24,9 @@
     "start-http:dev": "NODE_ENV=development nodemon dist-server/main.js",
     "start-http:local": "NODE_ENV=none nodemon dist-server/main.js",
     "start-game:dev": "NODE_ENV=development nodemon dist-server/game-server.js",
-    "start-game:local": "NODE_ENV=none nodemon dist-server/game-server.js"
+    "start-game:local": "NODE_ENV=none nodemon dist-server/game-server.js",
+    "start-video:dev": "NODE_ENV=development nodemon dist-server/video-server.js",
+    "start-video:local": "NODE_ENV=none nodemon dist-server/video-server.js"
   },
   "repository": {
     "type": "git",

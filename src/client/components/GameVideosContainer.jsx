@@ -11,7 +11,7 @@ import GameScreenVideo from './GameScreenVideo.jsx';
 
 import './GameVideosContainer.css';
 
-let LOCAL_ENDPOINT = `wss://localhost:9009`;
+let LOCAL_ENDPOINT = `ws://localhost:9009`;
 let DEV_ENDPOINT = `wss://dev-town-http.tenuto.co.kr:9009`;
 let PROD_ENDPOINT = `wss://dev-town-http.tenuto.co.kr:9009`;
 
@@ -159,7 +159,7 @@ export default function GameVideosContainer(props) {
       })
 
     function initialize(stream) {
-      console.log(process.env.NODE_ENV + '-process.env.NODE_ENV');
+      
       let serverURL;
       if(process.env.NODE_ENV == 'none'){
         serverURL = LOCAL_ENDPOINT;
@@ -168,7 +168,8 @@ export default function GameVideosContainer(props) {
       } else {
         serverURL = PROD_ENDPOINT;
       }
-      
+      console.log('Video Server URL: ' + serverURL);
+
       const ws = new WebSocket(serverURL);
       ws.isConnected = false;
 

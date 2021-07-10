@@ -1,11 +1,22 @@
 var WebSocket = require('ws');
 var https = require('https');
+var http = require('http');
 var fs = require('fs');
 
-const server = https.createServer({
-  cert: fs.readFileSync('./ws-fullchain.pem'),
-  key: fs.readFileSync('./ws-privkey.pem'),
-});
+let server; 
+if (process.env.NODE_ENV == 'none') {
+  server = http.createServer();
+} else if (process.env.NODE_ENV == 'development') {
+  server = https.createServer({
+    cert: fs.readFileSync('./ws-fullchain.pem'),
+    key: fs.readFileSync('./ws-privkey.pem'),
+  });
+} else {
+  server = https.createServer({
+    cert: fs.readFileSync('./ws-fullchain.pem'),
+    key: fs.readFileSync('./ws-privkey.pem'),
+  });
+}
 
 const wss = new WebSocket.Server({ server });
 
