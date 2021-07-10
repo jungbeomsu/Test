@@ -80,23 +80,11 @@ wss.on('connection', client => {
   })
 })
 
-// if (process.env.PROD === "true") {
-//   console.log("PROD, running on port 9008");
-//   server.listen(9008);
-// } else {
-//   console.log("DEV, running on port 9009");
-//   server.listen(9009);
-// }
-process.argv.forEach((val, index) => {
-      
-  if(val === 'localhost'){
-    console.log("localhost, video-server running on port 9009");
-    server.listen(9009);
-  } else if(val == 'dev'){
-    console.log("dev, video-server running on port 9009");
-    server.listen(9009);
-  } else if(val == 'prod'){
-    console.log("prod, video-server running on port 9008");
-    server.listen(9008);
-  }
-});
+if (process.env.PROD === "true") {
+  console.log("PROD, running on port 9008");
+  server.listen(9008);
+} else {
+  console.log("DEV, running on port 9009");
+  server.listen(9009);
+}
+

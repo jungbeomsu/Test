@@ -4,6 +4,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 
 import https from 'https';
+import http from 'http';
 import fs from 'fs';
 import { Lib } from 'lance-gg';
 import Game from './common/Game';
@@ -81,45 +82,82 @@ export default function setupGameServer(server, httpServer) {
 // If this file is invoked directly
 // Meant to run on the prod servers
 if (require.main === module) {
-  const PORT = process.env.port || 4000;
-  let credentials = {
-    cert: fs.readFileSync('./game-fullchain.pem'),
-    key: fs.readFileSync('./game-privkey.pem'),
-  };
 
-  var environment = '';
-  let domain;
-  process.argv.forEach((val, index) => {
-    
-    if(val == 'localhost'){
-      domain = 'http://localhost';
-      environment = 'localhost';
-    } else if(val == 'dev'){
-      domain = 'https://dev-town-http.tenuto.co.kr';
-      environment = 'dev';
-    } else if(val == 'prod'){
-      domain = 'https://dev-town-http.tenuto.co.kr';
-      environment = 'prod';
-    }
-  });
+  const PORT = 4000;
+  
+  if (process.env.NODE_ENV == 'none') {
+    const server = express();
+    const httpServer = http.createServer(server);
 
-  console.log("Running " + environment + " https server port " + PORT);
-  const server = express();
-  let httpsServer = https.createServer(credentials, server);
-  httpsServer.listen(PORT);
+    server.use(cors({
+      origin: 'http://localhost:3000',
+      credentials: true,
+      optionsSuccessStatus: 200,
+    }));
+    httpServer.listen(PORT);
+    setupGameServer(server, httpServer);
+    console.log('Running localhost http game server');
 
-  // const options = {
-  //   origin: 'https://dev-town-http.tenuto.co.kr', // 접근 권한을 부여하는 도메인
-  //   credentials: true, // 응답 헤더에 Access-Control-Allow-Credentials 추가
-  //   optionsSuccessStatus: 200 // 응답 상태 200으로 설정 
-  // };
-  const options = {
-    origin: domain, // 접근 권한을 부여하는 도메인
-    credentials: true, // 응답 헤더에 Access-Control-Allow-Credentials 추가
-    optionsSuccessStatus: 200 // 응답 상태 200으로 설정 
-  };
+  } else if (process.env.NODE_ENV == 'development') {
 
-  server.use(cors(options));
-  // server.options('*', cors());
-  setupGameServer(server, httpsServer);
+    let credentials = {
+      cert: fs.readFileSync('./game-fullchain.pem'),
+      key: fs.readFileSync('./game-privkey.pem'),
+    };
+    const server = express();
+    let httpsServer = https.createServer(credentials, server);
+    httpsServer.listen(PORT);
+    const options = {
+      origin: 'https://dev-town-http.tenuto.co.kr', // 접근 권한을 부여하는 도메인
+      credentials: true, // 응답 헤더에 Access-Control-Allow-Credentials 추가
+      optionsSuccessStatus: 200 // 응답 상태 200으로 설정
+    };
+
+    server.use(cors(options));
+    // server.options('*', cors());
+    setupGameServer(server, httpsServer);
+    console.log("Running dev https game server");
+
+  } else {
+
+    let credentials = {
+      cert: fs.readFileSync('./game-fullchain.pem'),
+      key: fs.readFileSync('./game-privkey.pem'),
+    };
+    const server = express();
+    let httpsServer = https.createServer(credentials, server);
+    httpsServer.listen(PORT);
+    const options = {
+      origin: 'https://dev-town-http.tenuto.co.kr', // 접근 권한을 부여하는 도메인
+      credentials: true, // 응답 헤더에 Access-Control-Allow-Credentials 추가
+      optionsSuccessStatus: 200 // 응답 상태 200으로 설정
+    };
+
+    server.use(cors(options));
+    // server.options('*', cors());
+    setupGameServer(server, httpsServer);
+    console.log("Running prod https game server");
+  }
 }
+// if (require.main === module) {
+//   const PORT = process.env.port || 4000;
+//   let credentials = {
+//     cert: fs.readFileSync('./game-fullchain.pem'),
+//     key: fs.readFileSync('./game-privkey.pem'),
+//   };
+//
+//   console.log("Running prod https server");
+//   const server = express();
+//   let httpsServer = https.createServer(credentials, server);
+//   httpsServer.listen(PORT);
+//
+//   const options = {
+//     origin: 'https://dev-town-http.tenuto.co.kr', // 접근 권한을 부여하는 도메인
+//     credentials: true, // 응답 헤더에 Access-Control-Allow-Credentials 추가
+//     optionsSuccessStatus: 200 // 응답 상태 200으로 설정
+//   };
+//
+//   server.use(cors(options));
+//   // server.options('*', cors());
+//   setupGameServer(server, httpsServer);
+// }
