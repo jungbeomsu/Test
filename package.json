@@ -27,8 +27,9 @@
     "start-game:local": "NODE_ENV=none nodemon dist-server/game-server.js",
     "start-video:dev": "NODE_ENV=development nodemon dist-server/video-server.js",
     "start-video:local": "NODE_ENV=none nodemon dist-server/video-server.js",
-    "react-start": "react-scripts start",
-    "react-build": "react-scripts build"
+    "react-start:local": "cross-env PORT=3100 REACT_APP_ENV=local react-scripts start",
+    "react-start:dev": "cross-env PORT=3100 REACT_APP_ENV=dev react-scripts start",
+    "react-build": "cross-env PORT=3100 REACT_APP_ENV=prod react-scripts build"
   },
   "repository": {
     "type": "git",
@@ -45,6 +46,7 @@
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.6",
     "babel-loader": "^8.1.0",
+    "cross-env": "^7.0.3",
     "css-loader": "^3.5.2",
     "file-loader": "^6.0.0",
     "rsync": "^0.6.1",
@@ -69,7 +71,6 @@
     "classnames": "^2.2.6",
     "copy-webpack-plugin": "^5.1.1",
     "cors": "^2.8.5",
-    "cross-env": "^7.0.3",
     "express": "^4.17.1",
     "fast-deep-equal": "^3.1.1",
     "firebase": "^7.14.1",
