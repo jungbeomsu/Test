@@ -66,33 +66,42 @@ export default function GameSelfVideo (props) {
     }
   }
 
+  // TODO 비디오 메뉴 수정할 것!
   let videoMenu = (
-    <div className="selfvideo-stream-controls" style={{backgroundColor: hexToRGB(color, 0.8)}}>
-      <div className="menu-horizontal-container action" onClick={() => props.setVideoEnabled(!props.videoEnabled)}>
-        {props.videoEnabled ?
-          <i key="enable">
-            <span className="fas fa-video menu-video-icon" />
-          </i> 
-        :
-          <i key="disable">
-            <span className="fas fa-video-slash menu-disable-video-icon" />
-          </i> 
-        }
-        <div>{props.videoEnabled ? "Disable video" : "Enable video"}</div>
-      </div>
-      <div className="menu-horizontal-container action" onClick={() => props.setAudioEnabled(!props.audioEnabled)}>
-        {props.audioEnabled ?
-          <i key="enable">
-            <span className="fas fa-microphone menu-mic-icon" />
-          </i> 
-        :
-          <i key="disable">
-            <span className="fas fa-microphone-slash menu-disable-mic-icon" />
-          </i> 
-        }
-        <div>{props.audioEnabled ? "Mute mic" : "Unmute mic"}</div>
+    <div className="selfvideo-stream-controls">
+      {/*<div className="menu-horizontal-container action" onClick={() => props.setVideoEnabled(!props.videoEnabled)}>*/}
+      {/*  {props.videoEnabled ?*/}
+      {/*    <i key="enable">*/}
+      {/*      <span className="fas fa-video menu-video-icon" />*/}
+      {/*    </i>*/}
+      {/*  :*/}
+      {/*    <i key="disable">*/}
+      {/*      <span className="fas fa-video-slash menu-disable-video-icon" />*/}
+      {/*    </i>*/}
+      {/*  }*/}
+      {/*  <div>{props.videoEnabled ? "Disable video" : "Enable video"}</div>*/}
+      {/*</div>*/}
+      {/*<div className="menu-horizontal-container action" onClick={() => props.setAudioEnabled(!props.audioEnabled)}>*/}
+      {/*  {props.audioEnabled ?*/}
+      {/*    <i key="enable">*/}
+      {/*      <span className="fas fa-microphone menu-mic-icon" />*/}
+      {/*    </i>*/}
+      {/*  :*/}
+      {/*    <i key="disable">*/}
+      {/*      <span className="fas fa-microphone-slash menu-disable-mic-icon" />*/}
+      {/*    </i>*/}
+      {/*  }*/}
+      {/*  <div>{props.audioEnabled ? "Mute mic" : "Unmute mic"}</div>*/}
+      {/*</div>*/}
+
+      <div style={{height: 20, padding: "4px 6px", borderRadius: "11px", backgroundColor: "rgba(0,0,0, 0.6)",  position: "absolute", bottom: 8, right: 4, display: "flex", alignItems: "center", textAlign: "center"}}>
+        <span style={{color: "white", fontSize: "11px",}}>
+          유저네임 (나)
+        </span>
       </div>
     </div>
+
+
   );
 
   return (
@@ -101,15 +110,16 @@ export default function GameSelfVideo (props) {
       onMouseEnter={() => setShowMenu(true)}
       onMouseLeave={() => setShowMenu(false)}>
         <div style={{position: "relative"}}>
-          <video id="self-video" style={{borderColor: color}}></video>
-          { showMenu ? videoMenu : null }
+          <video id="self-video"></video>
+          {/*{ showMenu ? videoMenu : null }*/}
+          {videoMenu}
         </div>
-      <input
-        id="self-name-input"
-        className="name-input"
-        placeholder="Enter name here..."
-        onChange={nameOnChange}
-        value={nameValue}></input>
+      {/*<input*/}
+      {/*  id="self-name-input"*/}
+      {/*  className="name-input"*/}
+      {/*  placeholder="Enter name here..."*/}
+      {/*  onChange={nameOnChange}*/}
+      {/*  value={nameValue}></input>*/}
     </div>
   )
 }

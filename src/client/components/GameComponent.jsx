@@ -390,7 +390,7 @@ export default function GameComponent(props) {
 
   return (
     <ModContext.Provider value={modContext}>
-      <div style={{width: "100vw", height: "100vh", paddingLeft: "120px", backgroundColor: "#101033"}}>
+      <div style={{width: "100vw", height: "100vh", backgroundColor: "#101033"}}>
       {/*{props.inGame ?*/}
       {/*  <RoomTitle*/}
       {/*    isPrivate={props.isPrivate}*/}
@@ -431,7 +431,7 @@ export default function GameComponent(props) {
       :
         <></>
       }
-      <div style={{position: "absolute", bottom: "100px", left: "150px"}}>
+      <div style={{position: "absolute", bottom: "40px", right: "40px"}}>
         {videoContainer}
       </div>
 

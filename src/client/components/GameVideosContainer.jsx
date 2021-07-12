@@ -422,8 +422,32 @@ export default function GameVideosContainer(props) {
   )
 
   return (
-    <>
-      <div id="videos" className="videos-container mobileHide">
+    <div style={{display: "flex"}}>
+      <div style={{display: "flex", alignItems: "flex-end"}}>
+        <div style={{backgroundColor: "#C4C4C4", width: "205px", height: "60px", marginRight: "10px", borderRadius: "12px", display: "flex", alignItems: "center", padding: "12px"}}>
+          <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
+            <div style={{width: "36px", height: "36px", backgroundColor: "#949494", borderRadius: "50%", position: "relative"}}>
+              <div style={{width: "12px", height: "12px", backgroundColor: "#00FF47", borderRadius: "50%", position: "absolute", bottom: 0, right: 0, border: "2px solid white"}}>
+
+              </div>
+            </div>
+            <div style={{display: "flex", flexDirection: "column", marginLeft: "8px"}}>
+              <div style={{fontSize: "16px"}}>
+                내 닉네임
+              </div>
+              <div style={{fontSize: "14px", color: "#777777"}}>
+                online
+              </div>
+            </div>
+          </div>
+
+          {/* TODO 이미지 왜 안보이냐 .... 하.... */}
+          <img style={{width: "6px", height: "12px", }} src={'/images/site/right-button-black.png'} />
+
+        </div>
+
+      </div>
+      <div id="videos">
         {isError ? errorComponent : videoComponents}
       </div>
       {/*<div className="videos-max-connections mobileHide">*/}
@@ -453,6 +477,6 @@ export default function GameVideosContainer(props) {
       {/*    message2*/}
       {/*  }*/}
       {/*</div>*/}
-    </>
+    </div>
   );
 }
