@@ -16,6 +16,7 @@ import './GameComponent.css';
 
 import ModContext from './ModContext.jsx';
 import { CHAT_LIMIT } from '../constants';
+import GameVideosContainer2 from "./GameVideosContainer2";
 
 export default function GameComponent(props) {
   const [ownImage, setOwnImage] = useState(null);
@@ -375,7 +376,7 @@ export default function GameComponent(props) {
     shallowCloneMap["playerToDist"] = filteredDistMap;
 
     videoContainer =
-      <GameVideosContainer
+      <GameVideosContainer2
         myPlayerId={myPlayerId}
         playerInfoMap={playerInfoMap}
         playerVideoMap={shallowCloneMap}
