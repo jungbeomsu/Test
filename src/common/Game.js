@@ -10,8 +10,6 @@ import { collisionMap, portalDirectionMap } from './maps';
 import { isBlocked, getNearbyTeleportSquare } from './utils';
 import { Player } from './gameObjects';
 
-import { setShowName } from '../client/drawCanvas';
-
 // /////////////////////////////////////////////////////////
 //
 // GAME ENGINE
@@ -106,13 +104,13 @@ export default class Game extends GameEngine {
           newX = player.position.x - SPEED / MODIFIER;
           if(player.currentDirection === directionMap["left-1"]) {
             player.currentDirection = directionMap["left-2"];
-            console.log(Date.now(), "left1 -> left2");
+            // console.log(Date.now(), "left1 -> left2");
           } else if(player.currentDirection === directionMap["left-2"]) {
             player.currentDirection = directionMap["left-1"];
-            console.log(Date.now(), "left2 -> left1");
+            // console.log(Date.now(), "left2 -> left1");
           } else {
             player.currentDirection = directionMap["left-1"];
-            console.log(Date.now(), "left1");
+            // console.log(Date.now(), "left1");
           }
           this.localDir = player.currentDirection;
           break;
@@ -120,13 +118,13 @@ export default class Game extends GameEngine {
           newX = player.position.x + SPEED / MODIFIER;
           if(player.currentDirection === directionMap["right-1"]) {
             player.currentDirection = directionMap["right-2"];
-            console.log(Date.now(), "right1 -> right2");
+            // console.log(Date.now(), "right1 -> right2");
           } else if(player.currentDirection === directionMap["right-2"]) {
             player.currentDirection = directionMap["right-1"];
-            console.log(Date.now(), "right2 -> right1");
+            // console.log(Date.now(), "right2 -> right1");
           } else {
             player.currentDirection = directionMap["right-1"];
-            console.log(Date.now(), "right1");
+            // console.log(Date.now(), "right1");
           }
           this.localDir = player.currentDirection;
           break;
@@ -134,13 +132,13 @@ export default class Game extends GameEngine {
           newY = player.position.y - SPEED / MODIFIER;
           if(player.currentDirection === directionMap["up-1"]) {
             player.currentDirection = directionMap["up-2"];
-            console.log(Date.now(), "up1 -> up2");
+            // console.log(Date.now(), "up1 -> up2");
           } else if(player.currentDirection === directionMap["up-2"]) {
             player.currentDirection = directionMap["up-1"];
-            console.log(Date.now(), "up2 -> up1");
+            // console.log(Date.now(), "up2 -> up1");
           } else {
             player.currentDirection = directionMap["up-1"];
-            console.log(Date.now(), "up1");
+            // console.log(Date.now(), "up1");
           }
           this.localDir = player.currentDirection;
           break;
@@ -148,13 +146,13 @@ export default class Game extends GameEngine {
           newY = player.position.y + SPEED / MODIFIER;
           if(player.currentDirection === directionMap["down-1"]) {
             player.currentDirection = directionMap["down-2"];
-            console.log(Date.now(), "down1 -> down2");
+            // console.log(Date.now(), "down1 -> down2");
           } else if(player.currentDirection === directionMap["down-2"]) {
             player.currentDirection = directionMap["down-1"];
-            console.log(Date.now(), "down2 -> down1");
+            // console.log(Date.now(), "down2 -> down1");
           } else {
             player.currentDirection = directionMap["down-1"];
-            console.log(Date.now(), "down1");
+            // console.log(Date.now(), "down1");
           }
           this.localDir = player.currentDirection;
           break;

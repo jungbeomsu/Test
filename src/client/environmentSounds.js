@@ -1,4 +1,4 @@
-import { audioMap } from '../common/maps';
+import { audioMap } from '../common/mapsResource';
 
 let oldMap;
 
@@ -18,7 +18,11 @@ export function updateSound(myPlayer) {
   if (oldMap !== myPlayer.currentMap) {
     // Clear audio from the old map
     let audioEls = document.getElementsByTagName("audio");
+
     for (let i = audioEls.length - 1; i >= 0; i--) {
+
+      if(!audioEls[i].id.includes("audio-"))
+        continue;
       document.body.removeChild(audioEls[i]);
     }
     oldMap = myPlayer.currentMap;
@@ -35,7 +39,7 @@ export function updateSound(myPlayer) {
         } else {
           audioEl = document.createElement("audio");
           audioEl.id = "audio-" + bgAudio.id;
-          audioEl.src = bgAudio.path;
+          audioEl.src = require(`./${bgAudio.path}`).default;
           audioEl.volume = bgAudio.volume[Math.ceil(dist)];
           audioEl.loop = true;
           audioEl.play();

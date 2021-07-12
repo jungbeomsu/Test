@@ -3,13 +3,11 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import axios from 'axios';
 
-import './index.html';
-
 import './reset.css';
 import './fonts.css';
 import './main.css';
 
-import { auth } from './constants';
+import {Config, auth} from './constants';
 import { dataOnSignIn } from './userData';
 import { localPreferences } from './LocalPreferences';
 import { amplitudeInstance } from './amplitude';
@@ -27,7 +25,7 @@ if (!userStorage) {
   let newId = makeId(20);
   let data = {id: newId, overAge: false, analytics: false, seenTutorial: false};
   localPreferences.set('user', data);
-  axios.post(window.location.origin + '/api/addId', {
+  axios.post(Config.apiServerPrefix + '/api/addId', {
     id: newId,
   });
 
@@ -69,4 +67,5 @@ let App = () => {
   );
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+// ReactDOM.render(<App />, document.getElementById('root'));
+export default App;

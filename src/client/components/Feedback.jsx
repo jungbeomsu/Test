@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import axios from 'axios';
 
 import './Feedback.css';
+import {Config} from "../constants";
 
 export default function Feedback(props) {
   let [name, setName] = useState("");
@@ -16,7 +17,7 @@ export default function Feedback(props) {
   let submitFeedback = (e) => {
     e.preventDefault();
     axios
-    .post(window.location.origin + '/api/sendFeedback', {
+    .post(Config.apiServerPrefix + '/api/sendFeedback', {
       time: JSON.stringify(new Date()),
       name: name,
       email: email,
@@ -53,7 +54,7 @@ export default function Feedback(props) {
         }
         <p>Problem? Feature request? Tell us about it:</p>
         <div className="ot-feedback-input">
-          <div>Name:</div> 
+          <div>Name:</div>
           <input type="text" placeholder="optional" value={name} onChange={(e)=>{ setName(e.target.value) }}></input>
          </div>
         <div className="ot-feedback-input">

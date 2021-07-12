@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 
-import './Landing.css';
+// import './Landing.css';
 
 export default function Landing() {
   return (
@@ -33,7 +33,7 @@ export default function Landing() {
       <hr style={{borderTop: "1px solid #fbb258"}} />
 
       <div className="ot-landing-section">
-        
+
         <div style={{width: "250px"}}>
           <div >
             <p>Online Town is designed to prioritize your safety and to protect your data.</p>
@@ -52,7 +52,7 @@ export default function Landing() {
             <p>Online Town provides you a handful of different maps to choose from and more are on the way!</p>
           </div>
         </div>
-      
+
         <img className="logo-icon" src="/images/maps/preview/preview-apartment.png" style={{height: "100px"}} />
         <img className="logo-icon" src="/images/maps/preview/preview-black_chairs.png" style={{height: "100px"}} />
         <img className="logo-icon" src="/images/maps/preview/preview-office.png" style={{height: "100px"}} />

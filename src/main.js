@@ -4,6 +4,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import bcrypt from 'bcrypt';
 import https from 'https';
+import http from 'http';
 import fs from 'fs';
 import { db, auth } from './server/constants';
 
@@ -15,6 +16,7 @@ const mg = mailgun({
 });
 
 import setupGameServer from './game-server'
+import cors from "cors";
 
 const PORT = process.env.PORT || 3000;
 const INDEX = path.join(__dirname, '../dist/index.html');
@@ -23,9 +25,24 @@ const INDEX = path.join(__dirname, '../dist/index.html');
 // get the count of when they've left, but that's for later
 // Ideally we don't have both "PROD" and "STAGING" env variables
 let GAME_SERVERS;
-if (process.env.STAGING === "true") {
+// if (process.env.STAGING === "true") {
+//   GAME_SERVERS = {
+//     "BLANK": 0
+//   }
+// } else {
+//   GAME_SERVERS = {
+//     "https://dev-town-game.tenuto.co.kr": 0,
+//   }
+// }
+
+console.log("--------", process.env.NODE_ENV);
+if (process.env.NODE_ENV === "none") {
   GAME_SERVERS = {
-    "BLANK": 0
+    "http://localhost:4000": 0,
+  }
+} else if (process.env.NODE_ENV === "development") {
+  GAME_SERVERS = {
+    "https://dev-town-game.tenuto.co.kr": 0,
   }
 } else {
   GAME_SERVERS = {
@@ -35,6 +52,12 @@ if (process.env.STAGING === "true") {
 
 // define routes and socket
 const server = express();
+
+server.use(cors({
+  origin: 'http://localhost:3100',
+  credentials: true,
+  optionsSuccessStatus: 200,
+}));
 
 // parse application/json
 server.use(bodyParser.json());
@@ -350,8 +373,34 @@ server.post('/api/publicRoomInfo', (req, res) => {
   });
 })
 
-if (process.env.PROD === "true") {
-  // run only http server
+// if (process.env.PROD === "true") {
+//   // run only http server
+//   let credentials = {
+//     cert: fs.readFileSync('BLANK'),
+//     key: fs.readFileSync('BLANK'),
+//   };
+//
+//   console.log("Running prod https server");
+//   let httpsServer = https.createServer(credentials, server);
+//   httpsServer.listen(PORT);
+// } else {
+//   // run http server and game server
+//   console.log("Running dev http and game server");
+//   let requestHandler = server.listen(PORT, () => console.log(`Listening on ${PORT}`));
+//   setupGameServer(server, requestHandler);
+// }
+if (process.env.NODE_ENV === "none") {
+
+  console.log("Running localhost http server");
+  server.listen(PORT, () => console.log(`Listening on ${PORT}, ${process.env.NODE_ENV}`));
+
+} else if (process.env.NODE_ENV === "development") {
+
+  console.log("Running dev http server");
+  server.listen(PORT, () => console.log(`Listening on ${PORT}, ${process.env.NODE_ENV}`));
+
+} else {
+
   let credentials = {
     cert: fs.readFileSync('BLANK'),
     key: fs.readFileSync('BLANK'),
@@ -360,9 +409,4 @@ if (process.env.PROD === "true") {
   console.log("Running prod https server");
   let httpsServer = https.createServer(credentials, server);
   httpsServer.listen(PORT);
-} else {
-  // run http server and game server
-  console.log("Running dev http and game server");
-  let requestHandler = server.listen(PORT, () => console.log(`Listening on ${PORT}`));
-  setupGameServer(server, requestHandler);
 }

@@ -1,5 +1,5 @@
 export var imageMap = {
-  301: '/images/maps/standalone/tenuto_office.png',
+  301: 'images/maps/standalone/tenuto_office.png',
 }
 
 export var imageDimensionsMap = {
@@ -56,7 +56,7 @@ export var audioMap = {
   301: [
     {
       id: "fireplace",
-      path: "/sounds/fireplace.wav",
+      path: "sounds/fireplace.wav",
       volume: [1.0, 1.0, 0.8, 0.5, 0.2],
       pos: [3, 12]
     }
@@ -66,7 +66,7 @@ export var audioMap = {
 export var animMap = {
   301: [
     {
-      frames: [...Array(4)].map((_, i) => "/images/maps/shared/fireplace_animation/fireplace" + (i + 1) + ".png"),
+      frames: [...Array(4)].map((_, i) => "images/maps/shared/fireplace_animation/fireplace" + (i + 1) + ".png"),
       pos: [2, 12],
       frameGap: 5
     }

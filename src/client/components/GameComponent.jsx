@@ -249,6 +249,7 @@ export default function GameComponent(props) {
 
   function gameServerAPIURL() {
     let gameServerURL = new URL(clientEngineRef.current.options.serverURL);
+    console.log("GameComponent->gameServerAPIURL"+gameServerAPIURL)
     let protocol = "https:";
     if (gameServerURL.hostname === "localhost") {
       protocol = "http:"

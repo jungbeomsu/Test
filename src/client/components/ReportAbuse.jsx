@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import axios from 'axios';
 
 import './Feedback.css';
+import {Config} from "../constants";
 
 export default function ReportAbuse (props) {
   let [name, setName] = useState("");
@@ -16,7 +17,7 @@ export default function ReportAbuse (props) {
   let submitFeedback = (e) => {
     e.preventDefault();
     axios
-    .post(window.location.origin + '/api/sendReport', {
+    .post(Config.apiServerPrefix + '/api/sendReport', {
       time: JSON.stringify(new Date()),
       site: window.location.href,
       name: name,
@@ -54,7 +55,7 @@ export default function ReportAbuse (props) {
         }
         <p>What is happening? We will try to respond as soon as possible.</p>
         <div className="ot-feedback-input">
-          <div>Name:</div> 
+          <div>Name:</div>
           <input type="text" placeholder="optional" value={name} onChange={(e)=>{ setName(e.target.value) }}></input>
          </div>
         <div className="ot-feedback-input">

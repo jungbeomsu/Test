@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import classNames from 'classnames';
 import axios from 'axios';
 
-import { auth } from '../constants';
+import {Config, auth} from '../constants';
 import { isProd, getNameFromRoom, getURLFromRoom } from '../utils';
 import { dataOnSignOut } from '../userData';
 import './ProfileModal.css';
@@ -24,7 +24,7 @@ export default function ProfileModal(props) {
     }
     let email = emailInput.value;
 
-    axios.post(window.location.origin + '/api/sendEmailSignIn', {
+    axios.post(Config.apiServerPrefix + '/api/sendEmailSignIn', {
       email: email,
       origin: window.location.origin
     }).then(() => {
@@ -88,7 +88,7 @@ export default function ProfileModal(props) {
       }
       return daysAgo + " days ago";
     }
-    
+
     let caret = (
       <>
         {
@@ -102,7 +102,7 @@ export default function ProfileModal(props) {
 
     let toggleRooms = (
       <span id="toggle-rooms" className="action" onClick={() => setRoomList(!roomList)}>
-        <p>My Rooms  
+        <p>My Rooms
           {caret}
         </p>
       </span>
@@ -143,7 +143,7 @@ export default function ProfileModal(props) {
     // );
 
     // if (!props.showNewRoom){
-    //   createNewRoom = 
+    //   createNewRoom =
     //     <></>
     // }
 
@@ -208,7 +208,7 @@ export default function ProfileModal(props) {
             servers. This means you lose your room history and preferences when you clear
             browser data or switch computers.
           </div>
-        : 
+        :
           <div
             className="bold action ot-profile-content"
             onClick={() => setShowInfo(true)}>

@@ -8,19 +8,20 @@ import GameHeader from './GameHeader.jsx';
 
 import './CreatePrivate.css';
 
-const Logo = '/images/site/logo.png';
-const Return = '/images/site/return.png';
-const PreviewTenutoOffice = '/images/maps/preview/preview-tenuto.png';
-const PreviewApartment = '/images/maps/preview/preview-apartment.png';
-const PreviewConference = '/images/maps/preview/preview-conference.png';
-const PreviewOffice = '/images/maps/preview/preview-office.png';
-const PreviewBlackChairs = '/images/maps/preview/preview-black_chairs.png';
-const PreviewDolores = '/images/maps/preview/preview-dolores.png';
-const PreviewTimesSquare = '/images/maps/preview/preview-times_square.png';
-const PreviewGolden = '/images/maps/preview/preview-golden.png';
+import Logo from '../images/site/logo.png';
+import Return from '../images/site/return.png';
+import PreviewTenutoOffice from '../images/maps/preview/preview-tenuto.png';
+import PreviewApartment from '../images/maps/preview/preview-apartment.png';
+import PreviewConference from '../images/maps/preview/preview-conference.png';
+import PreviewOffice from '../images/maps/preview/preview-office.png';
+import PreviewBlackChairs from '../images/maps/preview/preview-black_chairs.png';
+// import PreviewDolores from '../images/maps/preview/preview-dolores.png';
+import PreviewTimesSquare from '../images/maps/preview/preview-times_square.png';
+import PreviewGolden from '../images/maps/preview/preview-golden.png';
 
 import { makeId, getSubDomain } from '../utils.js';
 import { amplitudeAnonInstance } from "../amplitude";
+import {Config} from "../constants";
 
 const CreatePrivateForm = () => {
   let [showNewRoom, setShowNewRoom] = useState(false);
@@ -46,7 +47,7 @@ const CreatePrivateForm = () => {
     }
 
     let roomName = randomId + "\\" + name;
-    axios.post(window.location.origin + '/api/createRoom', {
+    axios.post(Config.apiServerPrefix + '/api/createRoom', {
       name: roomName,
       password: password,
       modPassword: modPassword,

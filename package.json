@@ -8,13 +8,28 @@
     "build-client": "webpack --config webpack.dev.js",
     "build-server": "babel src --source-maps --out-dir dist-server",
     "build": "npm run build-client && npm run build-server",
+    "build-dev": "webpack --config webpack.dev.js && babel src --out-dir dist-server",
+    "build-local": "webpack --config webpack.local.js && babel src --out-dir dist-server",
     "build-prod": "webpack --config webpack.prod.js && babel src --out-dir dist-server",
     "dev": "webpack --config webpack.dev.js --watch",
     "start-http": "node dist-server/main.js",
     "start-game": "node dist-server/game-server.js",
     "start-video": "node dist-server/video-server.js",
     "start-http-keepalive": "sh ./src/keep_alive.sh npm run start-http",
-    "start-game-keepalive": "sh ./src/keep_alive.sh npm run start-game"
+    "start-game-keepalive": "sh ./src/keep_alive.sh npm run start-game",
+    "build-client:dev": "webpack --config webpack.dev.js --watch",
+    "build-client:local": "webpack --config webpack.local.js --watch",
+    "build-server:dev": "babel src --source-maps --watch --out-dir dist-server",
+    "build-server:local": "babel src --source-maps --watch --out-dir dist-server",
+    "start-http:dev": "NODE_ENV=development nodemon dist-server/main.js",
+    "start-http:local": "NODE_ENV=none nodemon dist-server/main.js",
+    "start-game:dev": "NODE_ENV=development nodemon dist-server/game-server.js",
+    "start-game:local": "NODE_ENV=none nodemon dist-server/game-server.js",
+    "start-video:dev": "NODE_ENV=development nodemon dist-server/video-server.js",
+    "start-video:local": "NODE_ENV=none nodemon dist-server/video-server.js",
+    "react-start:local": "cross-env PORT=3100 REACT_APP_ENV=local react-scripts start",
+    "react-start:dev": "cross-env PORT=3100 REACT_APP_ENV=dev react-scripts start",
+    "react-build": "cross-env PORT=3100 REACT_APP_ENV=prod react-scripts build"
   },
   "repository": {
     "type": "git",
@@ -31,6 +46,7 @@
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.6",
     "babel-loader": "^8.1.0",
+    "cross-env": "^7.0.3",
     "css-loader": "^3.5.2",
     "file-loader": "^6.0.0",
     "rsync": "^0.6.1",
@@ -39,11 +55,14 @@
     "terser-webpack-plugin": "^2.3.5",
     "ts-loader": "^6.2.2",
     "typescript": "^3.8.3",
-    "webpack": "^4.42.1",
+    "webpack": "^4.44.2",
     "webpack-cli": "^3.3.11",
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "4.0.3",
     "@babel/plugin-transform-runtime": "^7.9.0",
     "@babel/runtime": "^7.9.2",
     "amplitude-js": "^5.11.0",
@@ -67,5 +86,17 @@
     "simple-peer": "^9.6.2",
     "ts-keycode-enum": "^1.0.6",
     "webpack-copy-plugin": "0.0.4"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

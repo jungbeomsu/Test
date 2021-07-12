@@ -1,6 +1,27 @@
 import React from 'react';
 import firebase from 'firebase';
 
+const env = {
+  name: {
+    local: "local", dev: "dev", prod: "prod"
+  },
+  api: {
+    local: "http://localhost:3000",
+    dev: "https://dev-town-http.tenuto.co.kr",
+    prod: "TBD"
+  },
+  video: {
+    local: "ws://localhost:9009",
+    dev: "wss://dev-town-ws.tenuto.co.kr:9009",
+    prod: "TBD"
+  }
+}
+
+export const Config = {
+  apiServerPrefix: env.api[process.env.REACT_APP_ENV],
+  videoServerPrefix: env.video[process.env.REACT_APP_ENV]
+}
+
 firebase.initializeApp({
   apiKey: "BLANK",
   authDomain: "BLANK",
@@ -49,38 +70,40 @@ export var PUBLIC_MAP = {
 };
 
 export var characterIds = {
-  1: "/images/characters/player_0.png",
-  2: "/images/characters/player_1.png",
-  3: "/images/characters/player_2.png",
-  4: "/images/characters/player_3.png",
-  5: "/images/characters/player_4.png",
-  6: "/images/characters/player_5.png",
-  7: "/images/characters/player_6.png",
-  8: "/images/characters/player_7.png",
-  9: "/images/characters/player_8.png",
-  10: "/images/characters/player_9.png",
-  11: "/images/characters/player_10.png",
-  12: "/images/characters/player_11.png",
-  13: "/images/characters/player_12.png",
-  14: "/images/characters/player_13.png",
-  15: "/images/characters/player_14.png",
-  16: "/images/characters/player_15.png",
-  100: "/images/characters/player_bike_0.png",
-  101: "/images/characters/player_bike_6.png",
-  102: "/images/characters/player_bike_7.png",
-  164: "/images/characters/james.png",
-  201: "/images/characters/player_0_64.png",
-  211: "/images/characters/gather/1.png",
-  212: "/images/characters/gather/2.png",
-  213: "/images/characters/gather/3.png",
-  214: "/images/characters/gather/4.png",
-  215: "/images/characters/gather/5.png",
-  216: "/images/characters/gather/6.png",
-  217: "/images/characters/gather/7.png",
-  218: "/images/characters/gather/8.png",
-  219: "/images/characters/gather/9.png",
+  1: "images/characters/player_0.png",
+  2: "images/characters/player_1.png",
+  3: "images/characters/player_2.png",
+  4: "images/characters/player_3.png",
+  5: "images/characters/player_4.png",
+  6: "images/characters/player_5.png",
+  7: "images/characters/player_6.png",
+  8: "images/characters/player_7.png",
+  9: "images/characters/player_8.png",
+  10: "images/characters/player_9.png",
+  11: "images/characters/player_10.png",
+  12: "images/characters/player_11.png",
+  13: "images/characters/player_12.png",
+  14: "images/characters/player_13.png",
+  15: "images/characters/player_14.png",
+  16: "images/characters/player_15.png",
+  100: "images/characters/player_bike_0.png",
+  101: "images/characters/player_bike_6.png",
+  102: "images/characters/player_bike_7.png",
+  164: "images/characters/james.png",
+  201: "images/characters/player_0_64.png",
+  211: "images/characters/gather/1.png",
+  212: "images/characters/gather/2.png",
+  213: "images/characters/gather/3.png",
+  214: "images/characters/gather/4.png",
+  215: "images/characters/gather/5.png",
+  216: "images/characters/gather/6.png",
+  217: "images/characters/gather/7.png",
+  218: "images/characters/gather/8.png",
+  219: "images/characters/gather/9.png",
 
 }
 
 
 export var CHAT_LIMIT = 100;
+
+export const apiServerPrefix = "http://localhost:3000"
