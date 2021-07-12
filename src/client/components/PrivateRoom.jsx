@@ -10,7 +10,7 @@ import PasswordPrompt from './PasswordPrompt.jsx';
 
 import { amplitudeAnonInstance, amplitudeInstance } from '../amplitude';
 import { getRoomFromPath } from '../utils';
-import {apiServerPrefix, auth} from '../constants';
+import {Config, auth} from '../constants';
 import { localPreferences } from '../LocalPreferences.js';
 import { updateUserData } from '../userData.js';
 
@@ -89,7 +89,7 @@ export default function PrivateRoom() {
   const [name2, setName2] = useState();
 
   useEffect(() => {
-    axios.get(apiServerPrefix + '/api/hasPassword', {
+    axios.get(Config.apiServerPrefix + '/api/hasPassword', {
       params: { roomId: getRoomFromPath() }
     })
     .then(response => {
@@ -106,7 +106,7 @@ export default function PrivateRoom() {
     return auth.onAuthStateChanged(user => {
       if(user) {
         user.getIdToken(true).then(token => {
-          return axios.get(apiServerPrefix + '/api/hasAccess', {
+          return axios.get(Config.apiServerPrefix + '/api/hasAccess', {
             params: {
               roomId: getRoomFromPath(),
               authToken: token,

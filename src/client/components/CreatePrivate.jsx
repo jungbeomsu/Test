@@ -21,7 +21,7 @@ import PreviewGolden from '../images/maps/preview/preview-golden.png';
 
 import { makeId, getSubDomain } from '../utils.js';
 import { amplitudeAnonInstance } from "../amplitude";
-import {apiServerPrefix} from "../constants";
+import {Config} from "../constants";
 
 const CreatePrivateForm = () => {
   let [showNewRoom, setShowNewRoom] = useState(false);
@@ -47,7 +47,7 @@ const CreatePrivateForm = () => {
     }
 
     let roomName = randomId + "\\" + name;
-    axios.post(apiServerPrefix + '/api/createRoom', {
+    axios.post(Config.apiServerPrefix + '/api/createRoom', {
       name: roomName,
       password: password,
       modPassword: modPassword,

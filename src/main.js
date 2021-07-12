@@ -35,6 +35,7 @@ let GAME_SERVERS;
 //   }
 // }
 
+console.log("--------", process.env.NODE_ENV);
 if (process.env.NODE_ENV === "none") {
   GAME_SERVERS = {
     "http://localhost:4000": 0,

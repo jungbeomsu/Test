@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import axios from 'axios';
 
 import './Feedback.css';
-import {apiServerPrefix} from "../constants";
+import {Config} from "../constants";
 
 export default function Feedback(props) {
   let [name, setName] = useState("");
@@ -17,7 +17,7 @@ export default function Feedback(props) {
   let submitFeedback = (e) => {
     e.preventDefault();
     axios
-    .post(apiServerPrefix + '/api/sendFeedback', {
+    .post(Config.apiServerPrefix + '/api/sendFeedback', {
       time: JSON.stringify(new Date()),
       name: name,
       email: email,

@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import axios from 'axios';
 
 import './Feedback.css';
-import {apiServerPrefix} from "../constants";
+import {Config} from "../constants";
 
 export default function ReportAbuse (props) {
   let [name, setName] = useState("");
@@ -17,7 +17,7 @@ export default function ReportAbuse (props) {
   let submitFeedback = (e) => {
     e.preventDefault();
     axios
-    .post(apiServerPrefix + '/api/sendReport', {
+    .post(Config.apiServerPrefix + '/api/sendReport', {
       time: JSON.stringify(new Date()),
       site: window.location.href,
       name: name,

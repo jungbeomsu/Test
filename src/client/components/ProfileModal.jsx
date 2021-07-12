@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import classNames from 'classnames';
 import axios from 'axios';
 
-import {apiServerPrefix, auth} from '../constants';
+import {Config, auth} from '../constants';
 import { isProd, getNameFromRoom, getURLFromRoom } from '../utils';
 import { dataOnSignOut } from '../userData';
 import './ProfileModal.css';
@@ -24,7 +24,7 @@ export default function ProfileModal(props) {
     }
     let email = emailInput.value;
 
-    axios.post(apiServerPrefix + '/api/sendEmailSignIn', {
+    axios.post(Config.apiServerPrefix + '/api/sendEmailSignIn', {
       email: email,
       origin: window.location.origin
     }).then(() => {

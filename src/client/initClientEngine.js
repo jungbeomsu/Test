@@ -4,7 +4,7 @@ import { Lib, Renderer } from 'lance-gg';
 import Game from '../common/Game';
 import TownClientEngine from './TownClientEngine';
 import { getRoomFromPath } from './utils';
-import {apiServerPrefix} from "./constants";
+import {Config} from "./constants";
 const qsOptions = querystring.parse(location.search);
 
 // returns clientEngine
@@ -21,7 +21,7 @@ export default async function initClientEngine() {
   };
 
   let gameServerPromise = axios.post(
-    apiServerPrefix + '/api/getGameServer',
+    Config.apiServerPrefix + '/api/getGameServer',
     {
       room: getRoomFromPath(),
     },
@@ -35,7 +35,7 @@ export default async function initClientEngine() {
       return null;
     }
     if (response.data) {
-      console.log(response.data);
+      console.log("GAME_SERVER:", response.data);
       defaults['serverURL'] = response.data;
     } else {
       console.log('connecting to default localhost');

@@ -11,9 +11,7 @@ import GameScreenVideo from './GameScreenVideo.jsx';
 
 import './GameVideosContainer.css';
 
-let LOCAL_ENDPOINT = `ws://localhost:9009`;
-let DEV_ENDPOINT = `wss://dev-town-ws.tenuto.co.kr:9009`;
-let PROD_ENDPOINT = `wss://dev-town-ws.tenuto.co.kr:9009`;
+import {Config} from "../constants";
 
 let MAX_VIDEOS_DEFAULT = 10000;
 
@@ -160,18 +158,9 @@ export default function GameVideosContainer(props) {
 
     function initialize(stream) {
 
-      console.log(process.env.REACT_APP_ENV)
-      let serverURL;
-      if(process.env.REACT_APP_ENV === 'local'){
-        serverURL = LOCAL_ENDPOINT;
-      } else if(process.env.REACT_APP_ENV === 'development'){
-        serverURL = DEV_ENDPOINT;
-      } else {
-        serverURL = PROD_ENDPOINT;
-      }
-      console.log('Video Server URL: ' + serverURL);
+      console.log('Video Server URL: ' + Config.videoServerPrefix);
 
-      const ws = new WebSocket(DEV_ENDPOINT);
+      const ws = new WebSocket(Config.videoServerPrefix);
       ws.isConnected = false;
 
       setOwnStreamMap((prevOwnStreamMap) => {

@@ -1,6 +1,27 @@
 import React from 'react';
 import firebase from 'firebase';
 
+const env = {
+  name: {
+    local: "local", dev: "dev", prod: "prod"
+  },
+  api: {
+    local: "http://localhost:3000",
+    dev: "https://dev-town-http.tenuto.co.kr",
+    prod: "TBD"
+  },
+  video: {
+    local: "ws://localhost:9009",
+    dev: "wss://dev-town-ws.tenuto.co.kr:9009",
+    prod: "TBD"
+  }
+}
+
+export const Config = {
+  apiServerPrefix: env.api[process.env.REACT_APP_ENV],
+  videoServerPrefix: env.video[process.env.REACT_APP_ENV]
+}
+
 firebase.initializeApp({
   apiKey: "BLANK",
   authDomain: "BLANK",
