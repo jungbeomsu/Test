@@ -391,7 +391,7 @@ export default function GameComponent(props) {
 
   return (
     <ModContext.Provider value={modContext}>
-      <div style={{width: "100vw", height: "100vh", paddingLeft: "120px", backgroundColor: "#101033"}}>
+      <div style={{ backgroundColor: "#101033"}}>
       {/*{props.inGame ?*/}
       {/*  <RoomTitle*/}
       {/*    isPrivate={props.isPrivate}*/}

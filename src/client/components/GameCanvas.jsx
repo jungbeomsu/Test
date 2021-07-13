@@ -36,7 +36,7 @@ export default function GameCanvas (props) {
     <div style={{position: "relative"}} className="game-container">
       {linkContainer}
       {/*<div style={{position:"absolute", top: 0, left: 0, width: 200, height: 100, backgroundColor: "red"}}>dkfg23232df</div>*/}
-      <canvas id="canvas" style={{width: "100%", height: "100vh"}} />
+      <canvas id="canvas" style={{width: "100vw", height: "100vh"}} />
       {
         props.inGame ?
           <>
