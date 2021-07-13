@@ -237,7 +237,7 @@ export default function GameVideosContainer2(props) {
     }
     console.log('getGameVideo: ', playerId);
     return streamMap[playerId] ? (
-      <>
+      <React.Fragment key={playerId}>
         <GameVideo
           key={playerId}
           id={playerId}
@@ -263,7 +263,7 @@ export default function GameVideosContainer2(props) {
             :
             <></>
         }
-      </>
+      </React.Fragment>
     ) : (<div key={playerId}>Hello World</div>);
   }
 

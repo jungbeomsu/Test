@@ -343,7 +343,7 @@ export default function GameVideosContainer(props) {
     }
 
     return (
-      <>
+      <React.Fragment key={playerId}>
       <GameVideo
         key={playerId}
         id={playerId}
@@ -369,7 +369,7 @@ export default function GameVideosContainer(props) {
         :
         <></>
       }
-      </>
+      </React.Fragment>
     );
   }
 
