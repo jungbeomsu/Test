@@ -51,11 +51,11 @@ export default function GameCanvas (props) {
             {/*  playerVideoMap={props.playerVideoMap}*/}
             {/*  profPics={props.profPics}*/}
             {/*/>*/}
-            <GameChangeCharacter
-              setCharacterId={props.setCharacterId}
-              characterId={props.characterId}
-              currentMap={props.currentMap}
-            />
+            {/*<GameChangeCharacter*/}
+            {/*  setCharacterId={props.setCharacterId}*/}
+            {/*  characterId={props.characterId}*/}
+            {/*  currentMap={props.currentMap}*/}
+            {/*/>*/}
           </>
         :
           null
