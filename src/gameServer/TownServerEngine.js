@@ -7,9 +7,8 @@ import osu from 'node-os-utils';
 import { directionMap, VIDEO_THRESHOLD } from '../common/constants';
 import { collisionMap } from '../common/maps';
 import { Player } from '../common/gameObjects';
-import { db, auth } from './constants';
+import { db, auth } from '../server/constants';
 import firebase from 'firebase-admin';
-import { logAmpEvent } from './amplitude-server';
 
 import { characterMap } from '../common/maps';
 import { getPlayerDistance } from '../common/utils';
@@ -288,7 +287,7 @@ export default class TownServerEngine extends ServerEngine {
       if (!infoFromRoom) {
         return;
       }
-
+      // DB 저장
       Object.keys(playersObj).forEach(id => {
         if (!(id in infoFromRoom)) {
           return;

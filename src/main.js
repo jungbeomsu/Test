@@ -15,7 +15,6 @@ const mg = mailgun({
   domain: DOMAIN
 });
 
-import setupGameServer from './game-server'
 import cors from "cors";
 
 const PORT = process.env.PORT || 3000;
