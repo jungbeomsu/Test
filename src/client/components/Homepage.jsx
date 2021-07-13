@@ -1,23 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
-import classNames from 'classnames';
-import { Link } from 'react-router-dom'
-import axios from 'axios';
+import React, {useEffect, useState} from 'react';
 
 import YesNoPrompt from './YesNoPrompt.jsx';
-import GameComponent from './GameComponent.jsx';
-import PasswordPrompt from './PasswordPrompt.jsx';
-import ProfileModal from './ProfileModal.jsx';
 import Feedback from './Feedback.jsx';
 
-import { localPreferences } from '../LocalPreferences.js';
-import { updateUserData } from '../userData.js';
-import { amplitudeAnonInstance, amplitudeInstance } from '../amplitude.js';
-import { getRoomFromPath, getSubDomain } from '../utils.js';
-import { db } from '../constants';
-
-import KakaoLogin from "react-kakao-login";
+import {localPreferences} from '../LocalPreferences.js';
+import {updateUserData} from '../userData.js';
 
 import './Homepage.css';
+import Modal from "react-modal";
 
 const Twitter = '/images/site/twitter.png';
 const {Kakao} = window;
@@ -123,7 +113,9 @@ function LoginWithKakao({login}) {
 
 
   return (
-    <div style={{
+    <div
+      onClick={login}
+      style={{
       width: '324px',
       height: '48px',
       background: '#FFE812',
@@ -135,8 +127,7 @@ function LoginWithKakao({login}) {
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center'
-    }}
-         onClick={login}>
+    }}>
       <div
         style={{
           fontWeight: 'normal',
@@ -155,33 +146,22 @@ function LoginWithKakao({login}) {
   )
 }
 
-function LoggedIn() {
-
-  return (
-    <div style={{maxWidth: "338px", textAlign: "center", marginTop: "100px"}} className="writing">
-      You Logged In
-    </div>
-
-
-  )
-}
-
 function Logout({logout}) {
   return (
-    <div style={{
-      width: '324px',
-      height: '48px',
-      background: 'powderblue',
-      border: '1px solid #F0F0F0',
-      boxSizing: 'border-box',
-      borderRadius: '8px',
-      marginBottom: '12px',
-      cursor: 'pointer',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center'
-    }}
-         onClick={logout}>
+    <div
+      onClick={logout}
+      style={{
+        backgroundColor: "forestgreen",
+        width: "200px",
+        height: "60px",
+        borderRadius: "10px",
+        color: "white",
+        fontSize: "25px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+      }}
+    >
       <div
         style={{
           fontWeight: 'normal',
@@ -202,6 +182,7 @@ function Logout({logout}) {
 
 export default function Homepage() {
   const [isLogin, setLogin] = useState(undefined);
+  const [modalIsOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     if (!localStorage.getItem('access_token')) {
@@ -221,7 +202,7 @@ export default function Homepage() {
         console.log('access_token, refresh_token : ', authObj.access_token, authObj.refresh_token);
         localStorage.setItem('access_token', authObj.access_token);
         localStorage.setItem('refresh_token', authObj.refresh_token);
-        document.location.href = '/';
+        document.location.href = '/createProfile';
       },
       fail: function (err) {
         console.log(JSON.stringify(err))
@@ -243,19 +224,99 @@ export default function Homepage() {
     });
   }
 
+  const customStyles = {
+    content: {
+      top: '50%',
+      left: '50%',
+      right: 'auto',
+      bottom: 'auto',
+      marginRight: '-50%',
+      transform: 'translate(-50%, -50%)',
+      // width: "423px",
+      // height: "423px",
+      display: "flex",
+      alignItems: "center",
+      flexDirection: "column",
+      // alignItems: "center",
+    },
+  };
+
+
+
+  function openModal() {
+    setIsOpen(true);
+  }
+
+  // function afterOpenModal() {
+  //   // references are now sync'd and can be accessed.
+  //   subtitle.style.color = '#f00';
+  // }
+
+  function closeModal() {
+    setIsOpen(false);
+  }
+
   return (
-    <div className={classNames({"vertical-center-container": true, "dark-mode": false})}>
-      <FeedbackLeft />
-      {isLogin ?
+    // <div className={classNames({"vertical-center-container": true, "dark-mode": false})}>
+    <div style={{backgroundColor: "pink", width: "100vw", height: "100vh"}}>
+      <div style={{display: "flex", justifyContent: "center", paddingTop: "50px", alignItems: "center"}}>
+        <div style={{fontSize: "60px", fontWeight: "bold"}}>LOGO</div>
+
+        <div style={{backgroundColor: "#DDDDDD", width: "200px", height: "30px", margin: "0 20px"}}></div>
+        <div style={{backgroundColor: "#DDDDDD", width: "200px", height: "30px", margin: "0 20px"}}></div>
+        <div style={{backgroundColor: "#DDDDDD", width: "200px", height: "30px", margin: "0 20px"}}></div>
+        <div style={{backgroundColor: "#DDDDDD", width: "200px", height: "30px", margin: "0 20px"}}></div>
+
+        {Kakao.Auth.getAccessToken() ? <div><Logout logout={logout}/></div> : <div
+          onClick={() => {Kakao.Auth.getAccessToken() ? document.location.href = '/createProfile' : openModal()}}
+          style={{backgroundColor: "dodgerblue", width: "200px", height: "60px", borderRadius: "10px", color: "white", fontSize: "25px", display: "flex", alignItems: "center", justifyContent: "center"}}>
+          서비스 시작
+        </div>}
+
+      </div>
+
+      {modalIsOpen &&
         <div>
-          <LoggedIn />
-          <Top />
-          <Logout logout={logout}/>
-        </div> :
-        <div style={{marginTop:20}}>
-            <LoginWithKakao login={login} />
+          <Modal
+            isOpen={modalIsOpen}
+            // onAfterOpen={afterOpenModal}
+            onRequestClose={closeModal}
+            style={customStyles}
+            contentLabel="Example Modal"
+          >
+            <div style={{padding: "75px 75px 0 75px"}}>
+              <h2 style={{color: "#939393", fontSize: "18px", display: "flex", justifyContent: "center"}}>Welcome To</h2>
+              <h1 style={{color: "#FF6F61", fontSize: "36px"}}>TENUTO WORLD</h1>
+            </div>
+            {/*<button onClick={closeModal}>close</button>*/}
+            <div style={{width: "100%", display: "flex", alignItems: "center", justifyContent: "center", marginTop: "50px"}}>
+              <div style={{width : "100px"}}>
+                <div style={{border: "1px solid #E5E5E5"}}>
+                </div>
+              </div>
+              <div style={{color: "#AEAEAE", fontSize: "14px", margin: "0 5px"}}>아래 소셜계정으로 로그인</div>
+              <div style={{width : "100px"}}>
+                <div style={{border: "1px solid #E5E5E5"}}>
+                </div>
+              </div>
+            </div>
+
+            <div style={{marginTop: "25px"}}>
+              {!isLogin ?
+                <div>
+                  <LoginWithKakao login={login} />
+                </div> : <></>
+              }
+            </div>
+
+          </Modal>
         </div>
       }
+
+      {/* 방 만드는 화면으로 바로 이동 */}
+      {/*<Top />*/}
+
+      <div style={{position: "absolute", bottom: 0, backgroundColor: "#DDDDDD", width: "100vw", height: "30vh"}}></div>
     </div>
   );
 }

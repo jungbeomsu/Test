@@ -39,5 +39,11 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+    <!--    카카오 JavasScript Key    -->
+    <script>
+      Kakao.init("3d3cb203a8e15c2888acb97cd897ca39");
+      console.log(Kakao.isInitialized());
+    </script>
   </body>
 </html>
