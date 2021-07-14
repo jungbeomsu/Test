@@ -7,7 +7,7 @@ import {FirebaseRoom, RoomRepository} from "./roomRepository";
 export default class RoomService {
   constructor() {
     this.roomRepository = new RoomRepository();
-    this.firebaseRoom = new FirebaseRoom();
+    // this.firebaseRoom = new FirebaseRoom();
     this.db = db;
     this.auth = auth;
   }
@@ -15,16 +15,19 @@ export default class RoomService {
   async getRoom(roomName) {
     let roomFirebase = roomName.replace("/", "\\");
     console.log(`[GameServer] Get room name is : ${roomFirebase}.`);
-    let data = await this.firebaseRoom.getRoom(roomFirebase);
+    let data = await this.roomRepository.getRoom(roomFirebase);
+    console.log(JSON.stringify(data));
     return new Room(roomName, data);
   }
 
-  async canJoinToRoom(roomName, socket) {
+  async canJoinToRoom(roomName,userId, socket) {
     // try {
     const room = await this.getRoom(roomName)
 
-    if (room.isBannedIP(socket.handshake.address)) {
+    if (room.isBannedID(userId.toString())) {
+      // if (room.isBannedIP(socket.handshake.address)) {
       // 원래는 이런 throw를 checkBannedIPs에 넣는게 맞는 듯.
+      socket.emit("roomClosed");
       throw new Error(`Reject banned user: ${socket.handshake.address}`);
     }
 
@@ -43,7 +46,7 @@ export default class RoomService {
 
   async isAccessibleToken(decodedToken, roomName) {
     let uid = decodedToken.uid;
-    const data = await this.firebaseRoom.getUserWithRoom(roomName, uid);
+    const data = await this.roomRepository.getUserWithRoom(roomName, uid);
     return data["hasAccess"]
   }
 
@@ -60,33 +63,33 @@ export default class RoomService {
 
   async BanPlayer(roomName, data) {
     let roomFirebase = roomName.replace("/", "\\");
-    return this.firebaseRoom.updateRoom(roomFirebase, {bannedIPs: data});
+    return this.roomRepository.updateRoom(roomFirebase, {bannedIPs: data});
   }
 
   async UnBanPlayer(roomName, data) {
     let roomFirebase = roomName.replace("/", "\\");
-    return this.firebaseRoom.updateRoom(roomFirebase, {bannedIPs: data});
+    return this.roomRepository.updateRoom(roomFirebase, {bannedIPs: data});
   }
 
   setRoomClose(roomName, closed) {
     let roomFirebase = roomName.replace("/", "\\");
-    return this.firebaseRoom.updateRoom(roomFirebase, {"closed": !!closed});
+    return this.roomRepository.updateRoom(roomFirebase, {"closed": !!closed});
   }
 
   changeModPassword(roomName, newPassword) {
     let roomFirebase = roomName.replace("/", "\\");
-    return this.firebaseRoom.updateRoom(roomFirebase, {"modPassword": bcrypt.hashSync(newPassword, 10)});
+    return this.roomRepository.updateRoom(roomFirebase, {"modPassword": bcrypt.hashSync(newPassword, 10)});
   }
 
   changePassword(roomName, newPassword) {
     let roomFirebase = roomName.replace("/", "\\");
     if (newPassword) {
-      return this.firebaseRoom.updateRoom(roomFirebase, {
+      return this.roomRepository.updateRoom(roomFirebase, {
         "password": bcrypt.hashSync(newPassword, 10)
       });
     } else {
       // remove password
-      return this.firebaseRoom.updateRoom(roomFirebase, {
+      return this.roomRepository.updateRoom(roomFirebase, {
         "password": firebase.firestore.FieldValue.delete()
       });
     }

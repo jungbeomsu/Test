@@ -1,10 +1,10 @@
 import mysql from 'mysql2';
 
 const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'rooftowner',
-  password: 'rooftowner',
-  database: 'rooftown'
+  host: '15.164.202.251',
+  user: 'goapp',
+  password: 'Yx8kzu5CiWoU?1ABM',
+  database: 'town_dev'
 });
 
 //TODO: Transaction 처리로 안정성 올리고 pool을 이용한 connection 관리로 성능향상시키기.

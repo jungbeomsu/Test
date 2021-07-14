@@ -98,8 +98,9 @@ export default class TownServerEngine2 extends ServerEngine {
       let roomId = data.roomId;
       let password = data.password;
       let authToken = data.userToken;
+      let userId = data.userId || 1;//TODO: client에서 보내줘야함.
 
-      this.RoomService.canJoinToRoom(roomId, socket)
+      this.RoomService.canJoinToRoom(roomId, userId, socket)
         .then((room) => {
           if (room === undefined) {
             console.log('로직상 unreachable인 것 같은데, 왜지.');

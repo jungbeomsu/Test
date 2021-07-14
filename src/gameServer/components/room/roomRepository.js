@@ -16,13 +16,13 @@ export class FirebaseRoom {
 
   async getUserWithRoom(roomName, uid) {
     const doc = await db.collection("rooms").doc(roomName).collection("users").doc(uid).get()
-    if(!doc.exists){
+    if (!doc.exists) {
       throw new Error('Record does not exist in db')
     }
     return doc.data();
   }
 
-  updateRoom(roomName, data){
+  updateRoom(roomName, data) {
     return this.db.collection("rooms").doc(roomName).update(data)
   }
 }
@@ -45,19 +45,40 @@ export class RoomRepository {
     });
   }
 
-  async getRoom(roomUrl) {
+  async getRoom(rawRoomName) {
     return new Promise((resolve, reject) => {
+      const roomUrl = rawRoomName.substring(0, rawRoomName.indexOf('\\'));
+      const roomName = rawRoomName.substring(rawRoomName.indexOf('\\') + 1);
       this.conn.query(
-        'SELECT * FROM `room WHERE room_url = ?',
-        [roomUrl],
+        'SELECT *, ru.status as user_status FROM `room` r JOIN `room_user` ru ON r.id = ru.room_id WHERE r.name = ? and r.room_url = ?',
+        [roomName, roomUrl],
         (err, results) => {
           if (err) reject(err);
-          else resolve(results[0]);
+          else if(results.length === 0) reject("NOT FOUND")
+          else {
+            const ret = {
+              name: results[0].name,
+              map: results[0].description,
+              modPassword: results[0].purpose,
+              bannedIPs: results.reduce((acc, cur) => {
+                acc[cur.user_id] = cur.user_status;
+                return acc;
+              }, {})
+            };
+            /*
+            * name <- name
+            * bannedIPs <- 조금 더 고민 name이랑 publicIds
+            * map: 301 <- description
+            * modPassword <- purpose
+            * */
+            resolve(ret);
+          }
         }
       )
     })
   }
-  async updateRoom(roomName, data){
+
+  async updateRoom(roomName, data) {
     return new Promise((resolve, reject) => {
       reject('Not Implemented');
     })
