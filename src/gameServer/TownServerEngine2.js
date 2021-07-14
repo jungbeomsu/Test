@@ -21,6 +21,7 @@ export default class TownServerEngine2 extends ServerEngine {
     this.RoomsService = new RoomsService();
     this.AuthService = auth;
   }
+
   assignPlayerToRoom(playerId, roomName) {
     super.assignPlayerToRoom(playerId, roomName);
     this.playerToRoom[playerId] = roomName;
@@ -118,7 +119,7 @@ export default class TownServerEngine2 extends ServerEngine {
               if (Object.keys(this.playerInfo[roomId]).length >= this.roomSettings[roomId]["sizeLimit"]) {
                 socket.emit("sizeLimit", this.roomSettings[roomId]["sizeLimit"]);
                 return;
-              } else{
+              } else {
                 console.log('')
               }
             }
@@ -144,12 +145,12 @@ export default class TownServerEngine2 extends ServerEngine {
               this.AuthService.verifyIdToken(authToken)
                 .then(this.RoomsService.isAccessibleToken)
                 .then(accessible => {
-                if (accessible) {
-                  initialize();
-                } else{
-                  console.log("Not Accessible Token")
-                }
-              }).catch(error => {
+                  if (accessible) {
+                    initialize();
+                  } else {
+                    console.log("Not Accessible Token")
+                  }
+                }).catch(error => {
                 throw new Error("error verifying token" + error.message);
               });
             } else {
@@ -159,9 +160,9 @@ export default class TownServerEngine2 extends ServerEngine {
             initialize();
           }
         }).catch(e => {
-          socket.conn.close();
-          console.error(e);
-        })
+        socket.conn.close();
+        console.error(e);
+      })
         .then(() => {
           // alwaysExecuteThisFunction like finally in try-catch-finally pattern
         });
@@ -182,28 +183,20 @@ export default class TownServerEngine2 extends ServerEngine {
 
     socket.on('sendPrivatePrompt', data => {
       console.log("got sendPrivatePrompt");
-      let room = data.room || "";
+      let roomName = data.room || "";
       let password = data.password || "";
-      let roomFirebase = room.replace("/", "\\");
-      if (!roomFirebase) return;
-      db.collection("rooms").doc(roomFirebase).get()
-        .then(doc => {
-          if (!doc.exists) {
-            return;
-          }
-          if (doc.data()["modPassword"] && bcrypt.compareSync(password, doc.data()["modPassword"])) {
-            console.log("sendPrivatePrompt to ", roomFirebase);
-            Object.keys(this.playerInfo[roomFirebase]).forEach(playerId => {
+      this.RoomsService.getRoom(roomName)
+        .then(room => {
+          if (room.compareModPassword(password)) {
+            console.log("sendPrivatePrompt to ", room.name);
+            Object.keys(this.playerInfo[room.name]).forEach(playerId => {
               this.playerToSocket[playerId].emit("createPrivatePrompt");
               this.playerToSocket[playerId].conn.close();
             });
           } else {
             console.log("incorrect password");
           }
-        })
-        .catch(err => {
-          console.log(err);
-        });
+        }).catch(console.error);
     });
 
     socket.on("playerInfo", (data) => {
@@ -460,7 +453,7 @@ export default class TownServerEngine2 extends ServerEngine {
     });
   }
 
-  _checkRoomFull(roomId){
+  _checkRoomFull(roomId) {
 
   }
 }

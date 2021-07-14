@@ -7,13 +7,14 @@ export class RoomsService {
     this.auth = auth;
   }
 
-  async getRoom(room) {
-    let roomFirebase = room.replace("/", "\\");
+  async getRoom(roomName) {
+    let roomFirebase = roomName.replace("/", "\\");
+    console.log(`[GameServer] Get room name is : ${roomFirebase}.`);
     let doc = await db.collection("rooms").doc(roomFirebase).get();
     if (!doc.exists) {
       throw new Error('Room does not exist in db');
     }
-    return new Room(room, doc.data());
+    return new Room(roomName, doc.data());
   }
 
   async canJoinToRoom(roomName, socket) {
