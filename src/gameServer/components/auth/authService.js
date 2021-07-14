@@ -1,6 +1,6 @@
 import {auth} from "../../../server/constants";
 
-export class AuthService {
+export default class AuthService {
   constructor() {
     this.auth = auth;
   }

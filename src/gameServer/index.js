@@ -20,7 +20,7 @@ app.use(cors(corsOptions));
 const httpServer = setUpHttpsServer(app);
 
 const serverEngine = setUpServerEngine(httpServer);
-const gameServerRequestRouter = setUpGameApiRouter(serverEngine)
+const gameServerRequestRouter = setUpGameApiRouter(serverEngine);
 
 app.use(gameServerRequestRouter);
 

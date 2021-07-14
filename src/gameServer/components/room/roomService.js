@@ -2,11 +2,12 @@ import {auth, db} from "../../../server/constants";
 import {Room} from "./room";
 import bcrypt from "bcrypt";
 import firebase from "firebase-admin";
-import connection from "../db/connection";
+import {FirebaseRoom, RoomRepository} from "./roomRepository";
 
-export class RoomsService {
+export default class RoomService {
   constructor() {
-    this.dbConn = connection;
+    this.roomRepository = new RoomRepository();
+    this.firebaseRoom = new FirebaseRoom();
     this.db = db;
     this.auth = auth;
   }
@@ -14,22 +15,8 @@ export class RoomsService {
   async getRoom(roomName) {
     let roomFirebase = roomName.replace("/", "\\");
     console.log(`[GameServer] Get room name is : ${roomFirebase}.`);
-    this.dbConn.query('SELECT * FROM `member`',  (err, results) => {
-      if(err){
-        console.error(err);
-      }else{
-        console.log('success');
-        results.forEach((r) => {
-          console.log(r);
-        });
-      }
-    })
-    console.log(`========= Get`)
-    let doc = await db.collection("rooms").doc(roomFirebase).get();
-    if (!doc.exists) {
-      throw new Error('Room does not exist in db');
-    }
-    return new Room(roomName, doc.data());
+    let data = await this.firebaseRoom.getRoom(roomFirebase);
+    return new Room(roomName, data);
   }
 
   async canJoinToRoom(roomName, socket) {
@@ -56,8 +43,8 @@ export class RoomsService {
 
   async isAccessibleToken(decodedToken, roomName) {
     let uid = decodedToken.uid;
-    const doc = await db.collection("rooms").doc(roomName).collection("users").doc(uid).get();
-    return doc.exists && doc.data()["hasAccess"]
+    const data = await this.firebaseRoom.getUserWithRoom(roomName, uid);
+    return data["hasAccess"]
   }
 
   async joinPlayerToRoom(room, socket) {
@@ -73,39 +60,35 @@ export class RoomsService {
 
   async BanPlayer(roomName, data) {
     let roomFirebase = roomName.replace("/", "\\");
-    return this.db.collection("rooms").doc(roomFirebase).update("bannedIPs", data);
+    return this.firebaseRoom.updateRoom(roomFirebase, {bannedIPs: data});
   }
 
   async UnBanPlayer(roomName, data) {
     let roomFirebase = roomName.replace("/", "\\");
-    return this.db.collection("rooms").doc(roomFirebase).update("bannedIPs", data);
+    return this.firebaseRoom.updateRoom(roomFirebase, {bannedIPs: data});
   }
 
   setRoomClose(roomName, closed) {
     let roomFirebase = roomName.replace("/", "\\");
-    return this.db.collection("rooms").doc(roomFirebase).update({
-      "closed": !!closed
-    });
+    return this.firebaseRoom.updateRoom(roomFirebase, {"closed": !!closed});
   }
 
   changeModPassword(roomName, newPassword) {
     let roomFirebase = roomName.replace("/", "\\");
-    return db.collection("rooms").doc(roomFirebase).update({
-      "modPassword": bcrypt.hashSync(newPassword, 10)
-    })
+    return this.firebaseRoom.updateRoom(roomFirebase, {"modPassword": bcrypt.hashSync(newPassword, 10)});
   }
 
   changePassword(roomName, newPassword) {
     let roomFirebase = roomName.replace("/", "\\");
     if (newPassword) {
-      return db.collection("rooms").doc(roomFirebase).update({
+      return this.firebaseRoom.updateRoom(roomFirebase, {
         "password": bcrypt.hashSync(newPassword, 10)
-      })
+      });
     } else {
       // remove password
-      return db.collection("rooms").doc(roomFirebase).update({
+      return this.firebaseRoom.updateRoom(roomFirebase, {
         "password": firebase.firestore.FieldValue.delete()
-      })
+      });
     }
   }
 }

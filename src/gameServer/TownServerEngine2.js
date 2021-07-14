@@ -2,22 +2,20 @@ import {
   ServerEngine,
   TwoVector
 } from 'lance-gg';
-import bcrypt from 'bcrypt';
 import osu from 'node-os-utils';
 import {directionMap, VIDEO_THRESHOLD} from '../common/constants';
 import {collisionMap} from '../common/maps';
 import {Player} from '../common/gameObjects';
-import {db, auth} from '../server/constants';
-
 import {characterMap} from '../common/maps';
 import {getPlayerDistance} from '../common/utils';
-import {RoomsService} from "./components/rooms/roomsService";
-import {AuthService} from "./components/auth/AuthService";
+import RoomService from "./components/room/roomService";
+import AuthService from "./components/auth/authService";
 
 export default class TownServerEngine2 extends ServerEngine {
 
-  constructor(io, ge, options) {    super(io, ge, options);
-    this.RoomsService = new RoomsService();
+  constructor(io, ge, options) {
+    super(io, ge, options);
+    this.RoomService = new RoomService();
     this.AuthService = new AuthService();
   }
 
@@ -101,7 +99,7 @@ export default class TownServerEngine2 extends ServerEngine {
       let password = data.password;
       let authToken = data.userToken;
 
-      this.RoomsService.canJoinToRoom(roomId, socket)
+      this.RoomService.canJoinToRoom(roomId, socket)
         .then((room) => {
           if (room === undefined) {
             console.log('로직상 unreachable인 것 같은데, 왜지.');
@@ -138,7 +136,7 @@ export default class TownServerEngine2 extends ServerEngine {
               initialize();
             } else if (authToken) {
               this.AuthService.verifyIdToken(authToken)
-                .then((tk) => this.RoomsService.isAccessibleToken(tk, room.name))
+                .then((tk) => this.RoomService.isAccessibleToken(tk, room.name))
                 .then(accessible => {
                   if (accessible) {
                     initialize();
@@ -180,7 +178,7 @@ export default class TownServerEngine2 extends ServerEngine {
       console.log("got sendPrivatePrompt");
       let roomName = data.room || "";
       let password = data.password || "";
-      this.RoomsService.getRoom(roomName)
+      this.RoomService.getRoom(roomName)
         .then(room => {
           if (room.compareModPassword(password)) {
             console.log("sendPrivatePrompt to ", room.name);
@@ -345,7 +343,7 @@ export default class TownServerEngine2 extends ServerEngine {
   // moderation tools
   // deprecate하기
   checkModPasswordInternal(rawRoomName, password) {
-    return this.RoomsService.getRoomWithModPassword(rawRoomName, password)
+    return this.RoomService.getRoomWithModPassword(rawRoomName, password)
       .then(room => {
         return Promise.resolve(room);
       })
@@ -366,13 +364,13 @@ export default class TownServerEngine2 extends ServerEngine {
 
   banPlayer(room, password, player) {
     let roomFirebase = room.replace("/", "\\");
-    if (!this.playerToSocket[player]) throw Exception;
+    if (!this.playerToSocket[player]) throw new Error('Not exist');
     return this.checkModPasswordInternal(room, password).then((roomData) => {
       let newBannedIPs = {
         ...roomData.bannedIPs,
         [this.playerToSocket[player].handshake.address]: this.playerInfo[roomFirebase][player]
       }
-      this.RoomsService.BanPlayer(room, data); // TODO: 업뎃이라 비동기작업. 성능 개선 고려? 근데 socket.conn.close랑 transactional. 일단 나중에 생각
+      this.RoomService.BanPlayer(room, newBannedIPs); // TODO: 업뎃이라 비동기작업. 성능 개선 고려? 근데 socket.conn.close랑 transactional. 일단 나중에 생각
       this.playerToSocket[player].conn.close();
       return Object.values(newBannedIPs);
     })
@@ -387,7 +385,7 @@ export default class TownServerEngine2 extends ServerEngine {
           delete banned[ip];
         }
       })
-      this.RoomsService.UnBanPlayer(room, banned);
+      this.RoomService.UnBanPlayer(room, banned);
       return Object.values(banned);
     })
   }
@@ -395,7 +393,7 @@ export default class TownServerEngine2 extends ServerEngine {
   setRoomClosed(room, password, closed) {
     let roomFirebase = room.replace("/", "\\");
     return this.checkModPasswordInternal(room, password).then((_) => {
-      this.RoomsService.setRoomClose(room, closed);
+      this.RoomService.setRoomClose(room, closed);
       if (closed) {
         Object.keys(this.playerInfo[roomFirebase]).forEach(playerId => {
           this.playerToSocket[playerId].emit("roomClosed");
@@ -407,13 +405,13 @@ export default class TownServerEngine2 extends ServerEngine {
 
   changeModPassword(room, password, newPassword) {
     return this.checkModPasswordInternal(room, password).then(() => {
-      return this.RoomsService.changeModPassword(room, newPassword)
+      return this.RoomService.changeModPassword(room, newPassword)
     });
   }
 
   changePassword(room, password, newPassword) {
     return this.checkModPasswordInternal(room, password).then(() => {
-      return this.RoomsService.changePassword(room, newPassword);
+      return this.RoomService.changePassword(room, newPassword);
     });
   }
 

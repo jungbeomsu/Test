@@ -62,7 +62,8 @@ export function setUpGameApiRouter(serverEngine) {
   router.post('/banPlayer', (req, res) => {
     serverEngine.banPlayer(req.body.room, req.body.password, req.body.player).then((banned) => {
       res.status(200).send(banned);
-    }).catch(() => {
+    }).catch((e) => {
+      console.warn(e);
       res.status(400).send();
     });
   });
