@@ -12,6 +12,7 @@ import {db, auth} from '../server/constants';
 import {characterMap} from '../common/maps';
 import {getPlayerDistance} from '../common/utils';
 import {RoomsService} from "./components/rooms/roomsService";
+import {AuthService} from "./components/auth/AuthService";
 
 export default class TownServerEngine2 extends ServerEngine {
 
