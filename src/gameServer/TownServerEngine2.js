@@ -8,7 +8,6 @@ import {directionMap, VIDEO_THRESHOLD} from '../common/constants';
 import {collisionMap} from '../common/maps';
 import {Player} from '../common/gameObjects';
 import {db, auth} from '../server/constants';
-import firebase from 'firebase-admin';
 
 import {characterMap} from '../common/maps';
 import {getPlayerDistance} from '../common/utils';
@@ -16,10 +15,9 @@ import {RoomsService} from "./components/rooms/roomsService";
 
 export default class TownServerEngine2 extends ServerEngine {
 
-  constructor(io, ge, options) {
-    super(io, ge, options);
+  constructor(io, ge, options) {    super(io, ge, options);
     this.RoomsService = new RoomsService();
-    this.AuthService = auth;
+    this.AuthService = new AuthService();
   }
 
   assignPlayerToRoom(playerId, roomName) {
@@ -115,13 +113,9 @@ export default class TownServerEngine2 extends ServerEngine {
 
           const initialize = () => {
             //1. this.roomSettings[room]과 this.playerInfo[room]을 통해서 방이 정원 초과인지 확인하기
-            if (this.roomSettings[roomId] && "sizeLimit" in this.roomSettings[roomId] && this.playerInfo[roomId]) {
-              if (Object.keys(this.playerInfo[roomId]).length >= this.roomSettings[roomId]["sizeLimit"]) {
-                socket.emit("sizeLimit", this.roomSettings[roomId]["sizeLimit"]);
-                return;
-              } else {
-                console.log('')
-              }
+            if(this._checkRoomFull(roomId)){
+              socket.emit("sizeLimit", this.roomSettings[roomId]["sizeLimit"]);
+              return;
             }
 
             //2. 정원초과가 아니니까 접속함.
@@ -143,7 +137,7 @@ export default class TownServerEngine2 extends ServerEngine {
               initialize();
             } else if (authToken) {
               this.AuthService.verifyIdToken(authToken)
-                .then(this.RoomsService.isAccessibleToken)
+                .then((tk) => this.RoomsService.isAccessibleToken(tk, room.name))
                 .then(accessible => {
                   if (accessible) {
                     initialize();
@@ -348,23 +342,19 @@ export default class TownServerEngine2 extends ServerEngine {
   }
 
   // moderation tools
-  checkModPasswordInternal(room, password) {
-    let roomFirebase = room.replace("/", "\\");
-    if (!roomFirebase) return;
-    return db.collection("rooms").doc(roomFirebase).get()
-      .then(doc => {
-        if (!doc.exists) {
-          return Promise.reject();
-        }
-        if (doc.data()["modPassword"] && bcrypt.compareSync(password, doc.data()["modPassword"])) {
-          return Promise.resolve(doc.data());
-        }
-        return Promise.reject();
+  // deprecate하기
+  checkModPasswordInternal(rawRoomName, password) {
+    return this.RoomsService.getRoomWithModPassword(rawRoomName, password)
+      .then(room => {
+        return Promise.resolve(room);
       })
+      .catch((e) => {
+          return Promise.reject(e);
+      });
   }
 
+  // deprecated 하기. 이게 왜 checkModPassword야. getBannedIpsFromRoom이지.
   checkModPassword(room, password) {
-    let roomFirebase = room.replace("/", "\\");
     return this.checkModPasswordInternal(room, password).then((roomData) => {
       if (roomData.bannedIPs) {
         return Object.values(roomData.bannedIPs);
@@ -378,10 +368,10 @@ export default class TownServerEngine2 extends ServerEngine {
     if (!this.playerToSocket[player]) throw Exception;
     return this.checkModPasswordInternal(room, password).then((roomData) => {
       let newBannedIPs = {
-        ...roomData["bannedIPs"],
+        ...roomData.bannedIPs,
         [this.playerToSocket[player].handshake.address]: this.playerInfo[roomFirebase][player]
       }
-      db.collection("rooms").doc(roomFirebase).update("bannedIPs", newBannedIPs);
+      this.RoomsService.BanPlayer(room, data); // TODO: 업뎃이라 비동기작업. 성능 개선 고려? 근데 socket.conn.close랑 transactional. 일단 나중에 생각
       this.playerToSocket[player].conn.close();
       return Object.values(newBannedIPs);
     })
@@ -396,7 +386,7 @@ export default class TownServerEngine2 extends ServerEngine {
           delete banned[ip];
         }
       })
-      db.collection("rooms").doc(roomFirebase).update("bannedIPs", banned);
+      this.RoomsService.UnBanPlayer(room, banned);
       return Object.values(banned);
     })
   }
@@ -404,41 +394,25 @@ export default class TownServerEngine2 extends ServerEngine {
   setRoomClosed(room, password, closed) {
     let roomFirebase = room.replace("/", "\\");
     return this.checkModPasswordInternal(room, password).then((_) => {
-      db.collection("rooms").doc(roomFirebase).update({
-        "closed": !!closed
-      });
+      this.RoomsService.setRoomClose(room, closed);
       if (closed) {
         Object.keys(this.playerInfo[roomFirebase]).forEach(playerId => {
           this.playerToSocket[playerId].emit("roomClosed");
           this.playerToSocket[playerId].conn.close();
         });
       }
-      return;
     });
   }
 
   changeModPassword(room, password, newPassword) {
-    let roomFirebase = room.replace("/", "\\");
     return this.checkModPasswordInternal(room, password).then(() => {
-      return db.collection("rooms").doc(roomFirebase).update({
-        "modPassword": bcrypt.hashSync(newPassword, 10)
-      })
+      return this.RoomsService.changeModPassword(room, newPassword)
     });
   }
 
   changePassword(room, password, newPassword) {
-    let roomFirebase = room.replace("/", "\\");
     return this.checkModPasswordInternal(room, password).then(() => {
-      if (newPassword) {
-        return db.collection("rooms").doc(roomFirebase).update({
-          "password": bcrypt.hashSync(newPassword, 10)
-        })
-      } else {
-        // remove password
-        return db.collection("rooms").doc(roomFirebase).update({
-          "password": firebase.firestore.FieldValue.delete()
-        })
-      }
+      return this.RoomsService.changePassword(room, newPassword);
     });
   }
 
@@ -454,6 +428,11 @@ export default class TownServerEngine2 extends ServerEngine {
   }
 
   _checkRoomFull(roomId) {
-
+    if(this.roomSettings[roomId] && "sizeLimit" in this.roomSettings[roomId] && this.playerInfo[roomId]){
+      if (Object.keys(this.playerInfo[roomId]).length >= this.roomSettings[roomId]["sizeLimit"]) {
+        return true;
+      }
+    }
+    return false;
   }
 }

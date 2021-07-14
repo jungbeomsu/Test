@@ -1,5 +1,7 @@
 import {auth, db} from "../../../server/constants";
 import {Room} from "./room";
+import bcrypt from "bcrypt";
+import firebase from "firebase-admin";
 
 export class RoomsService {
   constructor() {
@@ -19,31 +21,78 @@ export class RoomsService {
 
   async canJoinToRoom(roomName, socket) {
     // try {
-      const room = await this.getRoom(roomName)
+    const room = await this.getRoom(roomName)
 
-      if (room.isBannedIP(socket.handshake.address)) {
-        // 원래는 이런 throw를 checkBannedIPs에 넣는게 맞는 듯.
-        throw new Error(`Reject banned user: ${socket.handshake.address}`);
-      }
+    if (room.isBannedIP(socket.handshake.address)) {
+      // 원래는 이런 throw를 checkBannedIPs에 넣는게 맞는 듯.
+      throw new Error(`Reject banned user: ${socket.handshake.address}`);
+    }
 
-      if (room.isClosed()) {
-        socket.emit("roomClosed");
-        throw new Error('Rejecting closed room');
-      }
+    if (room.isClosed()) {
+      socket.emit("roomClosed");
+      throw new Error('Rejecting closed room');
+    }
 
-      if (!room.map){
-        socket.emit("roomClosed");
-        throw new Error('Rejecting not exist map');
-      }
+    if (!room.map) {
+      socket.emit("roomClosed");
+      throw new Error('Rejecting not exist map');
+    }
 
-      return room;
+    return room;
   }
-  async isAccessibleToken(decodedToken){
+
+  async isAccessibleToken(decodedToken, roomName) {
     let uid = decodedToken.uid;
-    const doc = await db.collection("rooms").doc(roomFirebase).collection("users").doc(uid).get();
+    const doc = await db.collection("rooms").doc(roomName).collection("users").doc(uid).get();
     return doc.exists && doc.data()["hasAccess"]
   }
 
   async joinPlayerToRoom(room, socket) {
+  }
+
+  async getRoomWithModPassword(roomName, modPassword) {
+    const room = await this.getRoom(roomName)
+    if (!room.compareModPassword(modPassword)) {
+      throw new Error('Wrong Password');
+    }
+    return room;
+  }
+
+  async BanPlayer(roomName, data) {
+    let roomFirebase = roomName.replace("/", "\\");
+    return this.db.collection("rooms").doc(roomFirebase).update("bannedIPs", data);
+  }
+
+  async UnBanPlayer(roomName, data) {
+    let roomFirebase = roomName.replace("/", "\\");
+    return this.db.collection("rooms").doc(roomFirebase).update("bannedIPs", data);
+  }
+
+  setRoomClose(roomName, closed) {
+    let roomFirebase = roomName.replace("/", "\\");
+    return this.db.collection("rooms").doc(roomFirebase).update({
+      "closed": !!closed
+    });
+  }
+
+  changeModPassword(roomName, newPassword) {
+    let roomFirebase = roomName.replace("/", "\\");
+    return db.collection("rooms").doc(roomFirebase).update({
+      "modPassword": bcrypt.hashSync(newPassword, 10)
+    })
+  }
+
+  changePassword(roomName, newPassword) {
+    let roomFirebase = roomName.replace("/", "\\");
+    if (newPassword) {
+      return db.collection("rooms").doc(roomFirebase).update({
+        "password": bcrypt.hashSync(newPassword, 10)
+      })
+    } else {
+      // remove password
+      return db.collection("rooms").doc(roomFirebase).update({
+        "password": firebase.firestore.FieldValue.delete()
+      })
+    }
   }
 }
