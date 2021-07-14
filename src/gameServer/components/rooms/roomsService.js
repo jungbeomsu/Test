@@ -2,9 +2,11 @@ import {auth, db} from "../../../server/constants";
 import {Room} from "./room";
 import bcrypt from "bcrypt";
 import firebase from "firebase-admin";
+import connection from "../db/connection";
 
 export class RoomsService {
   constructor() {
+    this.dbConn = connection;
     this.db = db;
     this.auth = auth;
   }
@@ -12,6 +14,17 @@ export class RoomsService {
   async getRoom(roomName) {
     let roomFirebase = roomName.replace("/", "\\");
     console.log(`[GameServer] Get room name is : ${roomFirebase}.`);
+    this.dbConn.query('SELECT * FROM `member`',  (err, results) => {
+      if(err){
+        console.error(err);
+      }else{
+        console.log('success');
+        results.forEach((r) => {
+          console.log(r);
+        });
+      }
+    })
+    console.log(`========= Get`)
     let doc = await db.collection("rooms").doc(roomFirebase).get();
     if (!doc.exists) {
       throw new Error('Room does not exist in db');

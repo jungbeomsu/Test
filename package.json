@@ -62,9 +62,6 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-scripts": "4.0.3",
     "@babel/plugin-transform-runtime": "^7.9.0",
     "@babel/runtime": "^7.9.2",
     "amplitude-js": "^5.11.0",
@@ -79,9 +76,13 @@
     "firebase-admin": "^8.10.0",
     "lance-gg": "^4.0.8",
     "mailgun-js": "^0.22.0",
+    "mysql2": "^2.2.5",
     "node-os-utils": "^1.2.2",
     "nodemon": "^2.0.3",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "react-router-dom": "^5.1.2",
+    "react-scripts": "4.0.3",
     "simple-peer": "^9.6.2",
     "ts-keycode-enum": "^1.0.6",
     "webpack-copy-plugin": "0.0.4"
