@@ -4,17 +4,23 @@ import {
 } from 'lance-gg';
 import bcrypt from 'bcrypt';
 import osu from 'node-os-utils';
-import { directionMap, VIDEO_THRESHOLD } from '../common/constants';
-import { collisionMap } from '../common/maps';
-import { Player } from '../common/gameObjects';
-import { db, auth } from '../server/constants';
+import {directionMap, VIDEO_THRESHOLD} from '../common/constants';
+import {collisionMap} from '../common/maps';
+import {Player} from '../common/gameObjects';
+import {db, auth} from '../server/constants';
 import firebase from 'firebase-admin';
 
-import { characterMap } from '../common/maps';
-import { getPlayerDistance } from '../common/utils';
+import {characterMap} from '../common/maps';
+import {getPlayerDistance} from '../common/utils';
+import {RoomsService} from "./components/rooms/roomsService";
 
-export default class TownServerEngine extends ServerEngine {
+export default class TownServerEngine2 extends ServerEngine {
 
+  constructor(io, ge, options) {
+    super(io, ge, options);
+    this.RoomsService = new RoomsService();
+    this.AuthService = auth;
+  }
   assignPlayerToRoom(playerId, roomName) {
     super.assignPlayerToRoom(playerId, roomName);
     this.playerToRoom[playerId] = roomName;
@@ -53,7 +59,7 @@ export default class TownServerEngine extends ServerEngine {
       });
     });
 
-    var newPlayer = new Player(this.gameEngine, null, { position: new TwoVector(startX, startY) });
+    var newPlayer = new Player(this.gameEngine, null, {position: new TwoVector(startX, startY)});
     newPlayer.currentDirection = directionMap['stand'];
     newPlayer.currentMap = map;
     if (map in characterMap) {
@@ -70,7 +76,7 @@ export default class TownServerEngine extends ServerEngine {
     if (!playerId) {
       return;
     }
-    let myPlayer = this.gameEngine.world.queryObject({ playerId });
+    let myPlayer = this.gameEngine.world.queryObject({playerId});
     if (!myPlayer) {
       return;
     }
@@ -91,91 +97,74 @@ export default class TownServerEngine extends ServerEngine {
     this.playerVideoMetric[socket.playerId] = {};
     this.playerOnVideoMetric[socket.playerId] = null;
     socket.on('roomId', (data) => {
-      let room = data.roomId;
+      let roomId = data.roomId;
       let password = data.password;
       let authToken = data.userToken;
 
-      let roomFirebase = room.replace("/", "\\");
-      db.collection("rooms").doc(roomFirebase).get()
-        .then(doc => {
-          if (!doc.exists) {
-            throw new Error('Room does not exist in db');
-          }
-
-          /* handle banned users */
-          let bannedIPs = doc.data()["bannedIPs"] || {}
-          if (bannedIPs[socket.handshake.address]) {
-            console.log("rejecting banned user: ", socket.handshake.address);
-            socket.conn.close();
+      this.RoomsService.canJoinToRoom(roomId, socket)
+        .then((room) => {
+          if (room === undefined) {
+            console.log('로직상 unreachable인 것 같은데, 왜지.');
             return;
           }
-
-          let roomClosed = doc.data()["closed"]
-          if (roomClosed === undefined) roomClosed = false;
-
-          if (roomClosed) {
-            socket.emit("roomClosed");
-            socket.conn.close();
-            return;
-          }
-
-          let map = doc.data()['map'];
-          if (!map) {
-            throw new Error('Map is not valid');
-          }
-
-          let roomSettings = doc.data()['settings'];
-          if (roomSettings) {
-            this.roomSettings[room] = roomSettings;
+          console.log('[GameServer] Accessing RoomId: ', room.name)
+          if (room.setting) {
+            this.roomSettings[roomId] = room.setting;
           }
 
           const initialize = () => {
-            if (this.roomSettings[room] && "sizeLimit" in this.roomSettings[room] && this.playerInfo[room]) {
-              if (Object.keys(this.playerInfo[room]).length >= this.roomSettings[room]["sizeLimit"]) {
-                socket.emit("sizeLimit", this.roomSettings[room]["sizeLimit"]);
+            //1. this.roomSettings[room]과 this.playerInfo[room]을 통해서 방이 정원 초과인지 확인하기
+            if (this.roomSettings[roomId] && "sizeLimit" in this.roomSettings[roomId] && this.playerInfo[roomId]) {
+              if (Object.keys(this.playerInfo[roomId]).length >= this.roomSettings[roomId]["sizeLimit"]) {
+                socket.emit("sizeLimit", this.roomSettings[roomId]["sizeLimit"]);
                 return;
+              } else{
+                console.log('')
               }
             }
 
+            //2. 정원초과가 아니니까 접속함.
             let playerId = socket.playerId;
-            this.playerToMap[playerId] = map;
-            this.createRoom(room);
-            this.assignPlayerToRoom(playerId, room);
+            this.playerToMap[playerId] = room.map;
+            this.createRoom(roomId); // override한 함수. 일종의 지연초기화 패턴.
+            this.assignPlayerToRoom(playerId, roomId);
             if (this.playerNeedsInit[playerId]) {
-              this.initializePlayer(map, socket.playerId, room);
+              this.initializePlayer(room.map, socket.playerId, roomId);
             }
-            socket.emit("serverPlayerInfo", Object.assign({ "firstUpdate": true }, this.playerInfo[room]));
-            socket.emit("modMessage", this.modMessages[room]);
-            if (this.roomSettings[room]) {
-              socket.emit("roomSettings", this.roomSettings[room]);
+            socket.emit("serverPlayerInfo", Object.assign({"firstUpdate": true}, this.playerInfo[room]));
+            socket.emit("modMessage", this.modMessages[roomId]);
+            if (this.roomSettings[roomId]) {
+              socket.emit("roomSettings", this.roomSettings[roomId]);
             }
           }
-
-          if ("password" in doc.data()) {
-            if (password && bcrypt.compareSync(password, doc.data()["password"])) {
+          if (room.hasPassword()) {
+            if (password && room.comparePassword(password)) {
               initialize();
             } else if (authToken) {
-              auth.verifyIdToken(authToken)
-                .then(decodedToken => {
-                  let uid = decodedToken.uid;
-                  return db.collection("rooms").doc(roomFirebase).collection("users").doc(uid).get();
-                }).then(doc => {
-                  if (doc.exists && doc.data()["hasAccess"]) {
-                    initialize();
-                  }
-                }).catch(error => {
-                  throw new Error("error verifying token" + error.message);
-                });
+              this.AuthService.verifyIdToken(authToken)
+                .then(this.RoomsService.isAccessibleToken)
+                .then(accessible => {
+                if (accessible) {
+                  initialize();
+                } else{
+                  console.log("Not Accessible Token")
+                }
+              }).catch(error => {
+                throw new Error("error verifying token" + error.message);
+              });
             } else {
               throw new Error("incorrect password/ doesnt have access");
             }
           } else {
             initialize();
           }
+        }).catch(e => {
+          socket.conn.close();
+          console.error(e);
         })
-        .catch(err => {
-          console.log("Error onplayerconnect", err);
-        })
+        .then(() => {
+          // alwaysExecuteThisFunction like finally in try-catch-finally pattern
+        });
     })
 
     socket.on('initPlayer', () => {
@@ -258,19 +247,19 @@ export default class TownServerEngine extends ServerEngine {
         };
       } else {
         if (this.playerOnVideoMetric &&
-            this.playerOnVideoMetric[socket.playerId] &&
-            this.playerOnVideoMetric[socket.playerId].time) {
-            let interactedTime = (data.time - this.playerOnVideoMetric[socket.playerId].time) / 1000;
-            // logAmpEvent(data.userId, "Exit On Video Call", { "duration_seconds": interactedTime }, data.isProd);
-            this.playerOnVideoMetric[socket.playerId] = null;
+          this.playerOnVideoMetric[socket.playerId] &&
+          this.playerOnVideoMetric[socket.playerId].time) {
+          let interactedTime = (data.time - this.playerOnVideoMetric[socket.playerId].time) / 1000;
+          // logAmpEvent(data.userId, "Exit On Video Call", { "duration_seconds": interactedTime }, data.isProd);
+          this.playerOnVideoMetric[socket.playerId] = null;
         }
       }
     });
 
     socket.on("chatMessage", (message, blockedMap) => {
       let playerId = socket.playerId;
-      let myPlayer = this.gameEngine.world.queryObject({ playerId });
-      let players = this.gameEngine.world.queryObjects({ instanceType: Player });
+      let myPlayer = this.gameEngine.world.queryObject({playerId});
+      let players = this.gameEngine.world.queryObjects({instanceType: Player});
       let playersObj = {};
       players.forEach(player => {
         let dist = getPlayerDistance(myPlayer, player);
@@ -287,7 +276,9 @@ export default class TownServerEngine extends ServerEngine {
       if (!infoFromRoom) {
         return;
       }
-      // DB 저장
+      // TODO: DB 저장하는 코드 넣기.
+      //=== none.
+
       Object.keys(playersObj).forEach(id => {
         if (!(id in infoFromRoom)) {
           return;
@@ -307,7 +298,7 @@ export default class TownServerEngine extends ServerEngine {
 
   onPlayerDisconnected(socketId, playerId) {
     super.onPlayerDisconnected(socketId, playerId);
-    let player = this.gameEngine.world.queryObject({ playerId });
+    let player = this.gameEngine.world.queryObject({playerId});
     if (player) {
       this.gameEngine.removeObjectFromWorld(player);
     }
@@ -357,8 +348,7 @@ export default class TownServerEngine extends ServerEngine {
         roomCount: Object.keys(this.playerInfo).map(roomId => Object.keys(this.playerInfo[roomId]).length)
       }
       return gameStatus;
-    }
-    catch (err) {
+    } catch (err) {
       console.log("gameStatus err: ", err);
       return null;
     }
@@ -468,5 +458,9 @@ export default class TownServerEngine extends ServerEngine {
         }
       });
     });
+  }
+
+  _checkRoomFull(roomId){
+
   }
 }

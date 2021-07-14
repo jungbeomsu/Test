@@ -1,6 +1,7 @@
 import socketIO from 'socket.io';
 import {Lib} from 'lance-gg';
-import TownServerEngine from "./TownServerEngine";
+// import TownServerEngine from "./TownServerEngine";
+import TownServerEngine2 from "./TownServerEngine2";
 import http from "http";
 import fs from "fs";
 import https from "https";
@@ -11,7 +12,7 @@ import Game from "../common/Game";
 export function setUpServerEngine(httpServer) {
   let io = socketIO(httpServer);
   const gameEngine = new Game({traceLevel: Lib.Trace.TRACE_DEBUG})
-  const serverEngine = new TownServerEngine(io, gameEngine, {debug: {}, updateRate: 6, timeoutInterval: 0});
+  const serverEngine = new TownServerEngine2(io, gameEngine, {debug: {}, updateRate: 6, timeoutInterval: 0});
 
   serverEngine.start();
 
@@ -40,7 +41,7 @@ export function setUpHttpsServer(app) {
 }
 
 
-export function setUpGameApiRouter(serverEngine){
+export function setUpGameApiRouter(serverEngine) {
   const router = Express.Router();
 
   // server stats

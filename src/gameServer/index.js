@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 
 const corsOptions = process.env.NODE_ENV === 'none' ? {
-  origin: 'http://localhost:3000',
+  origin: 'http://localhost:3100',
   credentials: true,
   optionsSuccessStatus: 200,
 } : {
