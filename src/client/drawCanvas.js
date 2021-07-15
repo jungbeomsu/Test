@@ -29,13 +29,9 @@ var smooth = {
   prevY: -1,
 }
 
-var prevtime = 0;
+var recentDist = [];
 
-var maxDist = 0;
-var maxSameCnt = 0;
-
-var prevX = 0;
-var prevSameCnt = 0;
+var minDelta = 0.11;
 
 // var directionCoors = [
 //   { x: 0, y: 0 },
@@ -201,12 +197,6 @@ function draw(x, y, map, myPlayer, players) {
       direction = directionCoors[myPlayer.localDir];
       drawX = x * objectSizes - top_x;
       drawY = y * objectSizes - top_y;
-
-      let now = Date.now();
-      let diff = now - prevtime;
-      // console.log("drawCanvas", diff, myPlayer.localDir, x, y);
-      prevtime = now;
-
     } else {
       direction = directionCoors[player.currentDirection];
       drawX = player.position.x * objectSizes - top_x;
@@ -310,15 +300,8 @@ export function update(myPlayer, players) {
 
   function getSmooth(cur, target) {
 
-    const minDelta = 0.11;
     let sign = target > cur ? 1 : -1;
     let dist = Math.abs(target - cur);
-    if (dist > maxDist) {
-      maxDist = dist;
-    }
-    if (dist > 0) {
-      // console.log("dist:", dist);
-    }
     if (dist < minDelta) {
       return target;
     } else if (dist <= 1) {
@@ -332,15 +315,34 @@ export function update(myPlayer, players) {
   smooth.prevX = getSmooth(smooth.prevX, myPlayer.position.x);
   smooth.prevY = getSmooth(smooth.prevY, myPlayer.position.y);
 
-  if (prevX === smooth.prevX) {
-    prevSameCnt ++;
-  } else {
-    prevSameCnt = 0;
-  }
-  prevX = smooth.prevX;
+  let dist = Math.sqrt(Math.pow(myPlayer.position.x - smooth.prevX, 2)
+    + Math.pow(myPlayer.position.y - smooth.prevY, 2))
 
+  if (dist > 0) {
+    recentDist.push(dist);
+    if (recentDist.length === 30) {
+
+      let recentMaxDist = 0;
+      recentDist.forEach((dist) => {
+        if (dist > recentMaxDist) {
+          recentMaxDist = dist;
+        };
+      });
+      if (recentMaxDist > 1) {
+        minDelta += 0.001;
+      } else if (recentMaxDist < 1) {
+        minDelta -= 0.001;
+      }
+      console.log("recentMaxDist", recentMaxDist.toFixed(3), minDelta.toFixed(3));
+      recentDist = [];
+    }
+
+
+  }
+
+  // console.log(myPlayer.currentDirection);
   // console.log("prevSameCnt:", prevSameCnt); //너무 빠름
-  console.log("maxDist", maxDist);  //너무 느림
+  // console.log("maxDist", maxDist);  //너무 느림
 
     // console.log("update->draw", myPlayer.position.x, smooth.prevX, myPlayer.position.y, smooth.prevY);
   // console.log("update->draw", maxDiff, myPlayer.position.x - smooth.prevX, myPlayer.position.y - smooth.prevY);
