@@ -31,7 +31,11 @@ var smooth = {
 
 var prevtime = 0;
 
-var maxDiff = 0;
+var maxDist = 0;
+var maxSameCnt = 0;
+
+var prevX = 0;
+var prevSameCnt = 0;
 
 // var directionCoors = [
 //   { x: 0, y: 0 },
@@ -306,28 +310,37 @@ export function update(myPlayer, players) {
 
   function getSmooth(cur, target) {
 
-    const minDelta = 0.1;
-    let isPositive = target > cur;
-    let diff = Math.abs(target - cur);
-    let delta = diff / 7;
-    if (diff < minDelta) {
-      return target;
+    const minDelta = 0.11;
+    let sign = target > cur ? 1 : -1;
+    let dist = Math.abs(target - cur);
+    if (dist > maxDist) {
+      maxDist = dist;
     }
-
-    delta = Math.max(delta, minDelta);
-    if (isPositive) {
-      return cur + delta;
+    if (dist > 0) {
+      // console.log("dist:", dist);
+    }
+    if (dist < minDelta) {
+      return target;
+    } else if (dist <= 1) {
+      return cur + sign * minDelta;
     } else {
-      return cur - delta;
+      let delta = dist * minDelta;
+      return cur + sign * delta;
     }
   }
 
   smooth.prevX = getSmooth(smooth.prevX, myPlayer.position.x);
   smooth.prevY = getSmooth(smooth.prevY, myPlayer.position.y);
 
-  if (maxDiff < Math.abs(myPlayer.position.x - smooth.prevX)) {
-    maxDiff = Math.abs(myPlayer.position.x - smooth.prevX);
+  if (prevX === smooth.prevX) {
+    prevSameCnt ++;
+  } else {
+    prevSameCnt = 0;
   }
+  prevX = smooth.prevX;
+
+  // console.log("prevSameCnt:", prevSameCnt); //너무 빠름
+  console.log("maxDist", maxDist);  //너무 느림
 
     // console.log("update->draw", myPlayer.position.x, smooth.prevX, myPlayer.position.y, smooth.prevY);
   // console.log("update->draw", maxDiff, myPlayer.position.x - smooth.prevX, myPlayer.position.y - smooth.prevY);
