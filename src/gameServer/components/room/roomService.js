@@ -58,34 +58,27 @@ export default class RoomService {
     return room;
   }
 
-  async getRoomWithModPassword(roomName, modPassword) {
-    const room = await this.getRoom(roomName)
-    if (!room.compareModPassword(modPassword)) {
-      throw new Error('Wrong Password');
-    }
-    return room;
-  }
-
   async BanPlayer(roomName, userId, adminId) {
     let roomFirebase = roomName.replace("/", "\\");
     // bann하는 로직 수행
     const room = await this.roomRepository.getRoom(roomFirebase);
     if(room.adminId != adminId){
-      console.log(`adminId: ${adminId}. room_admin_id: ${room.adminId}`);
       throw new Error('Unauthorized');
     }
 
     return this.roomRepository.updateRoomUser(roomFirebase, userId, "BAN")
-      .then(() => {
-        this.getRoom(roomName).then(r => {
-          return r.bannedIDs;
-        }).catch(e => {
-          throw e;
-        })
+      .then(didUpdate => {
+        if(didUpdate){
+          return this.getRoom(roomName)
+            .then(r => r.bannedIDs)
+            .catch(e => {throw e});
+        } else{
+          return room.bannedIDs;
+        }
       })
       .catch(e => {
         throw e;
-      });
+      })
   }
 
   async UnBanPlayer(roomName, userId, adminId) {// TODO: 질의문안에 admin 넣어서 보내면 두번날릴거 한번으로 줄일 수 있음.
@@ -115,10 +108,8 @@ export default class RoomService {
     return this.roomRepository.updateRoom(roomFirebase, {"modPassword": bcrypt.hashSync(newPassword, 10)});
   }
 
-  changePassword(roomName, password, userId) {
-    // newPassword가 undefined 이거나 "" 라면 => null로 넣어주고
-    // 그렇지 않다면 암호화해서 넣어준다.
-    let roomFirebase = roomName.replace("/", "\\");
+  changePassword(roomId, password, userId) {
+    let roomFirebase = roomId.replace("/", "\\");
     return this.roomRepository.getRoom(roomFirebase)
       .then(r => {
         if (r.adminId != userId) {

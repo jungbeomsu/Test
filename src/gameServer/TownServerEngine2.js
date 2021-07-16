@@ -206,8 +206,6 @@ export default class TownServerEngine2 extends ServerEngine {
       if (!infoFromRoom) {
         return;
       }
-      // TODO: DB 저장하는 코드 넣기.
-      //=== none.
 
       Object.keys(playersObj).forEach(id => {
         if (!(id in infoFromRoom)) {
@@ -281,29 +279,26 @@ export default class TownServerEngine2 extends ServerEngine {
   }
 
   banPlayer(room, player, adminId) {
-    if (!this.playerToSocket[player]) { //TODO: 지금 없는 사람이어도 밴할 수 있게 바꾸기.
-      console.log('NOT EXIST', room, player, adminId)
-      return {
-        result: {
-          is_success: false,
-          err_message: "NOT EXIST",
-        }
+    return new Promise((resolve, reject) => {
+      if (!this.playerToSocket[player]) {
+        return resolve(this._makeNotFoundError());
       }
-    }
-    if (!this.playerInfo[this.playerToRoom[player]]) {
-      throw new Error('Not exist');
-    }
-    if (!this.playerInfo[this.playerToRoom[player]][player]?.userId) {
-      throw new Error('Not Exist userId');
-    }
+      if (!this.playerInfo[this.playerToRoom[player]]) {
+        return resolve(this._makeNotFoundError());
+      }
+      if (!this.playerInfo[this.playerToRoom[player]][player]?.userId) {
+        return resolve(this._makeNotFoundError());
+      }
 
-    const userId = this.playerInfo[this.playerToRoom[player]][player].userId
-    console.log('banPlayer Called: ', room, player, userId, adminId);
-    return this.RoomService.BanPlayer(room, userId, adminId).then((bannedIDs) => {
-      this.playerToSocket[player].conn.close();
-      return bannedIDs;
-    }).catch((e) => {
-      throw e
+      const userId = this.playerInfo[this.playerToRoom[player]][player].userId
+      console.log('banPlayer Called: ', room, player, userId, adminId);
+      this.RoomService.BanPlayer(room, userId, adminId)
+        .then((bannedIDs) => {
+          this.playerToSocket[player].conn.close();
+          resolve(bannedIDs);
+        }).catch((e) => {
+        reject(e);
+      });
     });
   }
 
@@ -335,17 +330,17 @@ export default class TownServerEngine2 extends ServerEngine {
       });
   }
 
-  changePassword(room, newPassword, userId) {
-    console.log(room, newPassword, userId);
-    return this.RoomService.changePassword(room, newPassword, userId);
+  changePassword(roomId, newPassword, userId) {
+    console.log(roomId, newPassword, userId);
+    return this.RoomService.changePassword(roomId, newPassword, userId);
   }
 
-  setModMessage(room, password, message) {
-    return this.checkRoomWithAdmin(room, password).then((r) => {
-      Object.keys(this.playerInfo[room]).forEach(playerId => {
-        if (this.playerToRoom[playerId] === room) {
+  setModMessage(roomId, password, message) {
+    return this.checkRoomWithAdmin(roomId, password).then((r) => {
+      Object.keys(this.playerInfo[roomId]).forEach(playerId => {
+        if (this.playerToRoom[playerId] === roomId) {
           this.playerToSocket[playerId].emit("modMessage", message);
-          this.modMessages[room] = message;
+          this.modMessages[roomId] = message;
         }
       });
     });
@@ -358,5 +353,22 @@ export default class TownServerEngine2 extends ServerEngine {
       }
     }
     return false;
+  }
+
+  _parseRoomPath(roomName) {
+    // ex) superduper\ROOM_NAME =>
+    const roomReplaced = roomName.replace("/", "\\")
+    const url = roomReplaced.substring(0, roomReplaced.indexOf("\\"));
+    const name = roomReplaced.substring(roomReplaced.indexOf('\\') + 1);
+    return [url, name];
+  }
+
+  _makeNotFoundError() {
+    return {
+      result: {
+        is_success: false,
+        err_message: "NOT EXIST",
+      }
+    }
   }
 }
