@@ -13,14 +13,17 @@ export class Room {
     this.setting = data['settings'] || {};
     this.password = data["password"] || "";
     this.hasAccess = data["hasAccess"];
-    this.closed = data["closed"] === undefined ? false : data["closed"];
     this.modPassword = data["modPassword"] || "";
   }
   hasPassword(){
     return !!this.password; // undefined 면 false, 값이 있으면 true
   }
-  comparePassword(password){
-    return bcrypt.compareSync(password, this.password);
+  comparePassword(password) {
+    if (this.password === "") { // 비밀번호 없으면 바로 통화
+      return true;
+    } else {
+      return password !== undefined && bcrypt.compareSync(password, this.password);
+    }
   }
   compareModPassword(modPassword){
      return bcrypt.compareSync(modPassword, this.modPassword)
@@ -29,7 +32,7 @@ export class Room {
     return !!this.bannedIDs[address]; // undefined => false, defined => true
   }
   isClosed(){
-    return this.closed;
+    return this.status === "CLOSED";
   }
   isAdmin(userId){
     return this.adminId == userId;

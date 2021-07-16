@@ -16,6 +16,18 @@ export default class RoomService {
     return await this.roomRepository.getRoomWithUsers(roomFirebase);
   }
 
+  async canJoinToRoom2(roomName, userId) {
+    try {
+      const room = await this.getRoomWithUser(roomName);
+      if (!room || room.isBannedID(userId.toString()) || room.isClosed() || !room.map) {
+        return false;
+      }
+      return room;
+    } catch (e) {
+      return false;
+    }
+  }
+
   async canJoinToRoom(roomName, userId, socket) {
     // try {
     const room = await this.getRoomWithUser(roomName)
@@ -45,7 +57,7 @@ export default class RoomService {
     return data["hasAccess"]
   }
 
-  async getRoomWithAdmin(roomName, userId){
+  async getRoomWithAdmin(roomName, userId) {
     let roomFirebase = roomName.replace("/", "\\");
     const room = await this.roomRepository.getRoom(roomName);
     if (!room.isAdmin(userId)) {
@@ -58,17 +70,19 @@ export default class RoomService {
     let roomFirebase = roomName.replace("/", "\\");
     // bann하는 로직 수행
     const room = await this.roomRepository.getRoom(roomFirebase);
-    if(!room.isAdmin(requesterId)){
+    if (!room.isAdmin(requesterId)) {
       throw new Error('Unauthorized');
     }
 
     return this.roomRepository.updateRoomUser(roomFirebase, userId, "BAN")
       .then(didUpdate => {
-        if(didUpdate){
+        if (didUpdate) {
           return this.getRoomWithUser(roomName)
             .then(r => r.bannedIDs)
-            .catch(e => {throw e});
-        } else{
+            .catch(e => {
+              throw e
+            });
+        } else {
           return room.bannedIDs;
         }
       })
@@ -80,11 +94,11 @@ export default class RoomService {
   async UnBanPlayer(roomName, userId, requesterId) {// TODO: 질의문안에 admin 넣어서 보내면 두번날릴거 한번으로 줄일 수 있음.
     let roomFirebase = roomName.replace("/", "\\");
     const room = await this.roomRepository.getRoom(roomFirebase);
-    if(!room.isAdmin(requesterId)){
+    if (!room.isAdmin(requesterId)) {
       throw new Error('Unauthorized');
     }
     const didUpdate = await this.roomRepository.updateRoomUser(roomFirebase, userId, "ENTER")
-    if(!didUpdate){
+    if (!didUpdate) {
       console.log("Not Updated");
       return room.bannedIDs;
     }
@@ -92,11 +106,11 @@ export default class RoomService {
     return room2.bannedIDs;
   }
 
-  async setRoomClose(roomName,requesterId, closed) {
+  async setRoomClose(roomName, requesterId, closed) {
     let roomFirebase = roomName.replace("/", "\\");
-    const status = !!closed ? "CLOSED" : "OPEN";
+    const status = !!closed ? "CLOSED" : "ALIVE";
     const room = await this.roomRepository.getRoom(roomFirebase);
-    if(!room.isAdmin(requesterId)){
+    if (!room.isAdmin(requesterId)) {
       console.log(`adminId: ${requesterId}. room_admin_id: ${room.adminId}`);
       throw new Error('Unauthorized');
     }

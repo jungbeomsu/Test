@@ -1,12 +1,8 @@
-import {
-  ServerEngine,
-  TwoVector
-} from 'lance-gg';
+import {ServerEngine, TwoVector} from 'lance-gg';
 import osu from 'node-os-utils';
-import {directionMap, VIDEO_THRESHOLD} from '../common/constants';
-import {collisionMap} from '../common/maps';
+import {directionMap} from '../common/constants';
+import {characterMap, collisionMap} from '../common/maps';
 import {Player} from '../common/gameObjects';
-import {characterMap} from '../common/maps';
 import {getPlayerDistance} from '../common/utils';
 import RoomService from "./components/room/roomService";
 import AuthService from "./components/auth/authService";
@@ -87,7 +83,7 @@ export default class TownServerEngine2 extends ServerEngine {
     }
   }
 
-  onPlayerConnected(socket) {
+  onPlayerConnected1(socket) {
     super.onPlayerConnected(socket);
     this.playerToSocket[socket.playerId] = socket;
     socket.on('roomId', (data) => {
@@ -167,10 +163,115 @@ export default class TownServerEngine2 extends ServerEngine {
       this.setCharacterId(socket.playerId, newId);
     });
 
-    socket.on('sendPrivatePrompt', data => {
+    socket.on('sendPrivatePrompt', () => {
       console.log("got sendPrivatePrompt");
-      let roomName = data.room || "";
-      let password = data.password || "";
+      //TODO: 이게 뭔지 모르겠음...
+    });
+
+    socket.on("playerInfo", (data) => {
+      let curRoom = this.playerToRoom[socket.playerId];
+      if (this.playerInfo[curRoom]) {
+        Object.assign(this.playerInfo[curRoom][socket.playerId], data);
+        Object.keys(this.playerInfo[curRoom]).forEach(playerId => {
+          if (this.playerToRoom[playerId] === curRoom) {
+            this.playerToSocket[playerId].emit("serverPlayerInfo", this.playerInfo[curRoom]);
+          }
+        });
+      }
+    });
+
+    socket.on("chatMessage", (message, blockedMap) => {
+      let playerId = socket.playerId;
+      let myPlayer = this.gameEngine.world.queryObject({playerId});
+      let players = this.gameEngine.world.queryObjects({instanceType: Player});
+      let playersObj = {};
+      players.forEach(player => {
+        let dist = getPlayerDistance(myPlayer, player);
+        if (dist) {
+          playersObj = Object.assign(playersObj, dist);
+        }
+      })
+
+      let curRoom = this.playerToRoom[socket.playerId];
+      if (!this.playerInfo[curRoom]) {
+        return;
+      }
+      let infoFromRoom = this.playerInfo[curRoom];
+      if (!infoFromRoom) {
+        return;
+      }
+
+      Object.keys(playersObj).forEach(id => {
+        if (!(id in infoFromRoom)) {
+          return;
+        }
+        let publicId = infoFromRoom[id].publicId;
+        let blocked = !publicId || (publicId in blockedMap && blockedMap[publicId]);
+        //if (playersObj[id] <= VIDEO_THRESHOLD && !blocked) {
+        if (!blocked) {
+          this.playerToSocket[id].emit("serverChatMessage", {
+            id: playerId + "",
+            message: message
+          });
+        }
+      });
+    });
+  }
+
+
+  onPlayerConnected(socket) {
+    super.onPlayerConnected(socket);
+    this.playerToSocket[socket.playerId] = socket;
+    socket.on('roomId', async (data) => {
+      let roomId = data.roomId;
+      let password = data.password;
+      let userId = data.userId || 1;//TODO: client에서 보내줘야함.
+      try {
+        const room = await this.RoomService.canJoinToRoom2(roomId, userId);
+        if (!room) {
+          socket.emit("roomClosed");
+          socket.conn.close();
+          return;
+        }
+        if (room.comparePassword(password)){
+          //2. 정원초과가 아니니까 접속함.
+          let playerId = socket.playerId;
+          this.playerToMap[playerId] = room.map;
+          this.createRoom(roomId); // override한 함수. 일종의 지연초기화 패턴.
+          this.assignPlayerToRoom(playerId, roomId, userId);
+          if (this.playerNeedsInit[playerId]) {
+            this.initializePlayer(room.map, socket.playerId, roomId);
+          }
+          socket.emit("serverPlayerInfo", Object.assign({"firstUpdate": true}, this.playerInfo[room]));
+          socket.emit("modMessage", this.modMessages[roomId]);
+          console.log("Player Joined")
+        } else{
+          console.log('접근 권한 없음');
+          socket.emit("roomClosed");
+          socket.conn.close();
+        }
+      } catch (e) {
+        console.warn('Catch하지 못한 에러 발생:'+JSON.stringify(e));
+        socket.emit("roomClosed");
+        socket.conn.close();
+      }
+    });
+
+    socket.on('initPlayer', () => {
+      console.log("got initPlayer", socket.playerId);
+      if (socket.playerId in this.playerToRoom) {
+        this.initializePlayer(this.playerToMap[socket.playerId], socket.playerId, this.playerToRoom[socket.playerId]);
+      } else {
+        this.playerNeedsInit[socket.playerId] = true;
+      }
+    });
+
+    socket.on("setCharacterId", (newId) => {
+      this.setCharacterId(socket.playerId, newId);
+    });
+
+    socket.on('sendPrivatePrompt', _ => {
+      console.log("got sendPrivatePrompt");
       //TODO: 이게 뭔지 모르겠음...
     });
 
@@ -253,13 +354,12 @@ export default class TownServerEngine2 extends ServerEngine {
   async gameStatus() {
     try {
       let [cpu, memInfo] = await Promise.all([osu.cpu.usage(), osu.mem.used()])
-      let gameStatus = {
+      return {
         numPlayers: Object.keys(this.connectedPlayers).length,
         cpuPercentLoad: cpu,
         memLoad: memInfo.usedMemMb + "MB / " + memInfo.totalMemMb + "MB",
         roomCount: Object.keys(this.playerInfo).map(roomId => Object.keys(this.playerInfo[roomId]).length)
-      }
-      return gameStatus;
+      };
     } catch (err) {
       console.log("gameStatus err: ", err);
       return null;
@@ -336,7 +436,7 @@ export default class TownServerEngine2 extends ServerEngine {
   }
 
   setModMessage(roomId, password, message) {
-    return this.checkRoomWithAdmin(roomId, password).then((r) => {
+    return this.checkRoomWithAdmin(roomId, password).then(() => {
       Object.keys(this.playerInfo[roomId]).forEach(playerId => {
         if (this.playerToRoom[playerId] === roomId) {
           this.playerToSocket[playerId].emit("modMessage", message);
