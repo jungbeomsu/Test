@@ -1,8 +1,6 @@
 import {auth, db} from "../../../server/constants";
-import {Room} from "./room";
 import bcrypt from "bcrypt";
-import firebase from "firebase-admin";
-import {FirebaseRoom, RoomRepository} from "./roomRepository";
+import {RoomRepository} from "./roomRepository";
 
 export default class RoomService {
   constructor() {
@@ -12,17 +10,15 @@ export default class RoomService {
     this.auth = auth;
   }
 
-  async getRoom(roomName) {
+  async getRoomWithUser(roomName) {
     let roomFirebase = roomName.replace("/", "\\");
     console.log(`[GameServer] Get room name is : ${roomFirebase}.`);
-    let data = await this.roomRepository.getRoomWithUsers(roomFirebase);
-    console.log(JSON.stringify(data));
-    return new Room(roomName, data);
+    return await this.roomRepository.getRoomWithUsers(roomFirebase);
   }
 
   async canJoinToRoom(roomName, userId, socket) {
     // try {
-    const room = await this.getRoom(roomName)
+    const room = await this.getRoomWithUser(roomName)
 
     if (room.isBannedID(userId.toString())) {
       // 원래는 이런 throw를 checkBannedIPs에 넣는게 맞는 듯.
@@ -58,18 +54,18 @@ export default class RoomService {
     return room;
   }
 
-  async BanPlayer(roomName, userId, adminId) {
+  async BanPlayer(roomName, userId, requesterId) {
     let roomFirebase = roomName.replace("/", "\\");
     // bann하는 로직 수행
     const room = await this.roomRepository.getRoom(roomFirebase);
-    if(room.adminId != adminId){
+    if(!room.isAdmin(requesterId)){
       throw new Error('Unauthorized');
     }
 
     return this.roomRepository.updateRoomUser(roomFirebase, userId, "BAN")
       .then(didUpdate => {
         if(didUpdate){
-          return this.getRoom(roomName)
+          return this.getRoomWithUser(roomName)
             .then(r => r.bannedIDs)
             .catch(e => {throw e});
         } else{
@@ -81,23 +77,23 @@ export default class RoomService {
       })
   }
 
-  async UnBanPlayer(roomName, userId, adminId) {// TODO: 질의문안에 admin 넣어서 보내면 두번날릴거 한번으로 줄일 수 있음.
+  async UnBanPlayer(roomName, userId, requesterId) {// TODO: 질의문안에 admin 넣어서 보내면 두번날릴거 한번으로 줄일 수 있음.
     let roomFirebase = roomName.replace("/", "\\");
     const room = await this.roomRepository.getRoom(roomFirebase);
-    if(room.adminId != adminId){
+    if(!room.isAdmin(requesterId)){
       throw new Error('Unauthorized');
     }
     await this.roomRepository.updateRoomUser(roomFirebase, userId, "ENTER")
-    const room2 = await this.getRoom(roomName);
+    const room2 = await this.getRoomWithUser(roomName);
     return room2.bannedIDs;
   }
 
-  async setRoomClose(roomName,adminId, closed) {
+  async setRoomClose(roomName,requesterId, closed) {
     let roomFirebase = roomName.replace("/", "\\");
     const status = !!closed ? "CLOSED" : "OPEN";
     const room = await this.roomRepository.getRoom(roomFirebase);
-    if(room.adminId != adminId){
-      console.log(`adminId: ${adminId}. room_admin_id: ${room.adminId}`);
+    if(!room.isAdmin(requesterId)){
+      console.log(`adminId: ${requesterId}. room_admin_id: ${room.adminId}`);
       throw new Error('Unauthorized');
     }
     return this.roomRepository.updateRoomStatus(roomFirebase, status);
@@ -112,7 +108,7 @@ export default class RoomService {
     let roomFirebase = roomId.replace("/", "\\");
     return this.roomRepository.getRoom(roomFirebase)
       .then(r => {
-        if (r.adminId != userId) {
+        if (!r.isAdmin(userId)) {
           throw new Error('Not Authorized');
         } else {
           const newPassword = (password === "" || password === undefined) ? null : bcrypt.hashSync(password, 10);

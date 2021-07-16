@@ -1,5 +1,6 @@
 import connection from "../db/connection";
 import {db} from "../../../server/constants";
+import {Room} from "./room";
 
 export class FirebaseRoom {
   constructor() {
@@ -46,16 +47,15 @@ export class RoomRepository {
               id: results[0].id,
               name: results[0].name,
               map: results[0].preset_id,
-              password: results[0].password,
               adminId: results[0].admin_id,
               creatorId:results[0].creator_id,
-              modPassword: results[0].password, //TODO: deprecate
+              password: results[0].password,
               status: results[0].status,
+              purposeId: results[0].purpose_id,
               roomUrl: results[0].room_url,
               description: results[0].description,
-              purposeId: results[0].purpose_id,
             };
-            resolve(ret);
+            resolve(new Room(rawRoomName, ret));
           }
         }
       )
@@ -81,15 +81,16 @@ export class RoomRepository {
               adminId: results[0].admin_id,
               creatorId:results[0].creator_id,
               password: results[0].password,
-              modPassword: results[0].password, //TODO: deprecate
               status: results[0].status,
               purposeId: results[0].purpose_id,
+              roomUrl: results[0].room_url,
+              description: results[0].description,
               bannedIPs: results.reduce((acc, cur) => {
                 acc[cur.user_id] = cur.user_status;
                 return acc;
               }, {})
             };
-            resolve(ret);
+            resolve(new Room(rawRoomName, ret));
           }
         }
       )

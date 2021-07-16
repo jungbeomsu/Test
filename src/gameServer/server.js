@@ -54,6 +54,15 @@ export function setUpGameApiRouter(serverEngine) {
 
   // moderation tools
   router.post('/banPlayer', checkAuth, (req, res) => {
+    const {room, player} = req.body;
+    if(room === undefined || player === undefined){
+      return res.status(200).json({
+        "result": {
+          "is_success": false,
+          "err_message": "잘못된 형식의 요청입니다.",
+        }
+      })
+    }
     serverEngine.banPlayer(req.body.room, req.body.player.toString(), res.locals.userId).then((banned) => {
       res.status(200).send(banned);
     }).catch((e) => {
@@ -108,6 +117,11 @@ export function setUpGameApiRouter(serverEngine) {
   });
   router.get('/apitest', checkAuth, (req, res) => {
     console.log('[GameServer]  TESTING');
+    res.status(200).send("GOOD");
+  })
+
+  router.post('/apitest', checkAuth, (req, res) => {
+    console.log('[GameServer]'+JSON.stringify(req.body.roomId));
     res.status(200).send("GOOD");
   })
 

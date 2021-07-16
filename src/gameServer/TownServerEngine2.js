@@ -302,9 +302,9 @@ export default class TownServerEngine2 extends ServerEngine {
     });
   }
 
-  unbanPlayer(room, userId, adminId) {
+  unbanPlayer(room, userId, requesterId) {
     let roomFirebase = room.replace("/", "\\");
-    return this.RoomService.UnBanPlayer(room, userId, adminId)
+    return this.RoomService.UnBanPlayer(room, userId, requesterId)
       .then((bannedIDs) => {
         return bannedIDs
       }).catch(e => {
