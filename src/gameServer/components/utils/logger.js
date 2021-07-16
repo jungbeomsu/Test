@@ -1,6 +1,6 @@
 import {format, createLogger, transports} from "winston";
 
-const {combine, timestamp, prettyPrint, printf} = format;
+const {combine, timestamp, printf} = format;
 
 const logFormat = printf(info => {
   return `${info.timestamp} ${info.level}: ${info.message}`;

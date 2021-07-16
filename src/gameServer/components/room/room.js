@@ -16,9 +16,11 @@ export class Room {
     this.hasAccess = data["hasAccess"];
     this.modPassword = data["modPassword"] || "";
   }
-  hasPassword(){
+
+  hasPassword() {
     return !!this.password; // undefined 면 false, 값이 있으면 true
   }
+
   comparePassword(password) {
     if (this.password === "") { // 비밀번호 없으면 바로 통화
       return true;
@@ -26,16 +28,20 @@ export class Room {
       return password !== undefined && bcrypt.compareSync(password, this.password);
     }
   }
-  compareModPassword(modPassword){
-     return bcrypt.compareSync(modPassword, this.modPassword)
+
+  compareModPassword(modPassword) {
+    return bcrypt.compareSync(modPassword, this.modPassword)
   }
-  isBannedIP(address){
+
+  isBannedIP(address) {
     return !!this.bannedIDs[address]; // undefined => false, defined => true
   }
-  isClosed(){
+
+  isClosed() {
     return this.status === "CLOSED";
   }
-  isAdmin(userId){
+
+  isAdmin(userId) {
     return this.adminId == userId;
   }
 
@@ -45,11 +51,10 @@ export class Room {
     logger.debug(userId, this.bannedIDs)
     // this.bannedIPs[userId] 가 undefined => 안통과
     // this.bannedIPs[userId] 가 defined이고 !== 'ENTER' => 안통과
-    if(this.bannedIDs[userId] === undefined){
+    if (this.bannedIDs[userId] === undefined) {
       logger.debug('undefined');
       return true;
-    }
-    else if(this.bannedIDs[userId] && this.bannedIDs[userId] !== 'ENTER'){
+    } else if (this.bannedIDs[userId] && this.bannedIDs[userId] !== 'ENTER') {
       logger.debug('NOT ENTER');
       return true;
     }

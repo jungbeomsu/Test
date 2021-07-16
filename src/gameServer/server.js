@@ -56,7 +56,7 @@ export function setUpGameApiRouter(serverEngine) {
   // moderation tools
   router.post('/banPlayer', checkAuth, (req, res) => {
     const {room, player} = req.body;
-    if(room === undefined || player === undefined){
+    if (room === undefined || player === undefined) {
       return res.status(200).json({
         "result": {
           "is_success": false,
@@ -71,7 +71,7 @@ export function setUpGameApiRouter(serverEngine) {
       res.status(400).send();
     });
   });
-  router.post('/unbanPlayer',checkAuth, (req, res) => {
+  router.post('/unbanPlayer', checkAuth, (req, res) => {
     serverEngine.unbanPlayer(req.body.room, req.body.userId, res.locals.userId).then((banned) => {
       res.status(200).send(banned);
     }).catch(() => {
@@ -114,7 +114,10 @@ export function setUpGameApiRouter(serverEngine) {
   })
   router.post('/setModMessage', checkAuth, (req, res) => {
     serverEngine.setModMessage(req.body.room, req.body.password, req.body.message).then(() => {
-    })
+      res.status(200).send();
+    }).catch(() => {
+      res.status(400).send();
+    });
   });
   router.get('/apitest', checkAuth, (req, res) => {
     logger.http(' TESTING');
@@ -122,7 +125,7 @@ export function setUpGameApiRouter(serverEngine) {
   })
 
   router.post('/apitest', checkAuth, (req, res) => {
-    logger.http(''+JSON.stringify(req.body.roomId));
+    logger.http('' + JSON.stringify(req.body.roomId));
     res.status(200).send("GOOD");
   })
 

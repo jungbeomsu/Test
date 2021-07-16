@@ -32,7 +32,8 @@ export class RoomRepository {
   constructor() {
     this.conn = connection;
   }
-  async getRoom(rawRoomName){
+
+  async getRoom(rawRoomName) {
     return new Promise((resolve, reject) => {
       const roomUrl = rawRoomName.substring(0, rawRoomName.indexOf('\\'));
       const roomName = rawRoomName.substring(rawRoomName.indexOf('\\') + 1);
@@ -41,14 +42,14 @@ export class RoomRepository {
         [roomName, roomUrl],
         (err, results) => {
           if (err) reject(err);
-          else if(results.length === 0) reject("NOT FOUND")
+          else if (results.length === 0) reject("NOT FOUND")
           else {
             const ret = {
               id: results[0].id,
               name: results[0].name,
               map: results[0].preset_id,
               adminId: results[0].admin_id,
-              creatorId:results[0].creator_id,
+              creatorId: results[0].creator_id,
               password: results[0].password,
               status: results[0].status,
               purposeId: results[0].purpose_id,
@@ -72,14 +73,14 @@ export class RoomRepository {
         (err, results) => {
           results[0].purpose_id = undefined;
           if (err) reject(err);
-          else if(results.length === 0) reject("NOT FOUND")
+          else if (results.length === 0) reject("NOT FOUND")
           else {
             const ret = {
               id: results[0].id,
               name: results[0].name,
               map: results[0].preset_id,
               adminId: results[0].admin_id,
-              creatorId:results[0].creator_id,
+              creatorId: results[0].creator_id,
               password: results[0].password,
               status: results[0].status,
               purposeId: results[0].purpose_id,
@@ -111,8 +112,8 @@ export class RoomRepository {
         'UPDATE `room_user` SET status=? WHERE user_id=? and room_id=(SELECT r.id FROM room r WHERE r.name = ? and r.room_url = ?)',
         [status, userId, roomName, roomUrl],
         (err, results) => {
-          if(err) reject(err);
-          else{
+          if (err) reject(err);
+          else {
             resolve(results.affectedRows > 0);
           }
         }
@@ -128,8 +129,8 @@ export class RoomRepository {
         'UPDATE room SET status = ? WHERE name = ? and room_url = ?',
         [status, roomName, roomUrl],
         (err, results) => {
-          if(err) reject(err);
-          else{
+          if (err) reject(err);
+          else {
             resolve(results.affectedRows > 0);
           }
         }
@@ -137,7 +138,7 @@ export class RoomRepository {
     })
   }
 
-  _extractRoomUrlAndName(roomFirebase){
+  _extractRoomUrlAndName(roomFirebase) {
     const roomUrl = roomFirebase.substring(0, roomFirebase.indexOf('\\'));
     const roomName = roomFirebase.substring(roomFirebase.indexOf('\\') + 1);
     return [roomUrl, roomName];
@@ -150,8 +151,8 @@ export class RoomRepository {
         'UPDATE room SET password = ? WHERE name = ? and room_url = ?',
         [password, roomName, roomUrl],
         (err, results) => {
-          if(err) reject(err);
-          else{
+          if (err) reject(err);
+          else {
             resolve(results.affectedRows > 0);
           }
         }
