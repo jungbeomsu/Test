@@ -83,7 +83,11 @@ export default class RoomService {
     if(!room.isAdmin(requesterId)){
       throw new Error('Unauthorized');
     }
-    await this.roomRepository.updateRoomUser(roomFirebase, userId, "ENTER")
+    const didUpdate = await this.roomRepository.updateRoomUser(roomFirebase, userId, "ENTER")
+    if(!didUpdate){
+      console.log("Not Updated");
+      return room.bannedIDs;
+    }
     const room2 = await this.getRoomWithUser(roomName);
     return room2.bannedIDs;
   }
