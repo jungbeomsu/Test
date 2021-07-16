@@ -302,19 +302,25 @@ export default class TownServerEngine2 extends ServerEngine {
   };
 
   banPlayer(room, player, adminId) {
-    if (!this.playerToSocket[player]) {
-      throw new Error('Not exist');
+    if (!this.playerToSocket[player]) { //TODO: 지금 없는 사람이어도 밴할 수 있게 바꾸기.
+      console.log('NOT EXIST', room, player, adminId)
+      return {
+        result: {
+          is_success: false,
+          err_message: "NOT EXIST",
+        }
+      }
     }
-    if (!this.playerInfo[this.playerToRoom[player]]){
+    if (!this.playerInfo[this.playerToRoom[player]]) {
       throw new Error('Not exist');
     }
     if (!this.playerInfo[this.playerToRoom[player]][player]?.userId) {
       throw new Error('Not Exist userId');
     }
 
-    let userId = this.playerInfo[this.playerToRoom[player]][player].userId
+    const userId = this.playerInfo[this.playerToRoom[player]][player].userId
     console.log('banPlayer Called: ', room, player, userId, adminId);
-    return this.RoomService.BanPlayer(room, userId).then((bannedIDs) => {
+    return this.RoomService.BanPlayer(room, userId, adminId).then((bannedIDs) => {
       this.playerToSocket[player].conn.close();
       return bannedIDs;
     }).catch((e) => {
@@ -322,18 +328,14 @@ export default class TownServerEngine2 extends ServerEngine {
     });
   }
 
-  unbanPlayer(room, password, player) {
+  unbanPlayer(room, userId, adminId) {
     let roomFirebase = room.replace("/", "\\");
-    return this.checkModPasswordInternal(room, password).then((roomData) => {
-      let banned = roomData["bannedIPs"];
-      Object.keys(banned).forEach((ip) => {
-        if (banned[ip]["publicId"] === player) {
-          delete banned[ip];
-        }
-      })
-      this.RoomService.UnBanPlayer(room, banned);
-      return Object.values(banned);
-    })
+    return this.RoomService.UnBanPlayer(room, userId, adminId)
+      .then((bannedIDs) => {
+        return bannedIDs
+      }).catch(e => {
+        throw e;
+      });
   }
 
   setRoomClosed(room, password, closed) {

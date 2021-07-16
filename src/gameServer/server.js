@@ -68,8 +68,8 @@ export function setUpGameApiRouter(serverEngine) {
       res.status(400).send();
     });
   });
-  router.post('/unbanPlayer', (req, res) => {
-    serverEngine.unbanPlayer(req.body.room, req.body.password, req.body.player).then((banned) => {
+  router.post('/unbanPlayer',checkAuth, (req, res) => {
+    serverEngine.unbanPlayer(req.body.room, req.body.userId, res.locals.userId).then((banned) => {
       res.status(200).send(banned);
     }).catch(() => {
       res.status(400).send();
