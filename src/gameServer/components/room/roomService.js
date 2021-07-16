@@ -93,9 +93,14 @@ export default class RoomService {
     return room2.bannedIDs;
   }
 
-  setRoomClose(roomName, closed) {
+  async setRoomClose(roomName,adminId, closed) {
     let roomFirebase = roomName.replace("/", "\\");
     const status = !!closed ? "CLOSED" : "OPEN";
+    const room = await this.roomRepository.getRoom(roomFirebase);
+    if(room.adminId != adminId){
+      console.log(`adminId: ${adminId}. room_admin_id: ${room.adminId}`);
+      throw new Error('Unauthorized');
+    }
     return this.roomRepository.updateRoomStatus(roomFirebase, status);
   }
 

@@ -129,7 +129,7 @@ export class RoomRepository {
         (err, results) => {
           if(err) reject(err);
           else{
-            resolve(results);
+            resolve(results.affectedRows > 0);
           }
         }
       )

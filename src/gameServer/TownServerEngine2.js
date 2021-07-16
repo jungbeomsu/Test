@@ -338,17 +338,22 @@ export default class TownServerEngine2 extends ServerEngine {
       });
   }
 
-  setRoomClosed(room, password, closed) {
+  setRoomClosed(room, adminId, closed) {
     let roomFirebase = room.replace("/", "\\");
-    return this.checkModPasswordInternal(room, password).then((_) => {
-      this.RoomService.setRoomClose(room, closed);
-      if (closed) {
-        Object.keys(this.playerInfo[roomFirebase]).forEach(playerId => {
-          this.playerToSocket[playerId].emit("roomClosed");
-          this.playerToSocket[playerId].conn.close();
-        });
-      }
-    });
+    return this.RoomService.setRoomClose(room, adminId, closed)
+      .then(() => {
+        if (closed) {
+          if (this.playerInfo[roomFirebase]) {
+            Object.keys(this.playerInfo[roomFirebase]).forEach(playerId => {
+              this.playerToSocket[playerId].emit("roomClosed");
+              this.playerToSocket[playerId].conn.close();
+            });
+          }
+        }
+      })
+      .catch((e) => {
+        console.warn(e);
+      });
   }
 
   changeModPassword(room, password, newPassword) {

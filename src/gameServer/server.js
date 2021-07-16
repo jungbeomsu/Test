@@ -75,8 +75,8 @@ export function setUpGameApiRouter(serverEngine) {
       res.status(400).send();
     });
   })
-  router.post('/setRoomClosed', (req, res) => {
-    serverEngine.setRoomClosed(req.body.room, req.body.password, req.body.closed).then(() => {
+  router.post('/setRoomClosed', checkAuth, (req, res) => {
+    serverEngine.setRoomClosed(req.body.room, res.locals.userId, req.body.closed).then(() => {
       res.status(200).send();
     }).catch(() => {
       res.status(400).send();
