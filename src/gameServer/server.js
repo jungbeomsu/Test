@@ -7,6 +7,7 @@ import fs from "fs";
 import https from "https";
 import Express from "express";
 import Game from "../common/Game";
+import checkAuth from "./components/middleware/checkAuth";
 
 
 export function setUpServerEngine(httpServer) {
@@ -59,8 +60,8 @@ export function setUpGameApiRouter(serverEngine) {
       res.status(400).send();
     });
   });
-  router.post('/banPlayer', (req, res) => {
-    serverEngine.banPlayer(req.body.room, req.body.password, req.body.player).then((banned) => {
+  router.post('/banPlayer', checkAuth, (req, res) => {
+    serverEngine.banPlayer(req.body.room, req.body.player.toString(), res.locals.userId).then((banned) => {
       res.status(200).send(banned);
     }).catch((e) => {
       console.warn(e);
@@ -88,16 +89,40 @@ export function setUpGameApiRouter(serverEngine) {
       res.status(400).send();
     });
   })
-  router.post('/changePassword', (req, res) => {
-    serverEngine.changePassword(req.body.room, req.body.password, req.body.newPassword).then(() => {
-      res.status(200).send();
-    }).catch(() => {
-      res.status(400).send();
+  router.post('/changePassword', checkAuth, (req, res) => {
+    const {room, newPassword} = req.body;
+    if (room === undefined) {
+      return res.json({
+        "result": {
+          "is_success": false,
+          "err_message": "잘못된 요청입니다.",
+        }
+      });
+    }
+    serverEngine.changePassword(room, newPassword, res.locals.userId).then(() => {
+      return res.json({
+        "result": {
+          "is_success": true,
+        }
+      });
+    }).catch((e) => {
+      console.error(e);
+      return res.json({
+        "result": {
+          "is_success": false,
+          "err_message": '처리 실패',
+        }
+      });
+
     });
   })
   router.post('/setModMessage', (req, res) => {
     serverEngine.setModMessage(req.body.room, req.body.password, req.body.message).then(() => {
     })
+  });
+  router.get('/apitest', checkAuth, (req, res) => {
+    console.log('[GameServer]  TESTING');
+    res.status(200).send("GOOD");
   })
 
   return router;

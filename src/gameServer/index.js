@@ -15,6 +15,7 @@ const corsOptions = process.env.NODE_ENV === 'none' ? {
 
 const app = express();
 app.use(express.json())
+app.use(express.urlencoded({extended: false}))
 app.use(cors(corsOptions));
 
 const httpServer = setUpHttpsServer(app);

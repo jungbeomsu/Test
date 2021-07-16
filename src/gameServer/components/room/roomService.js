@@ -15,20 +15,19 @@ export default class RoomService {
   async getRoom(roomName) {
     let roomFirebase = roomName.replace("/", "\\");
     console.log(`[GameServer] Get room name is : ${roomFirebase}.`);
-    let data = await this.roomRepository.getRoom(roomFirebase);
+    let data = await this.roomRepository.getRoomWithUsers(roomFirebase);
     console.log(JSON.stringify(data));
     return new Room(roomName, data);
   }
 
-  async canJoinToRoom(roomName,userId, socket) {
+  async canJoinToRoom(roomName, userId, socket) {
     // try {
     const room = await this.getRoom(roomName)
 
     if (room.isBannedID(userId.toString())) {
-      // if (room.isBannedIP(socket.handshake.address)) {
       // 원래는 이런 throw를 checkBannedIPs에 넣는게 맞는 듯.
       socket.emit("roomClosed");
-      throw new Error(`Reject banned user: ${socket.handshake.address}`);
+      throw new Error(`Reject banned user: ${userId}`);
     }
 
     if (room.isClosed()) {
@@ -61,19 +60,32 @@ export default class RoomService {
     return room;
   }
 
-  async BanPlayer(roomName, data) {
+  async BanPlayer(roomName, userId) {
     let roomFirebase = roomName.replace("/", "\\");
-    return this.roomRepository.updateRoom(roomFirebase, {bannedIPs: data});
+    // bann하는 로직 수행
+    //TODO: admin 검증하는 부분 필요함
+    return this.roomRepository.updateRoomUser(roomFirebase, userId, "BAN")
+      .then(() => {
+        this.getRoom(roomName).then(r => {
+          return r.bannedIDs;
+        }).catch(e => {
+          throw e;
+        })
+      })
+      .catch(e => {
+        throw e;
+      });
   }
 
-  async UnBanPlayer(roomName, data) {
+  async UnBanPlayer(roomName, userId) {
     let roomFirebase = roomName.replace("/", "\\");
-    return this.roomRepository.updateRoom(roomFirebase, {bannedIPs: data});
+    return this.roomRepository.updateRoomUser(roomFirebase, userId, "ENTER");
   }
 
   setRoomClose(roomName, closed) {
     let roomFirebase = roomName.replace("/", "\\");
-    return this.roomRepository.updateRoom(roomFirebase, {"closed": !!closed});
+    const status = !!closed ? "CLOSED" : "OPEN";
+    return this.roomRepository.updateRoomStatus(roomFirebase, status);
   }
 
   changeModPassword(roomName, newPassword) {
@@ -81,17 +93,21 @@ export default class RoomService {
     return this.roomRepository.updateRoom(roomFirebase, {"modPassword": bcrypt.hashSync(newPassword, 10)});
   }
 
-  changePassword(roomName, newPassword) {
+  changePassword(roomName, password, userId) {
+    // newPassword가 undefined 이거나 "" 라면 => null로 넣어주고
+    // 그렇지 않다면 암호화해서 넣어준다.
     let roomFirebase = roomName.replace("/", "\\");
-    if (newPassword) {
-      return this.roomRepository.updateRoom(roomFirebase, {
-        "password": bcrypt.hashSync(newPassword, 10)
+    return this.roomRepository.getRoom(roomFirebase)
+      .then(r => {
+        if(r.adminId != userId){
+          throw new Error('Not Authorized');
+        }else{
+          const newPassword = (password === "" || password === undefined) ? null : bcrypt.hashSync(password, 10);
+          return this.roomRepository.updateRoomPassword(roomFirebase, newPassword, userId);
+        }
+    })
+      .catch(e => {
+        throw e;
       });
-    } else {
-      // remove password
-      return this.roomRepository.updateRoom(roomFirebase, {
-        "password": firebase.firestore.FieldValue.delete()
-      });
-    }
   }
 }

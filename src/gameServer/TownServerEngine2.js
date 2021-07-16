@@ -19,10 +19,10 @@ export default class TownServerEngine2 extends ServerEngine {
     this.AuthService = new AuthService();
   }
 
-  assignPlayerToRoom(playerId, roomName) {
+  assignPlayerToRoom(playerId, roomName, userId) {
     super.assignPlayerToRoom(playerId, roomName);
     this.playerToRoom[playerId] = roomName;
-    this.playerInfo[roomName][playerId] = {};
+    this.playerInfo[roomName][playerId] = {userId: userId};
   }
 
   createRoom(room) {
@@ -32,8 +32,6 @@ export default class TownServerEngine2 extends ServerEngine {
       this.playerToMap = {};
       this.playerToSocket = {};
       this.playerNeedsInit = {};
-      this.playerVideoMetric = {};
-      this.playerOnVideoMetric = {};
       this.modMessages = {};
       this.roomSettings = {};
       this.initialized = true;
@@ -92,8 +90,6 @@ export default class TownServerEngine2 extends ServerEngine {
   onPlayerConnected(socket) {
     super.onPlayerConnected(socket);
     this.playerToSocket[socket.playerId] = socket;
-    this.playerVideoMetric[socket.playerId] = {};
-    this.playerOnVideoMetric[socket.playerId] = null;
     socket.on('roomId', (data) => {
       let roomId = data.roomId;
       let password = data.password;
@@ -102,10 +98,6 @@ export default class TownServerEngine2 extends ServerEngine {
 
       this.RoomService.canJoinToRoom(roomId, userId, socket)
         .then((room) => {
-          if (room === undefined) {
-            console.log('로직상 unreachable인 것 같은데, 왜지.');
-            return;
-          }
           console.log('[GameServer] Accessing RoomId: ', room.name)
           if (room.setting) {
             this.roomSettings[roomId] = room.setting;
@@ -113,7 +105,7 @@ export default class TownServerEngine2 extends ServerEngine {
 
           const initialize = () => {
             //1. this.roomSettings[room]과 this.playerInfo[room]을 통해서 방이 정원 초과인지 확인하기
-            if(this._checkRoomFull(roomId)){
+            if (this._checkRoomFull(roomId)) {
               socket.emit("sizeLimit", this.roomSettings[roomId]["sizeLimit"]);
               return;
             }
@@ -122,7 +114,7 @@ export default class TownServerEngine2 extends ServerEngine {
             let playerId = socket.playerId;
             this.playerToMap[playerId] = room.map;
             this.createRoom(roomId); // override한 함수. 일종의 지연초기화 패턴.
-            this.assignPlayerToRoom(playerId, roomId);
+            this.assignPlayerToRoom(playerId, roomId, userId);
             if (this.playerNeedsInit[playerId]) {
               this.initializePlayer(room.map, socket.playerId, roomId);
             }
@@ -205,44 +197,6 @@ export default class TownServerEngine2 extends ServerEngine {
       }
     });
 
-    socket.on("videoMetric", (data) => {
-      if (data.isStart) {
-        this.playerVideoMetric[socket.playerId][data.playerId] = {
-          "userId": data.userId,
-          "time": data.time,
-          "isProd": data.isProd,
-        };
-      } else {
-        if (this.playerVideoMetric &&
-          this.playerVideoMetric[socket.playerId] &&
-          this.playerVideoMetric[socket.playerId][data.playerId] &&
-          this.playerVideoMetric[socket.playerId][data.playerId].time) {
-          let interactedTime = (data.time - this.playerVideoMetric[socket.playerId][data.playerId].time) / 1000;
-          console.log("interacted for ", interactedTime);
-          // logAmpEvent(data.userId, "Exit Video Call", { "duration_seconds": interactedTime }, data.isProd);
-          delete this.playerVideoMetric[socket.playerId][data.playerId];
-        }
-      }
-    });
-
-    socket.on("onVideoMetric", (data) => {
-      if (data.isStart) {
-        this.playerOnVideoMetric[socket.playerId] = {
-          "userId": data.userId,
-          "time": data.time,
-          "isProd": data.isProd,
-        };
-      } else {
-        if (this.playerOnVideoMetric &&
-          this.playerOnVideoMetric[socket.playerId] &&
-          this.playerOnVideoMetric[socket.playerId].time) {
-          let interactedTime = (data.time - this.playerOnVideoMetric[socket.playerId].time) / 1000;
-          // logAmpEvent(data.userId, "Exit On Video Call", { "duration_seconds": interactedTime }, data.isProd);
-          this.playerOnVideoMetric[socket.playerId] = null;
-        }
-      }
-    });
-
     socket.on("chatMessage", (message, blockedMap) => {
       let playerId = socket.playerId;
       let myPlayer = this.gameEngine.world.queryObject({playerId});
@@ -290,21 +244,6 @@ export default class TownServerEngine2 extends ServerEngine {
       this.gameEngine.removeObjectFromWorld(player);
     }
 
-    // Log video call ended metric
-    let nowTime = new Date().getTime();
-    // console.log(this.playerVideoMetric[playerId]);
-    Object.keys(this.playerVideoMetric[playerId]).forEach(otherPlayerId => {
-      let metricData = this.playerVideoMetric[playerId][otherPlayerId];
-      let interactedTime = (nowTime - metricData.time) / 1000;
-      // console.log("disconnect with ", otherPlayerId, "interacted for ", interactedTime);
-      // logAmpEvent(metricData.userId, "Exit Video Call", { "duration_seconds": interactedTime }, metricData.isProd);
-    })
-    if (this.playerOnVideoMetric[playerId]) {
-      let metricData = this.playerOnVideoMetric[playerId];
-      let interactedTime = (nowTime - metricData.time) / 1000;
-      // logAmpEvent(metricData.userId, "Exit On Video Call", { "duration_seconds": interactedTime }, metricData.isProd);
-    }
-
     let curRoom = this.playerToRoom[playerId];
     if (this.playerInfo[this.playerToRoom[playerId]]) {
       delete this.playerInfo[curRoom][playerId];
@@ -321,7 +260,6 @@ export default class TownServerEngine2 extends ServerEngine {
     delete this.playerToSocket[playerId];
     delete this.playerToMap[playerId];
     delete this.playerToRoom[playerId];
-    delete this.playerVideoMetric[playerId];
     console.log("disconnect", this.playerInfo);
   }
 
@@ -349,7 +287,7 @@ export default class TownServerEngine2 extends ServerEngine {
         return Promise.resolve(room);
       })
       .catch((e) => {
-          return Promise.reject(e);
+        return Promise.reject(e);
       });
   }
 
@@ -363,18 +301,25 @@ export default class TownServerEngine2 extends ServerEngine {
     })
   };
 
-  banPlayer(room, password, player) {
-    let roomFirebase = room.replace("/", "\\");
-    if (!this.playerToSocket[player]) throw new Error('Not exist');
-    return this.checkModPasswordInternal(room, password).then((roomData) => {
-      let newBannedIPs = {
-        ...roomData.bannedIPs,
-        [this.playerToSocket[player].handshake.address]: this.playerInfo[roomFirebase][player]
-      }
-      this.RoomService.BanPlayer(room, newBannedIPs); // TODO: 업뎃이라 비동기작업. 성능 개선 고려? 근데 socket.conn.close랑 transactional. 일단 나중에 생각
+  banPlayer(room, player, adminId) {
+    if (!this.playerToSocket[player]) {
+      throw new Error('Not exist');
+    }
+    if (!this.playerInfo[this.playerToRoom[player]]){
+      throw new Error('Not exist');
+    }
+    if (!this.playerInfo[this.playerToRoom[player]][player]?.userId) {
+      throw new Error('Not Exist userId');
+    }
+
+    let userId = this.playerInfo[this.playerToRoom[player]][player].userId
+    console.log('banPlayer Called: ', room, player, userId, adminId);
+    return this.RoomService.BanPlayer(room, userId).then((bannedIDs) => {
       this.playerToSocket[player].conn.close();
-      return Object.values(newBannedIPs);
-    })
+      return bannedIDs;
+    }).catch((e) => {
+      throw e
+    });
   }
 
   unbanPlayer(room, password, player) {
@@ -410,10 +355,9 @@ export default class TownServerEngine2 extends ServerEngine {
     });
   }
 
-  changePassword(room, password, newPassword) {
-    return this.checkModPasswordInternal(room, password).then(() => {
-      return this.RoomService.changePassword(room, newPassword);
-    });
+  changePassword(room, newPassword, userId) {
+    console.log(room, newPassword, userId);
+    return this.RoomService.changePassword(room, newPassword, userId);
   }
 
   setModMessage(room, password, message) {
@@ -428,7 +372,7 @@ export default class TownServerEngine2 extends ServerEngine {
   }
 
   _checkRoomFull(roomId) {
-    if(this.roomSettings[roomId] && "sizeLimit" in this.roomSettings[roomId] && this.playerInfo[roomId]){
+    if (this.roomSettings[roomId] && "sizeLimit" in this.roomSettings[roomId] && this.playerInfo[roomId]) {
       if (Object.keys(this.playerInfo[roomId]).length >= this.roomSettings[roomId]["sizeLimit"]) {
         return true;
       }

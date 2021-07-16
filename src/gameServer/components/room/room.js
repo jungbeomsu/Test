@@ -2,9 +2,14 @@ import bcrypt from "bcrypt";
 
 export class Room {
   constructor(name, data) {
+    this.id = data["id"];
     this.name = name;
-    this.bannedIPs = data["bannedIPs"] || {};
+    this.bannedIDs = data["bannedIPs"] || {};
     this.map = data['map'];
+    this.adminId = data['adminId'];
+    this.creatorId = data['creatorId'];
+    this.purposeId = data['purposeId'];
+    this.status = data['status'];
     this.setting = data['settings'] || {};
     this.password = data["password"] || "";
     this.hasAccess = data["hasAccess"];
@@ -21,7 +26,7 @@ export class Room {
      return bcrypt.compareSync(modPassword, this.modPassword)
   }
   isBannedIP(address){
-    return !!this.bannedIPs[address]; // undefined => false, defined => true
+    return !!this.bannedIDs[address]; // undefined => false, defined => true
   }
   isClosed(){
     return this.closed;
@@ -29,15 +34,15 @@ export class Room {
 
   isBannedID(userId) {
     //우선 항상 false
-    return false;
-    console.log(userId, this.bannedIPs)
+    // return false;
+    console.log(userId, this.bannedIDs)
     // this.bannedIPs[userId] 가 undefined => 안통과
     // this.bannedIPs[userId] 가 defined이고 !== 'ENTER' => 안통과
-    if(this.bannedIPs[userId] === undefined){
+    if(this.bannedIDs[userId] === undefined){
       console.log('undefined');
       return true;
     }
-    else if(this.bannedIPs[userId] && this.bannedIPs[userId] !== 'ENTER'){
+    else if(this.bannedIDs[userId] && this.bannedIDs[userId] !== 'ENTER'){
       console.log('NOT ENTER');
       return true;
     }
