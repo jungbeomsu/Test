@@ -74,6 +74,7 @@
     "fast-deep-equal": "^3.1.1",
     "firebase": "^7.14.1",
     "firebase-admin": "^8.10.0",
+    "jsonwebtoken": "^8.5.1",
     "lance-gg": "^4.0.8",
     "mailgun-js": "^0.22.0",
     "mysql2": "^2.2.5",
