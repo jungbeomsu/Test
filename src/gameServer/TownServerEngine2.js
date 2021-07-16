@@ -6,6 +6,7 @@ import {Player} from '../common/gameObjects';
 import {getPlayerDistance} from '../common/utils';
 import RoomService from "./components/room/roomService";
 import AuthService from "./components/auth/authService";
+import {logger} from "./components/utils/logger";
 
 export default class TownServerEngine2 extends ServerEngine {
 
@@ -94,7 +95,7 @@ export default class TownServerEngine2 extends ServerEngine {
 
       this.RoomService.canJoinToRoom(roomId, userId, socket)
         .then((room) => {
-          console.log('[GameServer] Accessing RoomId: ', room.name)
+          logger.info('[GameServer] Accessing RoomId: ', room.name)
           if (room.setting) {
             this.roomSettings[roomId] = room.setting;
           }
@@ -130,7 +131,7 @@ export default class TownServerEngine2 extends ServerEngine {
                   if (accessible) {
                     initialize();
                   } else {
-                    console.log("Not Accessible Token")
+                    logger.info("Not Accessible Token")
                   }
                 }).catch(error => {
                 throw new Error("error verifying token" + error.message);
@@ -143,7 +144,7 @@ export default class TownServerEngine2 extends ServerEngine {
           }
         }).catch(e => {
         socket.conn.close();
-        console.error(e);
+        logger.warn(e);
       })
         .then(() => {
           // alwaysExecuteThisFunction like finally in try-catch-finally pattern
@@ -151,7 +152,7 @@ export default class TownServerEngine2 extends ServerEngine {
     })
 
     socket.on('initPlayer', () => {
-      console.log("got initPlayer", socket.playerId);
+      logger.info("got initPlayer", socket.playerId);
       if (socket.playerId in this.playerToRoom) {
         this.initializePlayer(this.playerToMap[socket.playerId], socket.playerId, this.playerToRoom[socket.playerId]);
       } else {
@@ -164,7 +165,7 @@ export default class TownServerEngine2 extends ServerEngine {
     });
 
     socket.on('sendPrivatePrompt', () => {
-      console.log("got sendPrivatePrompt");
+      logger.info("got sendPrivatePrompt");
       //TODO: 이게 뭔지 모르겠음...
     });
 
@@ -244,21 +245,21 @@ export default class TownServerEngine2 extends ServerEngine {
           }
           socket.emit("serverPlayerInfo", Object.assign({"firstUpdate": true}, this.playerInfo[room]));
           socket.emit("modMessage", this.modMessages[roomId]);
-          console.log("Player Joined")
+          logger.info("Player Joined")
         } else{
-          console.log('접근 권한 없음');
+          logger.info('접근 권한 없음');
           socket.emit("roomClosed");
           socket.conn.close();
         }
       } catch (e) {
-        console.warn('Catch하지 못한 에러 발생:'+JSON.stringify(e));
+        logger.warn('Catch하지 못한 에러 발생:'+JSON.stringify(e));
         socket.emit("roomClosed");
         socket.conn.close();
       }
     });
 
     socket.on('initPlayer', () => {
-      console.log("got initPlayer", socket.playerId);
+      logger.info("got initPlayer", socket.playerId);
       if (socket.playerId in this.playerToRoom) {
         this.initializePlayer(this.playerToMap[socket.playerId], socket.playerId, this.playerToRoom[socket.playerId]);
       } else {
@@ -271,7 +272,7 @@ export default class TownServerEngine2 extends ServerEngine {
     });
 
     socket.on('sendPrivatePrompt', _ => {
-      console.log("got sendPrivatePrompt");
+      logger.info("got sendPrivatePrompt");
       //TODO: 이게 뭔지 모르겠음...
     });
 
@@ -348,7 +349,7 @@ export default class TownServerEngine2 extends ServerEngine {
     delete this.playerToSocket[playerId];
     delete this.playerToMap[playerId];
     delete this.playerToRoom[playerId];
-    console.log("disconnect", this.playerInfo);
+    logger.info("disconnect", this.playerInfo);
   }
 
   async gameStatus() {
@@ -361,7 +362,7 @@ export default class TownServerEngine2 extends ServerEngine {
         roomCount: Object.keys(this.playerInfo).map(roomId => Object.keys(this.playerInfo[roomId]).length)
       };
     } catch (err) {
-      console.log("gameStatus err: ", err);
+      logger.info("gameStatus err: ", err);
       return null;
     }
   }
@@ -391,7 +392,7 @@ export default class TownServerEngine2 extends ServerEngine {
       }
 
       const userId = this.playerInfo[this.playerToRoom[player]][player].userId
-      console.log('banPlayer Called: ', room, player, userId, adminId);
+      logger.info('banPlayer Called: ', room, player, userId, adminId);
       this.RoomService.BanPlayer(room, userId, adminId)
         .then((bannedIDs) => {
           this.playerToSocket[player].conn.close();
@@ -426,12 +427,12 @@ export default class TownServerEngine2 extends ServerEngine {
         }
       })
       .catch((e) => {
-        console.warn(e);
+        logger.warn(e);
       });
   }
 
   changePassword(roomId, newPassword, userId) {
-    console.log(roomId, newPassword, userId);
+    logger.info(roomId, newPassword, userId);
     return this.RoomService.changePassword(roomId, newPassword, userId);
   }
 

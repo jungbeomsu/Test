@@ -1,6 +1,7 @@
 import {auth, db} from "../../../server/constants";
 import bcrypt from "bcrypt";
 import {RoomRepository} from "./roomRepository";
+import {logger} from "../utils/logger";
 
 export default class RoomService {
   constructor() {
@@ -12,7 +13,7 @@ export default class RoomService {
 
   async getRoomWithUser(roomName) {
     let roomFirebase = roomName.replace("/", "\\");
-    console.log(`[GameServer] Get room name is : ${roomFirebase}.`);
+    logger.debug(`Get room name is : ${roomFirebase}.`);
     return await this.roomRepository.getRoomWithUsers(roomFirebase);
   }
 
@@ -99,7 +100,7 @@ export default class RoomService {
     }
     const didUpdate = await this.roomRepository.updateRoomUser(roomFirebase, userId, "ENTER")
     if (!didUpdate) {
-      console.log("Not Updated");
+      logger.debug("Not Updated");
       return room.bannedIDs;
     }
     const room2 = await this.getRoomWithUser(roomName);
@@ -111,7 +112,7 @@ export default class RoomService {
     const status = !!closed ? "CLOSED" : "ALIVE";
     const room = await this.roomRepository.getRoom(roomFirebase);
     if (!room.isAdmin(requesterId)) {
-      console.log(`adminId: ${requesterId}. room_admin_id: ${room.adminId}`);
+      logger.debug(`adminId: ${requesterId}. room_admin_id: ${room.adminId}`);
       throw new Error('Unauthorized');
     }
     return this.roomRepository.updateRoomStatus(roomFirebase, status);

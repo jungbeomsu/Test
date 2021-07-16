@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import {logger} from "../utils/logger";
 
 export class Room {
   constructor(name, data) {
@@ -41,15 +42,15 @@ export class Room {
   isBannedID(userId) {
     //우선 항상 false
     // return false;
-    console.log(userId, this.bannedIDs)
+    logger.debug(userId, this.bannedIDs)
     // this.bannedIPs[userId] 가 undefined => 안통과
     // this.bannedIPs[userId] 가 defined이고 !== 'ENTER' => 안통과
     if(this.bannedIDs[userId] === undefined){
-      console.log('undefined');
+      logger.debug('undefined');
       return true;
     }
     else if(this.bannedIDs[userId] && this.bannedIDs[userId] !== 'ENTER'){
-      console.log('NOT ENTER');
+      logger.debug('NOT ENTER');
       return true;
     }
     return false;

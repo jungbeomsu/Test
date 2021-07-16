@@ -8,6 +8,7 @@ import https from "https";
 import Express from "express";
 import Game from "../common/Game";
 import checkAuth from "./components/middleware/checkAuth";
+import {logger} from "./components/utils/logger";
 
 
 export function setUpServerEngine(httpServer) {
@@ -22,17 +23,17 @@ export function setUpServerEngine(httpServer) {
 
 export function setUpHttpsServer(app) {
   if (process.env.NODE_ENV === 'none') {
-    console.log('[GameServer] setUpHttpsServer localhost mode');
+    logger.info('setUpHttpsServer localhost mode');
     return http.createServer(app);
   } else if (process.env.NODE_ENV === 'production') {
-    console.log('[GameServer] setUpHttpsServer production mode');
+    logger.info('setUpHttpsServer production mode');
     const credentials = {
       cert: fs.readFileSync('./game-fullchain.pem'),
       key: fs.readFileSync('./game-privkey.pem'),
     };
     return https.createServer(credentials, app);
   } else if (process.env.NODE_ENV === 'development') {
-    console.log('[GameServer] setUpHttpsServer development mode');
+    logger.info('setUpHttpsServer development mode');
     const credentials = {
       cert: fs.readFileSync('./game-fullchain.pem'),
       key: fs.readFileSync('./game-privkey.pem'),
@@ -66,7 +67,7 @@ export function setUpGameApiRouter(serverEngine) {
     serverEngine.banPlayer(req.body.room, req.body.player.toString(), res.locals.userId).then((banned) => {
       res.status(200).send(banned);
     }).catch((e) => {
-      console.warn(e);
+      logger.warn(e);
       res.status(400).send();
     });
   });
@@ -101,7 +102,7 @@ export function setUpGameApiRouter(serverEngine) {
         }
       });
     }).catch((e) => {
-      console.error(e);
+      logger.warn(e);
       return res.json({
         "result": {
           "is_success": false,
@@ -116,12 +117,12 @@ export function setUpGameApiRouter(serverEngine) {
     })
   });
   router.get('/apitest', checkAuth, (req, res) => {
-    console.log('[GameServer]  TESTING');
+    logger.http(' TESTING');
     res.status(200).send("GOOD");
   })
 
   router.post('/apitest', checkAuth, (req, res) => {
-    console.log('[GameServer]'+JSON.stringify(req.body.roomId));
+    logger.http(''+JSON.stringify(req.body.roomId));
     res.status(200).send("GOOD");
   })
 
