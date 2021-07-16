@@ -53,13 +53,6 @@ export function setUpGameApiRouter(serverEngine) {
   })
 
   // moderation tools
-  router.post('/checkModPassword', (req, res) => {
-    serverEngine.checkModPassword(req.body.room, req.body.password).then((banned) => {
-      res.status(200).send(banned);
-    }).catch(() => {
-      res.status(400).send();
-    });
-  });
   router.post('/banPlayer', checkAuth, (req, res) => {
     serverEngine.banPlayer(req.body.room, req.body.player.toString(), res.locals.userId).then((banned) => {
       res.status(200).send(banned);
@@ -77,13 +70,6 @@ export function setUpGameApiRouter(serverEngine) {
   })
   router.post('/setRoomClosed', checkAuth, (req, res) => {
     serverEngine.setRoomClosed(req.body.room, res.locals.userId, req.body.closed).then(() => {
-      res.status(200).send();
-    }).catch(() => {
-      res.status(400).send();
-    });
-  })
-  router.post('/changeModPassword', (req, res) => {
-    serverEngine.changeModPassword(req.body.room, req.body.password, req.body.newPassword).then(() => {
       res.status(200).send();
     }).catch(() => {
       res.status(400).send();
@@ -116,7 +102,7 @@ export function setUpGameApiRouter(serverEngine) {
 
     });
   })
-  router.post('/setModMessage', (req, res) => {
+  router.post('/setModMessage', checkAuth, (req, res) => {
     serverEngine.setModMessage(req.body.room, req.body.password, req.body.message).then(() => {
     })
   });

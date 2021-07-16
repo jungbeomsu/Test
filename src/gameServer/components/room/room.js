@@ -31,6 +31,9 @@ export class Room {
   isClosed(){
     return this.closed;
   }
+  isAdmin(userId){
+    return this.adminId == userId;
+  }
 
   isBannedID(userId) {
     //우선 항상 false

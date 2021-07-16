@@ -49,7 +49,13 @@ export default class RoomService {
     return data["hasAccess"]
   }
 
-  async joinPlayerToRoom(room, socket) {
+  async getRoomWithAdmin(roomName, userId){
+    let roomFirebase = roomName.replace("/", "\\");
+    const room = await this.roomRepository.getRoom(roomName);
+    if (!room.isAdmin(userId)) {
+      throw new Error('UnAuthorized');
+    }
+    return room;
   }
 
   async getRoomWithModPassword(roomName, modPassword) {

@@ -171,18 +171,7 @@ export default class TownServerEngine2 extends ServerEngine {
       console.log("got sendPrivatePrompt");
       let roomName = data.room || "";
       let password = data.password || "";
-      this.RoomService.getRoom(roomName)
-        .then(room => {
-          if (room.compareModPassword(password)) {
-            console.log("sendPrivatePrompt to ", room.name);
-            Object.keys(this.playerInfo[room.name]).forEach(playerId => {
-              this.playerToSocket[playerId].emit("createPrivatePrompt");
-              this.playerToSocket[playerId].conn.close();
-            });
-          } else {
-            console.log("incorrect password");
-          }
-        }).catch(console.error);
+      //TODO: 이게 뭔지 모르겠음...
     });
 
     socket.on("playerInfo", (data) => {
@@ -281,8 +270,8 @@ export default class TownServerEngine2 extends ServerEngine {
 
   // moderation tools
   // deprecate하기
-  checkModPasswordInternal(rawRoomName, password) {
-    return this.RoomService.getRoomWithModPassword(rawRoomName, password)
+  checkRoomWithAdmin(rawRoomName, userId) {
+    return this.RoomService.getRoomWithAdmin(rawRoomName, userId)
       .then(room => {
         return Promise.resolve(room);
       })
@@ -290,16 +279,6 @@ export default class TownServerEngine2 extends ServerEngine {
         return Promise.reject(e);
       });
   }
-
-  // deprecated 하기. 이게 왜 checkModPassword야. getBannedIpsFromRoom이지.
-  checkModPassword(room, password) {
-    return this.checkModPasswordInternal(room, password).then((roomData) => {
-      if (roomData.bannedIPs) {
-        return Object.values(roomData.bannedIPs);
-      }
-      return [];
-    })
-  };
 
   banPlayer(room, player, adminId) {
     if (!this.playerToSocket[player]) { //TODO: 지금 없는 사람이어도 밴할 수 있게 바꾸기.
@@ -356,19 +335,13 @@ export default class TownServerEngine2 extends ServerEngine {
       });
   }
 
-  changeModPassword(room, password, newPassword) {
-    return this.checkModPasswordInternal(room, password).then(() => {
-      return this.RoomService.changeModPassword(room, newPassword)
-    });
-  }
-
   changePassword(room, newPassword, userId) {
     console.log(room, newPassword, userId);
     return this.RoomService.changePassword(room, newPassword, userId);
   }
 
   setModMessage(room, password, message) {
-    return this.checkModPasswordInternal(room, password).then(() => {
+    return this.checkRoomWithAdmin(room, password).then((r) => {
       Object.keys(this.playerInfo[room]).forEach(playerId => {
         if (this.playerToRoom[playerId] === room) {
           this.playerToSocket[playerId].emit("modMessage", message);
