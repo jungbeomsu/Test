@@ -49,6 +49,8 @@ export default function GameComponent(props) {
   const blockedRef = useRef({});
   blockedRef.current = blocked;
 
+  const [myScreenBig, setMyScreenBig] = useState(false);
+
   useEffect(() => {
     initClientEngine().then(clientEngine => {
       clientEngine.password = props.password;
@@ -385,6 +387,10 @@ export default function GameComponent(props) {
         blocked={blocked}
         videoThreshold={videoThreshold}
         hasScreenshare={hasScreenshare}
+
+        myScreenBig={myScreenBig}
+        setMyScreenBig={setMyScreenBig}
+        myScreenBig={myScreenBig}
       />;
   }
 
@@ -431,7 +437,10 @@ export default function GameComponent(props) {
       :
         <></>
       }
-      <div style={{position: "absolute", bottom: "40px", right: "40px"}}>
+      <div id="videoContainer" style={
+        myScreenBig ? {position: "absolute", top: "50%", left: "50%", translate: "-50% -50%"} :
+        {position: "absolute", bottom: "40px", left: "40px"}
+      }>
         {videoContainer}
       </div>
 

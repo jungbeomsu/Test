@@ -66,42 +66,11 @@ export default function GameSelfVideo (props) {
     }
   }
 
-  // TODO 비디오 메뉴 수정할 것!
   let videoMenu = (
-    <div className="selfvideo-stream-controls">
-      {/*<div className="menu-horizontal-container action" onClick={() => props.setVideoEnabled(!props.videoEnabled)}>*/}
-      {/*  {props.videoEnabled ?*/}
-      {/*    <i key="enable">*/}
-      {/*      <span className="fas fa-video menu-video-icon" />*/}
-      {/*    </i>*/}
-      {/*  :*/}
-      {/*    <i key="disable">*/}
-      {/*      <span className="fas fa-video-slash menu-disable-video-icon" />*/}
-      {/*    </i>*/}
-      {/*  }*/}
-      {/*  <div>{props.videoEnabled ? "Disable video" : "Enable video"}</div>*/}
-      {/*</div>*/}
-      {/*<div className="menu-horizontal-container action" onClick={() => props.setAudioEnabled(!props.audioEnabled)}>*/}
-      {/*  {props.audioEnabled ?*/}
-      {/*    <i key="enable">*/}
-      {/*      <span className="fas fa-microphone menu-mic-icon" />*/}
-      {/*    </i>*/}
-      {/*  :*/}
-      {/*    <i key="disable">*/}
-      {/*      <span className="fas fa-microphone-slash menu-disable-mic-icon" />*/}
-      {/*    </i>*/}
-      {/*  }*/}
-      {/*  <div>{props.audioEnabled ? "Mute mic" : "Unmute mic"}</div>*/}
-      {/*</div>*/}
-
-      <div style={{height: 20, padding: "4px 6px", borderRadius: "11px", backgroundColor: "rgba(0,0,0, 0.6)",  position: "absolute", bottom: 8, right: 4, display: "flex", alignItems: "center", textAlign: "center"}}>
-        <span style={{color: "white", fontSize: "11px",}}>
-          유저네임 (나)
-        </span>
-      </div>
+    <div className={"video-Menu"}>
+        <img onClick={() => props.setAudioEnabled(!props.audioEnabled)} style={{width: "32px", height: "32px", marginRight: "12px"}} src={"/images/mic_on.png"}/>
+        <img onClick={() => props.setVideoEnabled(!props.videoEnabled)} style={{width: "32px", height: "32px"}} src={"/images/video_on.png"}/>
     </div>
-
-
   );
 
   return (
@@ -109,17 +78,43 @@ export default function GameSelfVideo (props) {
       className="vertical-container self-video-container"
       onMouseEnter={() => setShowMenu(true)}
       onMouseLeave={() => setShowMenu(false)}>
-        <div style={{position: "relative"}}>
-          <video id="self-video"></video>
-          {/*{ showMenu ? videoMenu : null }*/}
-          {videoMenu}
+        <div style={{}}>
+          {/* 캠 확대 축소 임시 버튼 */}
+          <div
+            onClick={() => {props.setMyScreenBig(!props.myScreenBig)}}
+            style={{position: "absolute", top: "-100px", width: props.myScreenBig ? "1000px" : "50px", height: "50px", backgroundColor: "red"}}>
+          </div>
+          <video
+            id={props.myScreenBig ? "self-video-big" : "self-video"}>
+            </video>
+          { showMenu ? videoMenu : <></> }
+
+          {props.myScreenBig ?
+            <div style={{height: 20, padding: "4px 6px", borderRadius: "11px", backgroundColor: "rgba(0,0,0, 0.6)",  position: "absolute", bottom: "-270px", right: "-360px", display: "flex", alignItems: "center", textAlign: "center"}}>
+              <span style={{color: "white", fontSize: "11px", display: "flex", alignItems: "center"}}>
+                {
+                  !props.audioEnabled ? <img style={{width: "12px", height: "12px", marginRight: "2px"}} src={"/images/mic/off.png"}/> : <></>
+                }
+                {
+                  !props.videoEnabled  ? <img style={{width: "12px", height: "12px", marginRight: "2px"}} src={"/images/cam/off.png"}/> : <></>
+                }
+                유저네임 (나)
+              </span>
+            </div>
+            :
+            <div style={{height: 20, padding: "4px 6px", borderRadius: "11px", backgroundColor: "rgba(0,0,0, 0.6)",  position: "absolute", bottom: 8, right: 4, display: "flex", alignItems: "center", textAlign: "center"}}>
+              <span style={{color: "white", fontSize: "11px", display: "flex", alignItems: "center"}}>
+                {
+                  !props.audioEnabled ? <img style={{width: "12px", height: "12px", marginRight: "2px"}} src={"/images/mic/off.png"}/> : <></>
+                }
+                {
+                  !props.videoEnabled  ? <img style={{width: "12px", height: "12px", marginRight: "2px"}} src={"/images/cam/off.png"}/> : <></>
+                }
+                유저네임 (나)
+              </span>
+            </div>
+          }
         </div>
-      {/*<input*/}
-      {/*  id="self-name-input"*/}
-      {/*  className="name-input"*/}
-      {/*  placeholder="Enter name here..."*/}
-      {/*  onChange={nameOnChange}*/}
-      {/*  value={nameValue}></input>*/}
     </div>
   )
 }
