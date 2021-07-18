@@ -1,59 +1,69 @@
 import React, {useEffect, useState} from 'react';
 
 import {localPreferences} from '../LocalPreferences.js';
-import moment from "moment";
 import './GameCanvas.css';
 import {updateUserData} from '../userData.js';
 
 import Modal from 'react-modal';
+import Switch from './Switch.jsx';
 
 let temp = [
   {
-    id: 999,
+    id: 0,
     name: "오픈카톡방",
     type: "GROUP",
     chatMessages: [
-      {name: "KIM", content: "내 이름은 킴이야", time: "hh-mm", url: "url"},
-      {name: "ME", content: "내가 친 채팅", time: "hh-mm", url: "url"},
+      {name: "KIM", content: "내 이름은 킴이야", time: "hh:mm", url: "url"},
+      {name: "나", content: "내가 친 채팅", time: "hh:mm", url: "url"},
     ]
   },
   {
     id: 1,
-    name: "김씨1",
+    name: "내 닉네임",
     type: "PRIVATE",
     chatMessages: [
-      {name: "KIM", content: "내 이름은 킴이야", time: "hh-mm", url: "url"},
-      {name: "KIM", content: "내 이름은 킴이야", time: "hh-mm", url: "url"},
+      {name: "나", content: "여기는 내 메모장이야", time: "hh:mm", url: "url"},
+      {name: "나", content: "아무거나 쓸 수 있어", time: "hh:mm", url: "url"},
     ]
   },
   {
-    id:2,
-    name: "박씨2",
+    id: 2,
+    name: "김씨1",
     type: "PRIVATE",
     chatMessages: [
-      {name: "PARK", content: "내 이름은 박2이야", time: "hh-mm", url: "url"},
-      {name: "PARK", content: "내 이름은 박2이야", time: "hh-mm", url: "url"},
-      {name: "PARK", content: "내 이름은 박2이야", time: "hh-mm", url: "url"},
+      {name: "KIM", content: "내 이름은 킴이야", time: "hh:mm", url: "url"},
+      {name: "KIM", content: "내 이름은 킴이야", time: "hh:mm", url: "url"},
     ]
   },
   {
     id:3,
-    name: "박씨3",
+    name: "박씨2",
     type: "PRIVATE",
     chatMessages: [
-      {name: "PARK", content: "내 이름은 박3이야", time: "hh-mm", url: "url"},
-      {name: "PARK", content: "내 이름은 박3이야", time: "hh-mm", url: "url"},
-      {name: "PARK", content: "내 이름은 박3이야", time: "hh-mm", url: "url"},
+      {name: "PARK", content: "내 이름은 박2이야", time: "hh:mm", url: "url"},
+      {name: "PARK", content: "내 이름은 박2이야", time: "hh:mm", url: "url"},
+      {name: "PARK", content: "내 이름은 박2이야", time: "hh:mm+1", url: "url"},
+      {name: "PARK", content: "내 이름은 박2이야", time: "hh:mm+2", url: "url"},
     ]
   },
   {
     id:4,
+    name: "박씨3",
+    type: "PRIVATE",
+    chatMessages: [
+      {name: "PARK", content: "내 이름은 박3이야", time: "hh:mm", url: "url"},
+      {name: "PARK", content: "내 이름은 박3이야", time: "hh:mm", url: "url"},
+      {name: "PARK", content: "내 이름은 박3이야", time: "hh:mm", url: "url"},
+    ]
+  },
+  {
+    id:5,
     name: "박씨4",
     type: "PRIVATE",
     chatMessages: [
-      {name: "PARK", content: "내 이름은 박4이야", time: "hh-mm", url: "url"},
-      {name: "PARK", content: "내 이름은 박4이야", time: "hh-mm", url: "url"},
-      {name: "PARK", content: "내 이름은 박4이야", time: "hh-mm", url: "url"}
+      {name: "PARK", content: "내 이름은 박4이야", time: "hh:mm", url: "url"},
+      {name: "PARK", content: "내 이름은 박4이야", time: "hh:mm", url: "url"},
+      {name: "PARK", content: "내 이름은 박4이야", time: "hh:mm", url: "url"}
     ]
   }
 ]
@@ -64,23 +74,37 @@ export default function GameCanvas (props) {
   const [showMember, setShowMember] = useState(false);
   const [showChatting, setShowChatting] = useState(false);
   const [currentChatIndex, setCurrentChatId] = useState(undefined);
-  const [memberName, setMemberName] = useState(undefined);
   const [hover, setHover] = useState({backgroundColor: "#636363", color: "white"});
   const [focus, setFocus] = useState({backgroundColor: "rgba(255,255,255,0.7)", color: "#636363"});
-  const [myChattingData, setMyChattingData] = useState([]);
-  const [myChatLogs, setMyChatLogs] = useState([]);
-  const [myChat, setMyChat] = useState("");
 
-  const [modalIsOpen, setIsOpen] = useState(false);
-  const [chatType, setChatType] = useState(undefined);
+  const [myChat, setMyChat] = useState("");
   const [chattingData, setChattingData] = useState(temp)
 
-  function openModal() {
-    setIsOpen(true);
+  const [switchValue, setSwitchValue] = useState(false);
+
+  const [modalIsOpen, setIsOpen] = useState({
+    inviteModal: false,
+    settingModal: false,
+  })
+
+  const [changePassword, setChangePassword] = useState(false);
+
+  const [settingType, setSettingType] = useState("프로필 설정");
+
+  function openInviteModal() {
+    setIsOpen({...modalIsOpen, inviteModal: true});
   }
 
-  function closeModal() {
-    setIsOpen(false);
+  function openSettingModal() {
+    setIsOpen({...modalIsOpen, settingModal: true});
+  }
+
+  function closeInviteModal() {
+    setIsOpen({...modalIsOpen, inviteModal: false});
+  }
+
+  function closeSettingModal() {
+    setIsOpen({...modalIsOpen, settingModal: false});
   }
 
   useEffect(() => {
@@ -104,11 +128,12 @@ export default function GameCanvas (props) {
     </div>;
   }
 
-  let sampleArr = [
-    {id: 1, name: "내 닉네임", status: "online"},
-    {id: 2, name: "친구 닉네임", status: "online"},
-    {id: 3, name: "상사 닉네임", status: "online"},
-    {id: 4, name: "다른사람 닉네임", status: "offline"},
+  let memberArray = [
+    {id: 1, name: "내 닉네임(나)", status: "online", isChatting: false},
+    {id: 2, name: "김씨1", status: "online", isChatting: false},
+    {id: 3, name: "박씨2", status: "offline", isChatting: true},
+    {id: 4, name: "박씨3", status: "online", isChatting: true},
+    {id: 5, name: "박씨4", status: "offline", isChatting: false}
   ]
 
   const onChangeHandler = (e) => {
@@ -128,10 +153,10 @@ export default function GameCanvas (props) {
 
   const onKeyPressHandler = (e) => {
     if (e.key === "Enter") {
-      const chatMessage = {name: "ME", content: myChat, time: "hh-mm", url: "url"}
+      const myChatMessage = {name: "나", content: myChat, time: "hh:mm", url: "url"}
       const newChattingData = chattingData.map(c => {
         if (c.id === currentChatIndex) {
-          c.chatMessages.push(chatMessage);
+          c.chatMessages.push(myChatMessage);
         }
         return c;
       })
@@ -140,28 +165,427 @@ export default function GameCanvas (props) {
     }
   }
 
-  useEffect(() => {
-    let time = moment().format('h:mm');
-    if(myChatLogs.length !==0){
-      setMyChattingData([...myChattingData, {
-        name: "나",
-        time: time,
-        chatLogs: myChatLogs,
-      }]);
-    }
+  const renderSetting = (settingType) => {
+    switch (settingType) {
+      case "프로필 설정" :
+        return (
+          <>
+            <div style={{fontSize: "12px", display: "flex", alignItems: "center", color: "#AEAEAE"}}>
+              <img style={{width: "16px", height: "16px", marginRight: "5px"}} src={"/images/notice.png"}/>
+              변경된 프로필은 당신의 다른 모든 공간에 동일하게 적용됩니다.
+            </div>
 
-  }, [myChatLogs])
+            <div style={{display: "flex", justifyContent: "space-between", marginTop: "32px", alignItems: "center"}}>
+              <div style={{display: "flex", color: "#1C1C1E"}}>
+                닉네임
+              </div>
+              <div style={{position: "relative"}}>
+                <input
+                  style={{
+                    border: "none",
+                    width: "424px",
+                    height: "30px",
+                    backgroundColor: "#F0F0F0",
+                    borderRadius: "4px",
+                    padding: "4px 16px"
+                  }}
+                  placeholder={"내 현재 닉네임이 들어갑니다. "}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    right: "16px",
+                    bottom: "10px",
+                    fontSize: "12px",
+                    color: "#5E1CAF",
+                    textDecoration: "underline"
+                  }}
+                >
+                  닉네임 변경
+                </div>
+              </div>
+
+            </div>
+
+            <div style={{marginTop: "30px", display: "flex", color: "#1C1C1E", height: "250px", marginBottom: "55px"}}>
+              캐릭터 선택
+              <div>
+                {/* 게임 캐릭터 공간 */}
+              </div>
+            </div>
+
+            <div style={{
+              height: "36px",
+              width: "100%",
+              backgroundColor: "#5E1CAF",
+              color: "white",
+              alignItems: "center",
+              justifyContent: "center",
+              display: "flex",
+              fontSize: "14px",
+              borderRadius: "8px"
+            }}>
+              변경사항 저장
+            </div>
+          </>
+        )
+      break;
+
+      case "미디어 장비 설정" :
+        return (
+          <div style={{display: "flex", alignItems: "center", flexDirection: "column"}}>
+            <img
+              style={{width: "305px", height: "198px"}}
+              src={"/images/media_setting_profile.png"}/>
+
+            <div style={{marginTop: "40px", width: "100%"}}>
+              <div>
+                <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px"}}>
+                  <div style={{display: "flex", alignItems: "center"}}>
+                    <img style={{width: "24px", height: "24px", marginRight: "4px"}} src={"/images/camOn/bold.png"}/>
+                    카메라
+                  </div>
+                  <select style={{width: "424px", height: "30px", borderColor: "##5E1CAF"}} name="카메라 이름">
+                    <option value="none">카메라1</option>
+                    <option value="001">카메라2</option>
+                    <option value="002">카메라3</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px"}}>
+                  <div style={{display: "flex", alignItems: "center"}}>
+                    <img style={{width: "24px", height: "24px", marginRight: "4px"}} src={"/images/micOn/bold.png"}/>
+                    오디오
+                  </div>
+                  <select style={{width: "424px", height: "30px", borderColor: "##5E1CAF"}} name="오디오 이름">
+                    <option value="none">오디오1</option>
+                    <option value="001">오디오2</option>
+                    <option value="002">오디오3</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px"}}>
+                  <div style={{display: "flex", alignItems: "center"}}>
+                    <img style={{width: "24px", height: "24px", marginRight: "4px"}} src={"/images/speaker/bold.png"}/>
+                    스피커
+                  </div>
+                  <select style={{width: "424px", height: "30px", borderColor: "##5E1CAF"}} name="스피커 이름">
+                    <option value="none">스피커1</option>
+                    <option value="001">스피커2</option>
+                    <option value="002">스피커3</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+        break;
+
+      case "개인 설정" :
+        return (
+          <div>
+            <div style={{display: "flex", flexDirection: "column", fontSize: "14px"}}>
+              <div style={{fontWeight: "bold"}}>
+                로그인 정보
+              </div>
+              <div style={{display: "flex", marginTop: "10px"}}>
+                <div style={{display: "flex", flexDirection: "column", marginRight: "16px"}}>
+                  <div style={{fontSize: "12px", color: "#636363"}}>
+                    이메일
+                  </div>
+                  <div style={{width: "276px", height: "36px", backgroundColor: "#F0F0F0", display: "flex", alignItems: "center", paddingLeft: "16px", borderRadius: "8px", marginTop: "4px"}}>
+                    jksong0206@tenuto.co.kr
+                  </div>
+                </div>
+                <div style={{display: "flex", flexDirection: "column"}}>
+                  <div style={{fontSize: "12px", color: "#636363"}}>
+                    연동계정
+                  </div>
+                  <div style={{width: "276px", height: "36px", backgroundColor: "#F0F0F0", display: "flex", alignItems: "center", paddingLeft: "16px", borderRadius: "8px", marginTop: "4px"}}>
+                    <img style={{width: "24px", height: "24px"}} src={"/images/Google.png"}/>
+                    구글 계정으로 로그인 됨
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{borderBottom: "1px solid #F0F0F0", marginTop: "24px", marginBottom: "32px", width: "100%"}}/>
+
+            <div>
+              <div style={{fontSize: "14px", fontWeight: "bold", marginBottom :"4px"}}>
+                로그아웃
+              </div>
+              <div style={{fontSize: "12px", color: "#636363", lineHeight: "17px", width: "455px"}}>
+                로그아웃 시 현재 참여중인 공간들은 모두 계정에 저장되며, 동일한 계정으로 다시 로그인하면 저장된 공간들을 불러옵니다.
+              </div>
+            </div>
+
+            <div style={{
+              height: "36px",
+              width: "100%",
+              backgroundColor: "#5E1CAF",
+              color: "white",
+              alignItems: "center",
+              justifyContent: "center",
+              display: "flex",
+              fontSize: "14px",
+              borderRadius: "8px",
+              marginTop: "24px"
+            }}>
+              로그아웃
+            </div>
+          </div>
+        )
+        break;
+
+      case "공간 설정" :
+        return (
+          <div>
+            <div style={{display: "flex", justifyContent: "space-between", marginTop: "32px", alignItems: "center"}}>
+              <div style={{display: "flex", color: "#1C1C1E"}}>
+                공간 이름
+              </div>
+              <div style={{position: "relative"}}>
+                <input
+                  style={{
+                    border: "none",
+                    width: "424px",
+                    height: "30px",
+                    backgroundColor: "#F0F0F0",
+                    borderRadius: "4px",
+                    padding: "4px 16px"
+                  }}
+                  placeholder={"현재 공간의 이름"}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    right: "16px",
+                    bottom: "10px",
+                    fontSize: "12px",
+                    color: "#5E1CAF",
+                    textDecoration: "underline"
+                  }}
+                >
+                  이름 변경
+                </div>
+              </div>
+            </div>
+
+            <div style={{display: "flex", justifyContent: "space-between", marginTop: "32px", alignItems: "center"}}>
+              <div style={{display: "flex", color: "#1C1C1E"}}>
+                초대 링크
+              </div>
+              <div style={{position: "relative"}}>
+                <input
+                  style={{
+                    border: "none",
+                    width: "424px",
+                    height: "30px",
+                    backgroundColor: "#F0F0F0",
+                    borderRadius: "4px",
+                    padding: "4px 16px"
+                  }}
+                  placeholder={"https://gather.town/app/3YhtaxRX52c6XjkQ/te... "}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    right: "16px",
+                    bottom: "7px",
+                    fontSize: "12px",
+                    color: "#5E1CAF",
+                    textDecoration: "underline",
+
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center"
+                    }}>
+                    <img style={{width: "16px", height: "16px", marginRight: "4px"}} src={"/images/copy.png"}/>
+                    복사
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{borderBottom: "1px solid #F0F0F0", marginTop: "24px", marginBottom: "32px", width: "100%"}}/>
+
+            <div>
+              <div style={{fontSize: "14px", fontWeight: "bold", marginBottom :"4px"}}>
+                방장 권한 위임
+              </div>
+              <div style={{fontSize: "12px", color: "#636363", lineHeight: "17px", width: "455px"}}>
+                방장 권한을 다른사람에게 위임한 후 기존에 지닌 방장 권한은 사라지고 일반 멤버로 변경됩니다.
+                아래 인원들 중 한사람을 선택하여 다음 방장으로 지정할 수 있습니다.
+              </div>
+            </div>
+
+            <div style={{height: "150px"}}>
+              <div
+                style={{width: "276px", height: "54px", backgroundColor: "#F0F0F0", borderRadius: "15px", padding: "11px, 16px", display: "flex", alignItems: "center", marginTop: "28px"}}
+              >
+                <div style={{display: "flex", justifyContent: "space-between", width: "100%", padding: "0 16px 0 16px"}}>
+                  <div style={{display: "flex", alignItems: "center"}}>
+                    <img style={{width: "32px", height: "32px", marginRight: "6px"}} src={"/images/profile_image.png"}/>
+                    <div style={{display: "flex", flexDirection: "column"}}>
+                      <div style={{color: "1C1C1E", fontSize: "14px"}}>
+                        다른 사람 닉네임
+                      </div>
+                      <div style={{fontSize: "12px", color: "#636363"}}>
+                        jksong0206@gmail.com
+                      </div>
+                    </div>
+                  </div>
+                  <img style={{width: "24px", height: "24px"}}src={"/images/radioDefault.png"}/>
+                </div>
+              </div>
+            </div>
+
+            <div style={{
+              height: "36px",
+              width: "100%",
+              backgroundColor: "#5E1CAF",
+              color: "white",
+              alignItems: "center",
+              justifyContent: "center",
+              display: "flex",
+              fontSize: "14px",
+              borderRadius: "8px"
+            }}>
+              변경사항 저장
+            </div>
+
+          </div>
+        )
+        break;
+      case "보안 설정" :
+        return (
+          <div>
+            <div
+              style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}
+            >
+              <div>
+                <div style={{fontSize: "14px", fontWeight: "bold", marginBottom: "4px"}}>
+                  비밀정보 설정
+                </div>
+                <div style={{fontSize: "12px", color: "#636363", lineHeight: "17px", width: "455px"}}>
+                  비밀번호 설정 시 비밀번호를 입력한 사용자들만 공간에 참여할 수 있습니다.
+                  설정하지 않으면 누구나 링크만 있으면 공간에 참여할 수 있습니다.
+                </div>
+              </div>
+              <Switch
+                isOn={switchValue}
+                handleToggle={() => setSwitchValue(!switchValue)}
+              />
+
+
+            </div>
+
+            {switchValue &&
+            <div style={{display: "flex", justifyContent: "space-between", marginTop: "32px", alignItems: "center", fontSize: "14px"}}>
+              <div style={{display: "flex", color: "#1C1C1E"}}>
+                {changePassword ? "새로운 비밀번호" : "현재 비밀번호"}
+              </div>
+              <div style={{position: "relative"}}>
+                <input
+                  style={{
+                    border: "none",
+                    width: "424px",
+                    height: "30px",
+                    backgroundColor: "#F0F0F0",
+                    borderRadius: "4px",
+                    padding: "4px 16px",
+                    color: "#AEAEAE",
+                  }}
+                  placeholder={changePassword ? "새로운 비밀번호를 입력하세요" : "기존 비밀번호 혹은 설정된 비밀번호 없음"}
+                />
+                <div
+                  style={{
+                    display: "flex",
+                    position: "absolute",
+                    right: "16px",
+                    bottom: "10px",
+                    fontSize: "12px",
+                  }}
+                >
+                  {
+                    changePassword &&
+                      <div
+                        onClick={() => setChangePassword(false)}
+                        style={{
+                          color: "#8E8E8E",
+                          marginRight: "12px"
+                        }}
+                      >
+                        취소
+                      </div>
+                  }
+                  <div
+                    onClick={() => setChangePassword(true)}
+                    style={{
+                      color: "#5E1CAF",
+                      textDecoration: "underline"
+                    }}
+                  >
+                    {changePassword ? "변경" : "비밀번호 변경"}
+                  </div>
+                </div>
+              </div>
+            </div>
+            }
+
+            <div style={{borderBottom: "1px solid #F0F0F0", marginTop: "24px", marginBottom: "32px", width: "100%"}}/>
+
+            <div>
+              <div style={{fontSize: "14px", fontWeight: "bold", marginBottom: "4px"}}>
+                공간 해산
+              </div>
+              <div style={{fontSize: "12px", color: "#636363", lineHeight: "17px", width: "455px"}}>
+                이 기능을 사용하면 이 공간에 참여한 모든 사람들을 내보내며 공간의 모든 데이터들이 삭제되고 다시는 참여할 수 없습니다.
+              </div>
+            </div>
+
+            <div style={{
+              height: "36px",
+              width: "100%",
+              backgroundColor: "#FF2C2C",
+              color: "white",
+              alignItems: "center",
+              justifyContent: "center",
+              display: "flex",
+              fontSize: "14px",
+              borderRadius: "8px",
+              marginTop: "24px"
+            }}>
+              공간 해산
+            </div>
+
+          </div>
+        )
+        break;
+      default:
+        return (
+          <div>프로필 설정</div>
+        )
+        break;
+    }
+  }
 
   return (
     <div style={{position: "relative"}} className="game-container">
       {linkContainer}
       <div style={{position:"absolute", top: "40px", right: "40px", width: "224px", display: "flex", flexDirection: "column", justifyContent: "space-between"}}>
         <div
-          style={{maxHeight: !showMember ? "55px" : "377px", borderRadius: "19px", backgroundColor: "rgba(0,0,0,0.8)", color: "#DDDDDD", fontSize: "14px", display: "flex", flexDirection: "column", padding: "15px 20px", marginBottom: "12px"}}>
-          <div style={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
+          style={{maxHeight: !showMember ? "55px" : "377px", borderRadius: "19px", backgroundColor: "rgba(0,0,0,0.8)", color: "#DDDDDD", fontSize: "14px", display: "flex", flexDirection: "column", marginBottom: "12px"}}>
+          <div style={{display: "flex", alignItems: "center", justifyContent: "space-between", padding: "15px 20px", }}>
             <div style={{display: "flex", alignItems: "center"}}>
               <img style={{width: "24px", height: "24px", marginRight: "6px"}} src={"/images/users/bold.png"}/>
-              참여 멤버 {sampleArr.length}
+              참여 멤버 {memberArray.length}
             </div>
 
             <div
@@ -177,26 +601,34 @@ export default function GameCanvas (props) {
 
           {showMember &&
           <>
-            <div style={{display: "flex", flexDirection: "column", overflow: "scroll", marginTop: "20px", fontSize: "16px", color: "#CCCCCC"}}>
+            <div style={{display: "flex", flexDirection: "column", overflow: "scroll", fontSize: "16px", color: "#CCCCCC"}}>
 
-              {sampleArr.map((item) => {
+              {memberArray.map((item) => {
                 return (
                   <div
                     onClick={() => {
                       setShowChatting(true);
                       setCurrentChatId(chattingData.findIndex(c => c.id === item.id))
                     }}
-                    key={item.id} style={{display: "flex", marginBottom: "17px"}}>
-                    <div style={{position: "relative"}}>
-                      <img style={{width: "32px", height: "32px"}} src={"/images/profile_image.png"} />
-                      <div style={{width: "12px", height: "12px", backgroundColor: item.status === "online" ? "#00FF47" : "#FF6B00", borderRadius: "50%", position: "absolute", bottom: 0, right: 0, border: "2px solid white"}}>
+                    key={item.id}
+                    style={{display: "flex", padding: "8px 20px", opacity: currentChatIndex === item.id && 0.8, backgroundColor: currentChatIndex === item.id && "black"}}>
+                    <div style={{display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%"}}>
+                      <div style={{display: "flex"}}>
+                        <div style={{position: "relative"}}>
+                          <img style={{width: "32px", height: "32px"}} src={"/images/profile_image.png"} />
+                          <div style={{width: "12px", height: "12px", backgroundColor: item.status === "online" ? "#00FF47" : "#FF6B00", borderRadius: "50%", position: "absolute", bottom: 0, right: 0, border: "2px solid white"}}>
+                          </div>
+                        </div>
+                        <div style={{display: "flex", flexDirection: "column", marginLeft: "8px", justifyContent: "center"}}>
+                          <div style={{fontSize: "16px", width: "100%", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"
+                          }} >
+                            {item.name}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    <div style={{display: "flex", flexDirection: "column", marginLeft: "8px", justifyContent: "center"}}>
-                      <div style={{fontSize: "16px", width: "100%", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"
-                      }} >
-                        {item.name}
-                      </div>
+                      {item.isChatting &&
+                      <div style={{width: "6px", height: "6px", backgroundColor: "#FF2C2C", borderRadius: "50%"}} />
+                      }
                     </div>
                   </div>
                 )
@@ -208,8 +640,9 @@ export default function GameCanvas (props) {
               onMouseOver={() => setHover({backgroundColor: "white", color: "#636363"})}
               onClick={() => {
                 setShowChatting(true);
+                setCurrentChatId(0)
               }}
-              style={{width: "184px", minHeight: "33px", backgroundColor: hover.backgroundColor, color: hover.color, display: "flex", justifyContent: "center", alignItems: "center", borderRadius: "8px"}}>
+              style={{width: "184px", minHeight: "33px", backgroundColor: hover.backgroundColor, color: hover.color, display: "flex", justifyContent: "center", alignItems: "center", borderRadius: "8px", margin: "15px 20px"}}>
               그룹 채팅 시작
             </div>
           </>
@@ -241,7 +674,7 @@ export default function GameCanvas (props) {
                 <div style={{display: "flex", alignItems: "center"}}>
                   {chattingData[currentChatIndex].type === "GROUP" ?
                     <div style={{display: "flex", alignItems: "center"}}>
-                      <img style={{width: "28px", height: "28px"}} src={"/images/chatting/bold.png"} />
+                      <img style={{width: "28px", height: "28px", marginRight: "6px"}} src={"/images/chatting/bold.png"} />
                       그룹 채팅
                     </div> :
                     chattingData[currentChatIndex].type === "PRIVATE" ?
@@ -273,31 +706,48 @@ export default function GameCanvas (props) {
               </div>
 
               <div style={{overflow: "scroll", minHeight: "325px"}}>
-                {chattingData[currentChatIndex].chatMessages.map((chatMessage, index) => {
-                  // chatMessages를 한바퀴 돌면서,
-                  // chatMessagesGrouped 를 만든다.
-                  // - chatMessagesGrouped: chatMessage가 같은 사람이 보낸거면 묶어서 한 덩어리로 만들어준 배열.
-                  /*
-                  * [
-                  *   {name: 이름1, time: 시간, url: url, chatMsgs: ["content", "content2", "content3"] },
-                  *   {name: 이름2, time: 시간, url: url, chatMsgs: ["content", "content2", "content3"] },
-                  *   {name: 이름1, time: 시간, url: url, chatMsgs: ["content", "content2", "content3"] },
-                  * ]
-                  * */
 
-                  // chatMessagesGrouped 를 출력한다.
+                {chattingData[currentChatIndex].chatMessages.reduce((acc, cur, idx) => {
+                  if (idx === 0) {
+                    acc = [{
+                      name: cur.name,
+                      contents: [cur.content],
+                      time: cur.time,
+                      url: cur.url
+                    }]
+                  }
+
+                  let prev = acc[acc.length-1];
+
+                  if (prev.name === cur.name && prev.time === cur.time) {
+                    prev.contents.push(cur.content)
+
+                  } else {
+                    let temp = {
+                      name: cur.name,
+                      contents: [cur.content],
+                      time: cur.time,
+                      url: cur.url,
+                    }
+                    acc = [...acc, temp]
+                  }
+
+                  return acc;
+
+                }, []).map((chatMessage) => {
 
                   return (
-                    <div style={{padding: "16px 16px"}}>
+                    <div style={{
+                      padding: "16px",
+                      display: "flex",
+                      justifyContent: currentChatIndex === 1 ? "flex-start" :  chatMessage.name !== "나" ? "flex-start" : "flex-end",
+                    }}>
                       <div style={{display: "flex"}}>
 
-                        <div style={{display: "flex", flexDirection: "column", fontSize: "14px"}}>
-
-                          {/* 아래 div가 이름, 프로필, 시간 보여주는 부분 */}
+                        <div style={{display: "flex", flexDirection: "column", fontSize: "14px", width: "100%"}}>
                           <div style={{
                             display: "flex",
                             marginBottom: "6px",
-                            justifyContent: "flex-start",
                             alignItems: "center"
                           }}>
                             <div>
@@ -317,9 +767,16 @@ export default function GameCanvas (props) {
                               {chatMessage.time}
                             </div>
                           </div>
-                          <div style={{lineHeight: "20px"}}>
-                            {chatMessage.content}
-                          </div>
+
+                          {chatMessage.contents.map((content) => {
+                            return (
+                              <div style={{display: "flex", justifyContent: currentChatIndex === 1 ? "flex-start" :  chatMessage.name !== "나" ? "flex-start" : "flex-end", lineHeight: "20px"}}>
+                                {content}
+                              </div>
+                            )
+                          })
+                          }
+
                         </div>
                       </div>
                     </div>
@@ -328,7 +785,6 @@ export default function GameCanvas (props) {
 
               </div>
 
-              {/* 인풋 */}
               <div
                 style={{
                   borderTop: "1px solid #636363",
@@ -364,7 +820,9 @@ export default function GameCanvas (props) {
               <img style={{width: "24px", height: "24px"}} src={"/images/profile_image.png"}/>
               <div style={{width: "10px", height: "10px", backgroundColor: "#00FF47", borderRadius: "50%", position: "absolute", bottom: 0, right: 0, border: "2px solid white"}}></div>
             </div>
-            <div style={{lineHeight: "15px"}}>
+            <div
+              onClick={openSettingModal}
+              style={{lineHeight: "15px"}}>
               내 닉네임
               <div style={{color: "#C7C7C7", fontSize: "10px"}}>프로필 편집 ></div>
             </div>
@@ -377,7 +835,7 @@ export default function GameCanvas (props) {
           </div>
         </div>
         <div
-          onClick={openModal}
+          onClick={openInviteModal}
           style={{display: "flex", alignItems: "center", marginBottom: "20px"}}>
           <div style={{width: "122px", height: "46px", borderRadius: "24px", backgroundColor: "#47335F", display: "flex", alignItems: "center", padding: "11px 11px"}}>
             <img style={{width: "24px", height: "24px", marginRight: "12px"}} src={"/images/invite.png"}/>
@@ -434,11 +892,11 @@ export default function GameCanvas (props) {
       }
 
       {/* inviteModal */}
-      {modalIsOpen ?
+      {modalIsOpen.inviteModal ?
         <div>
           <Modal
-            isOpen={modalIsOpen}
-            onRequestClose={closeModal}
+            isOpen={modalIsOpen.inviteModal}
+            onRequestClose={closeInviteModal}
             style={{
               content: {
                 top: '50%',
@@ -471,6 +929,79 @@ export default function GameCanvas (props) {
           </Modal>
         </div>
         : <></>}
+
+      {/*settingModal*/}
+      {modalIsOpen.settingModal ?
+        <div>
+          <Modal
+            isOpen={modalIsOpen.settingModal}
+            onRequestClose={closeSettingModal}
+            style={{
+              content: {
+                top: '50%',
+                left: '50%',
+                right: 'auto',
+                bottom: 'auto',
+                marginRight: '-50%',
+                transform: 'translate(-50%, -50%)',
+                width: "840px",
+                height: "584px",
+                borderRadius: "20px",
+                display: "flex",
+                alignItems: "center",
+                // flexDirection: "column",
+                backgroundColor: "#5E1CAF",
+                padding: "0"
+              }}
+            }
+            contentLabel="Example Modal"
+          >
+            <div
+              style={{width: "192px", height: "100%", left: 0, display: "flex", flexDirection: "column", color: "white", fontSize: "14px", justifyContent: "space-between", padding: "30px 20px"}}
+            >
+              {/* TODO 나중에 깔끔하게 만들기 */}
+              <div>
+                <div style={{opacity: 0.6, marginBottom: "11px"}}>jksong0206@tenuto.co.kr</div>
+                <div onClick={(e) => setSettingType(e.currentTarget.innerText)} name="프로필 설정" style={{marginBottom: "8px"}}>프로필 설정</div>
+                <div onClick={(e) => setSettingType(e.currentTarget.innerText)} name="미디어 장비 설정" style={{marginBottom: "8px"}}>미디어 장비 설정</div>
+                <div onClick={(e) => setSettingType(e.currentTarget.innerText)} name="개인 설정" style={{marginBottom: "30px"}}>개인 설정</div>
+                <div style={{opacity: 0.6, marginBottom: "11px"}}>공간의 이름(admin)</div>
+                <div onClick={(e) => setSettingType(e.currentTarget.innerText)} name="공간 설정" style={{marginBottom: "8px"}}>공간 설정</div>
+                <div onClick={(e) => setSettingType(e.currentTarget.innerText)} name="보안 설정">보안 설정</div>
+              </div>
+
+              <div
+                onClick={closeSettingModal}
+                style={{width: "156px", border: "1px solid white", display: "flex", justifyContent: "center", alignItems: "center", borderRadius: "8px", height: "36px"}}>
+                이 공간에서 나가기
+                <img style={{width: "16px", height: "16px", marginLeft: "5px"}} src={"/images/exit.png"}/>
+              </div>
+            </div>
+
+            <div
+              style={{width: "100%", height: "100%", backgroundColor: "white", padding: "40px"}}
+            >
+              <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "16px", borderBottom: "1px solid #F0F0F0", marginBottom: "24px"}}>
+                <div style={{fontSize: "20px", fontWeight :"20px"}}>{settingType}</div>
+                <img
+                  onClick={closeSettingModal}
+                  style={{width: "24px", height: "24px"}}src={"/images/close.png"}/>
+              </div>
+
+              {/* 프로필 세팅 */}
+              <div style={{display: "flex", flexDirection: "column"}}>
+                {
+                  renderSetting(settingType)
+                }
+              </div>
+
+            </div>
+
+          </Modal>
+        </div>
+        : <></>}
     </div>
   );
 }
+
+
