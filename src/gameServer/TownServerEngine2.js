@@ -114,14 +114,14 @@ export default class TownServerEngine2 extends ServerEngine {
           socket.conn.close();
         }
       } catch (e) {
-        logger.warn('Catch하지 못한 에러 발생:' + JSON.stringify(e));
+        logger.warn(`Catch하지 못한 에러 발생: ${JSON.stringify(e)}`);
         socket.emit("roomClosed");
         socket.conn.close();
       }
     });
 
     socket.on('initPlayer', () => {
-      logger.info("got initPlayer", socket.playerId);
+      logger.info(`got initPlayer : ${socket.playerId}`);
       if (socket.playerId in this.playerToRoom) {
         this.initializePlayer(this.playerToMap[socket.playerId], socket.playerId, this.playerToRoom[socket.playerId]);
       } else {
@@ -211,7 +211,7 @@ export default class TownServerEngine2 extends ServerEngine {
     delete this.playerToSocket[playerId];
     delete this.playerToMap[playerId];
     delete this.playerToRoom[playerId];
-    logger.info("disconnect", this.playerInfo);
+    logger.info(`disconnect: ${this.playerInfo}`);
   }
 
   async gameStatus() {
@@ -224,7 +224,7 @@ export default class TownServerEngine2 extends ServerEngine {
         roomCount: Object.keys(this.playerInfo).map(roomId => Object.keys(this.playerInfo[roomId]).length)
       };
     } catch (err) {
-      logger.info("gameStatus err: ", err);
+      logger.info(`gameStatus err: ${err}`);
       return null;
     }
   }
@@ -254,7 +254,7 @@ export default class TownServerEngine2 extends ServerEngine {
       }
 
       const userId = this.playerInfo[this.playerToRoom[player]][player].userId
-      logger.info('banPlayer Called: ', room, player, userId, adminId);
+      logger.info(`banPlayer Called: ${room} ${player} ${userId} ${adminId}`);
       this.RoomService.BanPlayer(room, userId, adminId)
         .then((bannedIDs) => {
           this.playerToSocket[player].conn.close();
@@ -293,7 +293,7 @@ export default class TownServerEngine2 extends ServerEngine {
   }
 
   changePassword(roomId, newPassword, userId) {
-    logger.info(roomId, newPassword, userId);
+    logger.info(`changePassword: ${roomId}, ${newPassword}, ${userId}`);
     return this.RoomService.changePassword(roomId, newPassword, userId);
   }
 

@@ -12,7 +12,7 @@ export default function checkAuth(req, res, next) {
         logger.debug('checkAuth Not valid');
         res.status(401).json({error: 'Authentication failed'});
       } else {
-        logger.debug('checkAuth: ', decodedToken);
+        logger.debug(`checkAuth: ${decodedToken.UserId}`);
         res.locals.userId = decodedToken.UserId;
         next();
       }

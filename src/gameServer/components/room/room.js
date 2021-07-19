@@ -52,10 +52,10 @@ export class Room {
     // this.bannedIPs[userId] 가 undefined => 안통과
     // this.bannedIPs[userId] 가 defined이고 !== 'ENTER' => 안통과
     if (this.bannedIDs[userId] === undefined) {
-      logger.debug('undefined');
+      logger.debug('Not Register');
       return true;
     } else if (this.bannedIDs[userId] && this.bannedIDs[userId] !== 'ENTER') {
-      logger.debug('NOT ENTER');
+      logger.debug('Banned');
       return true;
     }
     return false;
