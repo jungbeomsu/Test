@@ -90,6 +90,10 @@ export class RoomRepository {
               reject(err)
               conn.release();
             }
+            else if (results.length === 0) {
+              reject("NOT FOUND");
+              conn.release();
+            }
             else {
               logger.silly(JSON.stringify(results[0]));
               const ret = {

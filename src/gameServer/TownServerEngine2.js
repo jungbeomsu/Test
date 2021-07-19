@@ -176,7 +176,7 @@ export default class TownServerEngine2 extends ServerEngine {
         if (!(id in infoFromRoom)) {
           return;
         }
-        let publicId = infoFromRoom[id].publicId;
+        let publicId = infoFromRoom[id].publicId; //TODO: client측 API 가 완성되면 그때 userId로 바꾸면 좋을 듯..?
         let blocked = !publicId || (publicId in blockedMap && blockedMap[publicId]);
         //if (playersObj[id] <= VIDEO_THRESHOLD && !blocked) {
         if (!blocked) {
