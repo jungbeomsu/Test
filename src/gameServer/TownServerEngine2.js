@@ -211,7 +211,7 @@ export default class TownServerEngine2 extends ServerEngine {
     delete this.playerToSocket[playerId];
     delete this.playerToMap[playerId];
     delete this.playerToRoom[playerId];
-    logger.info(`disconnect: ${this.playerInfo}`);
+    logger.info(`disconnect: ${socketId}, ${playerId}`);
   }
 
   async gameStatus() {

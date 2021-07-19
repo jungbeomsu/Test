@@ -50,7 +50,10 @@ export class RoomRepository {
           [roomName, roomUrl],
           (err, results) => {
             if (err) reject(err);
-            else if (results.length === 0) reject("NOT FOUND");
+            else if (results.length === 0) {
+              reject("NOT FOUND");
+              conn.release();
+            }
             else {
               const ret = {
                 id: results[0].id,
@@ -65,11 +68,12 @@ export class RoomRepository {
                 description: results[0].description,
               };
               resolve(new Room(rawRoomName, ret));
+              conn.release();
             }
           }
         );
         // Don't forget to release the connection when finished!
-        pool.releaseConnection(conn);
+
       });
     });
   }
@@ -85,7 +89,10 @@ export class RoomRepository {
           "SELECT *,r.status as room_status, ru.status as user_status FROM `room` r JOIN `room_user` ru ON r.id = ru.room_id WHERE r.name = ? and r.room_url = ?",
           [roomName, roomUrl],
           (err, results) => {
-            if (err) reject(err);
+            if (err) {
+              reject(err)
+              conn.release();
+            }
             else {
               logger.silly(JSON.stringify(results[0]));
               const ret = {
@@ -105,10 +112,10 @@ export class RoomRepository {
                 }, {}),
               };
               resolve(new Room(rawRoomName, ret));
+              conn.release();
             }
           }
         );
-        pool.releaseConnection(conn);
       });
     });
   }
@@ -129,13 +136,16 @@ export class RoomRepository {
           "UPDATE `room_user` SET status=? WHERE user_id=? and room_id=(SELECT r.id FROM room r WHERE r.name = ? and r.room_url = ?)",
           [status, userId, roomName, roomUrl],
           (err, results) => {
-            if (err) reject(err);
+            if (err) {
+              reject(err);
+              conn.release();
+            }
             else {
               resolve(results.affectedRows > 0);
+              conn.release();
             }
           }
         );
-        pool.releaseConnection(conn);
       });
     });
   }
@@ -149,13 +159,16 @@ export class RoomRepository {
         "UPDATE room SET status = ? WHERE name = ? and room_url = ?",
         [status, roomName, roomUrl],
         (err, results) => {
-          if (err) reject(err);
+          if (err) {
+            reject(err);
+            conn.release();
+          }
           else {
             resolve(results.affectedRows > 0);
+            conn.release();
           }
         }
       );
-        pool.releaseConnection(conn);
       });
     });
   }
@@ -174,13 +187,16 @@ export class RoomRepository {
           "UPDATE room SET password = ? WHERE name = ? and room_url = ?",
           [password, roomName, roomUrl],
           (err, results) => {
-            if (err) reject(err);
+            if (err) {
+              reject(err);
+              conn.release();
+            }
             else {
               resolve(results.affectedRows > 0);
+              conn.release();
             }
           }
         );
-        pool.releaseConnection(conn);
       });
     });
   }
