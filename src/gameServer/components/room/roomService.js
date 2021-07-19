@@ -62,7 +62,7 @@ export default class RoomService {
     let roomFirebase = roomName.replace("/", "\\");
     const room = await this.roomRepository.getRoom(roomName);
     if (!room.isAdmin(userId)) {
-      throw new Error('UnAuthorized');
+      throw new Error('Unauthorized');
     }
     return room;
   }
@@ -74,25 +74,17 @@ export default class RoomService {
     if (!room.isAdmin(requesterId)) {
       throw new Error('Unauthorized');
     }
+    const didUpdate = await this.roomRepository.updateRoomUser(roomFirebase, userId, "BAN");
+    if(!didUpdate){
+      logger.debug("Not Found");
+      return room.bannedIDs;
+    }
 
-    return this.roomRepository.updateRoomUser(roomFirebase, userId, "BAN")
-      .then(didUpdate => {
-        if (didUpdate) {
-          return this.getRoomWithUser(roomName)
-            .then(r => r.bannedIDs)
-            .catch(e => {
-              throw e
-            });
-        } else {
-          return room.bannedIDs;
-        }
-      })
-      .catch(e => {
-        throw e;
-      })
+    const room2 = await this.getRoomWithUser(roomName);
+    return room2.bannedIDs;
   }
 
-  async UnBanPlayer(roomName, userId, requesterId) {// TODO: 질의문안에 admin 넣어서 보내면 두번날릴거 한번으로 줄일 수 있음.
+  async UnBanPlayer(roomName, userId, requesterId) {
     let roomFirebase = roomName.replace("/", "\\");
     const room = await this.roomRepository.getRoom(roomFirebase);
     if (!room.isAdmin(requesterId)) {
@@ -100,7 +92,7 @@ export default class RoomService {
     }
     const didUpdate = await this.roomRepository.updateRoomUser(roomFirebase, userId, "ENTER")
     if (!didUpdate) {
-      logger.debug("Not Updated");
+      logger.debug("Not Found");
       return room.bannedIDs;
     }
     const room2 = await this.getRoomWithUser(roomName);
@@ -118,17 +110,12 @@ export default class RoomService {
     return this.roomRepository.updateRoomStatus(roomFirebase, status);
   }
 
-  changeModPassword(roomName, newPassword) {
-    let roomFirebase = roomName.replace("/", "\\");
-    return this.roomRepository.updateRoom(roomFirebase, {"modPassword": bcrypt.hashSync(newPassword, 10)});
-  }
-
   changePassword(roomId, password, userId) {
     let roomFirebase = roomId.replace("/", "\\");
     return this.roomRepository.getRoom(roomFirebase)
       .then(r => {
         if (!r.isAdmin(userId)) {
-          throw new Error('Not Authorized');
+          throw new Error('Unauthorized');
         } else {
           const newPassword = (password === "" || password === undefined) ? null : bcrypt.hashSync(password, 10);
           return this.roomRepository.updateRoomPassword(roomFirebase, newPassword, userId);
