@@ -14,10 +14,10 @@ export default class TownServerEngine2 extends ServerEngine {
     this.RoomService = new RoomService();
   }
 
-  assignPlayerToRoom(playerId, roomName, userId) {
-    super.assignPlayerToRoom(playerId, roomName);
-    this.playerToRoom[playerId] = roomName;
-    this.playerInfo[roomName][playerId] = {userId: userId};
+  assignPlayerToRoom(playerId, rawRoomId, userId) {
+    super.assignPlayerToRoom(playerId, rawRoomId);
+    this.playerToRoom[playerId] = rawRoomId;
+    this.playerInfo[rawRoomId][playerId] = {userId: userId};
   }
 
   createRoom(room) {
@@ -86,11 +86,11 @@ export default class TownServerEngine2 extends ServerEngine {
     super.onPlayerConnected(socket);
     this.playerToSocket[socket.playerId] = socket;
     socket.on('roomId', async (data) => {
-      let roomId = data.roomId;
+      let rawRoomId = data.roomId;
       let password = data.password;
       let userId = data.userId || 1;//TODO: client에서 보내줘야함.
       try {
-        const room = await this.RoomService.canJoinToRoom2(roomId, userId);
+        const room = await this.RoomService.canJoinToRoom(rawRoomId, userId);
         if (!room) {
           socket.emit("roomClosed");
           socket.conn.close();
@@ -100,13 +100,13 @@ export default class TownServerEngine2 extends ServerEngine {
           //2. 정원초과가 아니니까 접속함.
           let playerId = socket.playerId;
           this.playerToMap[playerId] = room.map;
-          this.createRoom(roomId); // override한 함수. 일종의 지연초기화 패턴.
-          this.assignPlayerToRoom(playerId, roomId, userId);
+          this.createRoom(rawRoomId); // override한 함수. 일종의 지연초기화 패턴.
+          this.assignPlayerToRoom(playerId, rawRoomId, userId);
           if (this.playerNeedsInit[playerId]) {
-            this.initializePlayer(room.map, socket.playerId, roomId);
+            this.initializePlayer(room.map, socket.playerId, rawRoomId);
           }
           socket.emit("serverPlayerInfo", Object.assign({"firstUpdate": true}, this.playerInfo[room]));
-          socket.emit("modMessage", this.modMessages[roomId]);
+          socket.emit("modMessage", this.modMessages[rawRoomId]);
           logger.info("Player Joined")
         } else {
           logger.info('접근 권한 없음');
@@ -139,6 +139,7 @@ export default class TownServerEngine2 extends ServerEngine {
     });
 
     socket.on("playerInfo", (data) => {
+      logger.silly('playerInfo called: '+JSON.stringify(data));
       let curRoom = this.playerToRoom[socket.playerId];
       if (this.playerInfo[curRoom]) {
         Object.assign(this.playerInfo[curRoom][socket.playerId], data);
@@ -231,8 +232,8 @@ export default class TownServerEngine2 extends ServerEngine {
 
   // moderation tools
   // deprecate하기
-  checkRoomWithAdmin(rawRoomName, userId) {
-    return this.RoomService.getRoomWithAdmin(rawRoomName, userId)
+  checkRoomWithAdmin(rawRoomId, userId) {
+    return this.RoomService.getRoomWithAdmin(rawRoomId, userId)
       .then(room => {
         return Promise.resolve(room);
       })
@@ -241,7 +242,7 @@ export default class TownServerEngine2 extends ServerEngine {
       });
   }
 
-  banPlayer(room, player, adminId) {
+  banPlayer(rawRoomId, player, adminId) {
     return new Promise((resolve, reject) => {
       if (!this.playerToSocket[player]) {
         return resolve(this._makeNotFoundError());
@@ -254,8 +255,8 @@ export default class TownServerEngine2 extends ServerEngine {
       }
 
       const userId = this.playerInfo[this.playerToRoom[player]][player].userId
-      logger.info(`banPlayer Called: ${room} ${player} ${userId} ${adminId}`);
-      this.RoomService.BanPlayer(room, userId, adminId)
+      logger.info(`banPlayer Called: ${rawRoomId} ${player} ${userId} ${adminId}`);
+      this.RoomService.BanPlayer(rawRoomId, userId, adminId)
         .then((bannedIDs) => {
           this.playerToSocket[player].conn.close();
           resolve(bannedIDs);
@@ -265,8 +266,8 @@ export default class TownServerEngine2 extends ServerEngine {
     });
   }
 
-  unbanPlayer(room, userId, requesterId) {
-    return this.RoomService.UnBanPlayer(room, userId, requesterId)
+  unbanPlayer(rawRoomId, userId, requesterId) {
+    return this.RoomService.UnBanPlayer(rawRoomId, userId, requesterId)
       .then((bannedIDs) => {
         return bannedIDs
       }).catch(e => {
@@ -274,13 +275,12 @@ export default class TownServerEngine2 extends ServerEngine {
       });
   }
 
-  setRoomClosed(room, adminId, closed) {
-    let roomFirebase = room.replace("/", "\\");
-    return this.RoomService.setRoomClose(room, adminId, closed)
+  setRoomClosed(rawRoomId, adminId, closed) {
+    return this.RoomService.setRoomClose(rawRoomId, adminId, closed)
       .then(() => {
         if (closed) {
-          if (this.playerInfo[roomFirebase]) {
-            Object.keys(this.playerInfo[roomFirebase]).forEach(playerId => {
+          if (this.playerInfo[rawRoomId]) {
+            Object.keys(this.playerInfo[rawRoomId]).forEach(playerId => {
               this.playerToSocket[playerId].emit("roomClosed");
               this.playerToSocket[playerId].conn.close();
             });
@@ -292,17 +292,17 @@ export default class TownServerEngine2 extends ServerEngine {
       });
   }
 
-  changePassword(roomId, newPassword, userId) {
-    logger.info(`changePassword: ${roomId}, ${newPassword}, ${userId}`);
-    return this.RoomService.changePassword(roomId, newPassword, userId);
+  changePassword(rawRoomId, newPassword, userId) {
+    logger.info(`changePassword: ${rawRoomId}, ${newPassword}, ${userId}`);
+    return this.RoomService.changePassword(rawRoomId, newPassword, userId);
   }
 
-  setModMessage(roomId, password, message) {
-    return this.checkRoomWithAdmin(roomId, password).then(() => {
-      Object.keys(this.playerInfo[roomId]).forEach(playerId => {
-        if (this.playerToRoom[playerId] === roomId) {
+  setModMessage(rawRoomId, password, message) {
+    return this.checkRoomWithAdmin(rawRoomId, password).then(() => {
+      Object.keys(this.playerInfo[rawRoomId]).forEach(playerId => {
+        if (this.playerToRoom[playerId] === rawRoomId) {
           this.playerToSocket[playerId].emit("modMessage", message);
-          this.modMessages[roomId] = message;
+          this.modMessages[rawRoomId] = message;
         }
       });
     });
@@ -317,3 +317,5 @@ export default class TownServerEngine2 extends ServerEngine {
     }
   }
 }
+
+// rawRoomId = room_url\room_name

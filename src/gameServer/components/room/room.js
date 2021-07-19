@@ -48,7 +48,7 @@ export class Room {
   isBannedID(userId) {
     //우선 항상 false
     // return false;
-    logger.debug(userId, this.bannedIDs)
+    logger.debug(`check UserId is in bannedIDs: ${userId}, ${JSON.stringify(this.bannedIDs)}`)
     // this.bannedIPs[userId] 가 undefined => 안통과
     // this.bannedIPs[userId] 가 defined이고 !== 'ENTER' => 안통과
     if (this.bannedIDs[userId] === undefined) {

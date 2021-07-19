@@ -39,10 +39,9 @@ export class RoomRepository {
     this.pool = pool;
   }
 
-  async getRoom(rawRoomName) {
+  async getRoom(rawRoomId) {
     return new Promise((resolve, reject) => {
-      const roomUrl = rawRoomName.substring(0, rawRoomName.indexOf("\\"));
-      const roomName = rawRoomName.substring(rawRoomName.indexOf("\\") + 1);
+      const [roomUrl, roomName] = this._extractRoomUrlAndName(rawRoomId);
       this.pool.getConnection(function (err, conn) {
         // Do something with the connection
         conn.query(
@@ -67,7 +66,7 @@ export class RoomRepository {
                 roomUrl: results[0].room_url,
                 description: results[0].description,
               };
-              resolve(new Room(rawRoomName, ret));
+              resolve(new Room(rawRoomId, ret));
               conn.release();
             }
           }
@@ -78,11 +77,9 @@ export class RoomRepository {
     });
   }
 
-  async getRoomWithUsers(rawRoomName) {
+  async getRoomWithUsers(rawRoomId) {
     return new Promise((resolve, reject) => {
-      const roomUrl = rawRoomName.substring(0, rawRoomName.indexOf("\\"));
-      const roomName = rawRoomName.substring(rawRoomName.indexOf("\\") + 1);
-
+      const [roomUrl, roomName] = this._extractRoomUrlAndName(rawRoomId);
       this.pool.getConnection(function (err, conn) {
         // Do something with the connection
         conn.query(
@@ -111,7 +108,7 @@ export class RoomRepository {
                   return acc;
                 }, {}),
               };
-              resolve(new Room(rawRoomName, ret));
+              resolve(new Room(rawRoomId, ret));
               conn.release();
             }
           }
@@ -173,12 +170,6 @@ export class RoomRepository {
     });
   }
 
-  _extractRoomUrlAndName(roomFirebase) {
-    const roomUrl = roomFirebase.substring(0, roomFirebase.indexOf("\\"));
-    const roomName = roomFirebase.substring(roomFirebase.indexOf("\\") + 1);
-    return [roomUrl, roomName];
-  }
-
   updateRoomPassword(roomFirebase, password) {
     return new Promise((resolve, reject) => {
       const [roomUrl, roomName] = this._extractRoomUrlAndName(roomFirebase);
@@ -199,5 +190,11 @@ export class RoomRepository {
         );
       });
     });
+  }
+
+  _extractRoomUrlAndName(rawRoomId) {
+    const roomUrl = rawRoomId.substring(0, rawRoomId.indexOf("\\"));
+    const roomName = rawRoomId.substring(rawRoomId.indexOf("\\") + 1);
+    return [roomUrl, roomName];
   }
 }

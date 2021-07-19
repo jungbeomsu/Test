@@ -6,86 +6,61 @@ import {logger} from "../utils/logger";
 export default class RoomService {
   constructor() {
     this.roomRepository = new RoomRepository();
-    // this.firebaseRoom = new FirebaseRoom();
     this.db = db;
     this.auth = auth;
   }
 
-  async getRoomWithUser(roomName) {
-    let roomFirebase = roomName.replace("/", "\\");
-    logger.debug(`Get room name is : ${roomFirebase}.`);
-    return await this.roomRepository.getRoomWithUsers(roomFirebase);
+  async getRoomWithUser(rawRoomId) {
+    logger.debug(`Get room name is : ${rawRoomId}.`);
+    return await this.roomRepository.getRoomWithUsers(rawRoomId);
   }
 
-  async canJoinToRoom2(roomName, userId) {
+  async canJoinToRoom(rawRoomId, userId) {
     try {
-      const room = await this.getRoomWithUser(roomName);
+      const room = await this.getRoomWithUser(rawRoomId);
       if (!room || room.isBannedID(userId.toString()) || room.isClosed() || !room.map) {
+        logger.debug('Room Closed');
         return false;
       }
       return room;
     } catch (e) {
+      logger.warn(JSON.stringify(e));
       return false;
     }
   }
 
-  async canJoinToRoom(roomName, userId, socket) {
-    // try {
-    const room = await this.getRoomWithUser(roomName)
+  // async isAccessibleToken(decodedToken, roomName) {
+  //   let uid = decodedToken.uid;
+  //   const data = await this.roomRepository.getRoomWithUsers(roomName, uid);
+  //   return data["hasAccess"]
+  // }
 
-    if (room.isBannedID(userId.toString())) {
-      // 원래는 이런 throw를 checkBannedIPs에 넣는게 맞는 듯.
-      socket.emit("roomClosed");
-      throw new Error(`Reject banned user: ${userId}`);
-    }
-
-    if (room.isClosed()) {
-      socket.emit("roomClosed");
-      throw new Error('Rejecting closed room');
-    }
-
-    if (!room.map) {
-      socket.emit("roomClosed");
-      throw new Error('Rejecting not exist map');
-    }
-
-    return room;
-  }
-
-  async isAccessibleToken(decodedToken, roomName) {
-    let uid = decodedToken.uid;
-    const data = await this.roomRepository.getUserWithRoom(roomName, uid);
-    return data["hasAccess"]
-  }
-
-  async getRoomWithAdmin(roomName, userId) {
-    let roomFirebase = roomName.replace("/", "\\");
-    const room = await this.roomRepository.getRoom(roomName);
+  async getRoomWithAdmin(rawRoomId, userId) {
+    const room = await this.roomRepository.getRoom(rawRoomId);
     if (!room.isAdmin(userId)) {
       throw new Error('Unauthorized');
     }
     return room;
   }
 
-  async BanPlayer(roomName, userId, requesterId) {
-    let roomFirebase = roomName.replace("/", "\\");
-    // bann하는 로직 수행
-    const room = await this.roomRepository.getRoom(roomFirebase);
+  async BanPlayer(rawRoomId, userId, requesterId) {
+    // ban 하는 로직 수행
+    const room = await this.roomRepository.getRoom(rawRoomId);
     if (!room.isAdmin(requesterId)) {
       throw new Error('Unauthorized');
     }
-    const didUpdate = await this.roomRepository.updateRoomUser(roomFirebase, userId, "BAN");
+    const didUpdate = await this.roomRepository.updateRoomUser(rawRoomId, userId, "BAN");
     if(!didUpdate){
       logger.debug("Not Found");
       return room.bannedIDs;
     }
 
-    const room2 = await this.getRoomWithUser(roomName);
+    const room2 = await this.getRoomWithUser(rawRoomId);
     return room2.bannedIDs;
   }
 
-  async UnBanPlayer(roomName, userId, requesterId) {
-    let roomFirebase = roomName.replace("/", "\\");
+  async UnBanPlayer(rawRoomId, userId, requesterId) {
+    let roomFirebase = rawRoomId.replace("/", "\\");
     const room = await this.roomRepository.getRoom(roomFirebase);
     if (!room.isAdmin(requesterId)) {
       throw new Error('Unauthorized');
@@ -95,12 +70,12 @@ export default class RoomService {
       logger.debug("Not Found");
       return room.bannedIDs;
     }
-    const room2 = await this.getRoomWithUser(roomName);
+    const room2 = await this.getRoomWithUser(rawRoomId);
     return room2.bannedIDs;
   }
 
-  async setRoomClose(roomName, requesterId, closed) {
-    let roomFirebase = roomName.replace("/", "\\");
+  async setRoomClose(rawRoomId, requesterId, closed) {
+    let roomFirebase = rawRoomId.replace("/", "\\");
     const status = !!closed ? "CLOSED" : "ALIVE";
     const room = await this.roomRepository.getRoom(roomFirebase);
     if (!room.isAdmin(requesterId)) {
@@ -110,8 +85,8 @@ export default class RoomService {
     return this.roomRepository.updateRoomStatus(roomFirebase, status);
   }
 
-  changePassword(roomId, password, userId) {
-    let roomFirebase = roomId.replace("/", "\\");
+  changePassword(rawRoomId, password, userId) {
+    let roomFirebase = rawRoomId.replace("/", "\\");
     return this.roomRepository.getRoom(roomFirebase)
       .then(r => {
         if (!r.isAdmin(userId)) {
