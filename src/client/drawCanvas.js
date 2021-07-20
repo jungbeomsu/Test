@@ -156,17 +156,17 @@ function draw(x, y, map, myPlayer, players) {
     top_x, top_y, w, h,
     0, 0, w, h);
 
-  ctx.beginPath();
-  ctx.lineWidth = "4";
-  ctx.strokeStyle = "white";
-  ctx.rect(
-    2,
-    2,
-    w - 4,
-    h - 4
-  );
-  ctx.stroke();
-  ctx.closePath();
+  // ctx.beginPath();
+  // ctx.lineWidth = "4";
+  // ctx.strokeStyle = "white";
+  // ctx.rect(
+  //   2,
+  //   2,
+  //   w - 4,
+  //   h - 4
+  // );
+  // ctx.stroke();
+  // ctx.closePath();
 
   updateAnim(map, ctx, top_x, top_y, objectSizes);
 
