@@ -194,6 +194,7 @@ function draw(x, y, map, myPlayer, players) {
     let drawX;
     let drawY;
     if (myPlayer.playerId === player.playerId) {
+
       direction = directionCoors[myPlayer.localDir];
       drawX = x * objectSizes - top_x;
       drawY = y * objectSizes - top_y;
@@ -333,7 +334,7 @@ export function update(myPlayer, players) {
       } else if (recentMaxDist < 1) {
         minDelta -= 0.001;
       }
-      console.log("recentMaxDist", recentMaxDist.toFixed(3), minDelta.toFixed(3));
+      // console.log("recentMaxDist", recentMaxDist.toFixed(3), minDelta.toFixed(3));
       recentDist = [];
     }
 

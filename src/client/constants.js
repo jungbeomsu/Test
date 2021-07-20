@@ -100,6 +100,8 @@ export var characterIds = {
   217: "images/characters/gather/7.png",
   218: "images/characters/gather/8.png",
   219: "images/characters/gather/9.png",
+  220: "images/characters/tenuto/man.png",
+  221: "images/characters/tenuto/woman.png",
 
 }
 
