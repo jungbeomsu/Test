@@ -17,7 +17,7 @@ export default async function initClientEngine() {
       sync: qsOptions.sync || 'extrapolate',
       localObjBending: 0,
       remoteObjBending: 1,
-      bendingIncrements: 11,
+      bendingIncrements: 8,
     },
   };
 

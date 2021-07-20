@@ -249,18 +249,18 @@ function draw(x, y, map, myPlayer, players) {
         mapNameContainer.hidden = true;
       }
     }
-    else {
-      if (!window.selectedIds || window.selectedIds[player.playerId]) {
-        var position = offScreenLine(drawX + 10, drawY + 10);
-        ctx.beginPath();
-        ctx.lineWidth = "4";
-        ctx.strokeStyle = colors[player.playerId % colors.length];
-        ctx.moveTo(position[0], position[1]);
-        ctx.lineTo(position[2], position[3]);
-        ctx.stroke();
-        ctx.closePath();
-      }
-    }
+    // else {
+    //   if (!window.selectedIds || window.selectedIds[player.playerId]) {
+    //     var position = offScreenLine(drawX + 10, drawY + 10);
+    //     ctx.beginPath();
+    //     ctx.lineWidth = "4";
+    //     ctx.strokeStyle = colors[player.playerId % colors.length];
+    //     ctx.moveTo(position[0], position[1]);
+    //     ctx.lineTo(position[2], position[3]);
+    //     ctx.stroke();
+    //     ctx.closePath();
+    //   }
+    // }
   });
 
   // let blockedText = document.getElementById("blocked-text");
