@@ -47,24 +47,25 @@ export default class Game extends GameEngine {
     serializer.registerClass(Player);
   }
 
-  gameLogic() {
+  gameLogic({step, isReenact}) {
+
   }
 
   processInput(inputDesc, playerId) {
     super.processInput(inputDesc, playerId);
 
-    if (!this.lastSteps[playerId]) {
-      this.lastSteps[playerId] = {
-        up: -1, down: -1,
-        left: -1, right: -1
-      };
-    }
-    const lastStep = this.lastSteps[playerId];
-
-    if (inputDesc.step - lastStep[inputDesc.input] < STEP_INTERVAL) {
-      return;
-    }
-    lastStep[inputDesc.input] = inputDesc.step;
+    // if (!this.lastSteps[playerId]) {
+    //   this.lastSteps[playerId] = {
+    //     up: -1, down: -1,
+    //     left: -1, right: -1
+    //   };
+    // }
+    // const lastStep = this.lastSteps[playerId];
+    //
+    // if (inputDesc.step - lastStep[inputDesc.input] < STEP_INTERVAL) {
+    //   return;
+    // }
+    // lastStep[inputDesc.input] = inputDesc.step;
 
     let player = this.world.queryObject({ playerId });
     if (player) {
@@ -98,63 +99,78 @@ export default class Game extends GameEngine {
       let newX = player.position.x;
       let newY = player.position.y;
 
-      // console.log(inputDesc.input);
       switch(inputDesc.input) {
         case "left":
-          newX = player.position.x - SPEED / MODIFIER;
+          if (inputDesc.options.move) {
+            newX = player.position.x - SPEED / MODIFIER;
+          }
           if(player.currentDirection === directionMap["left-1"]) {
             player.currentDirection = directionMap["left-2"];
-            // console.log(Date.now(), "left1 -> left2");
           } else if(player.currentDirection === directionMap["left-2"]) {
             player.currentDirection = directionMap["left-1"];
-            // console.log(Date.now(), "left2 -> left1");
           } else {
             player.currentDirection = directionMap["left-1"];
-            // console.log(Date.now(), "left1");
+            // newX = player.position.x
           }
-          this.localDir = player.currentDirection;
+          if (this.localDir === directionMap["left-1"]) {
+            this.localDir = directionMap["left-2"];
+          } else {
+            this.localDir = directionMap["left-1"];
+          }
           break;
         case "right":
-          newX = player.position.x + SPEED / MODIFIER;
+          if (inputDesc.options.move) {
+            newX = player.position.x + SPEED / MODIFIER;
+          }
           if(player.currentDirection === directionMap["right-1"]) {
             player.currentDirection = directionMap["right-2"];
-            // console.log(Date.now(), "right1 -> right2");
           } else if(player.currentDirection === directionMap["right-2"]) {
             player.currentDirection = directionMap["right-1"];
-            // console.log(Date.now(), "right2 -> right1");
           } else {
             player.currentDirection = directionMap["right-1"];
-            // console.log(Date.now(), "right1");
+            // newX = player.position.x
           }
-          this.localDir = player.currentDirection;
+          if (this.localDir === directionMap["right-1"]) {
+            this.localDir = directionMap["right-2"];
+          } else {
+            this.localDir = directionMap["right-1"];
+          }
           break;
         case "up":
-          newY = player.position.y - SPEED / MODIFIER;
+          if (inputDesc.options.move) {
+            newY = player.position.y - SPEED / MODIFIER;
+          }
           if(player.currentDirection === directionMap["up-1"]) {
             player.currentDirection = directionMap["up-2"];
-            // console.log(Date.now(), "up1 -> up2");
           } else if(player.currentDirection === directionMap["up-2"]) {
             player.currentDirection = directionMap["up-1"];
-            // console.log(Date.now(), "up2 -> up1");
           } else {
             player.currentDirection = directionMap["up-1"];
-            // console.log(Date.now(), "up1");
+            // newY = player.position.y
           }
-          this.localDir = player.currentDirection;
+          if (this.localDir === directionMap["up-1"]) {
+            this.localDir = directionMap["up-2"];
+          } else {
+            this.localDir = directionMap["up-1"];
+          }
           break;
         case "down":
-          newY = player.position.y + SPEED / MODIFIER;
+          if (inputDesc.options.move) {
+            newY = player.position.y + SPEED / MODIFIER;
+          }
           if(player.currentDirection === directionMap["down-1"]) {
             player.currentDirection = directionMap["down-2"];
-            // console.log(Date.now(), "down1 -> down2");
           } else if(player.currentDirection === directionMap["down-2"]) {
             player.currentDirection = directionMap["down-1"];
-            // console.log(Date.now(), "down2 -> down1");
           } else {
             player.currentDirection = directionMap["down-1"];
-            // console.log(Date.now(), "down1");
+            // newY = player.position.y
           }
-          this.localDir = player.currentDirection;
+          if (this.localDir === directionMap["down-1"]) {
+            this.localDir = directionMap["down-2"];
+          } else {
+            this.localDir = directionMap["down-1"];
+          }
           break;
         case "space":
           if (isBlocked(player.position.x, player.position.y, players, collisionMap[player.currentMap])) {

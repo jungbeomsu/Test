@@ -5,6 +5,7 @@ import Game from '../common/Game';
 import TownClientEngine from './TownClientEngine';
 import { getRoomFromPath } from './utils';
 import {Config} from "./constants";
+import CentiKeyboard from "./CentiKeyboard";
 const qsOptions = querystring.parse(location.search);
 
 // returns clientEngine
@@ -43,6 +44,10 @@ export default async function initClientEngine() {
     let options = Object.assign(defaults, qsOptions);
     let gameEngine = new Game(options);
     let clientEngine = new TownClientEngine(gameEngine, options, Renderer);
+
+    const centiKeyboard = new CentiKeyboard();
+    centiKeyboard.init(clientEngine);
+
     return clientEngine;
   } else {
     console.error('Call to get game server URL failed!');
