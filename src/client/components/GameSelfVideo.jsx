@@ -9,6 +9,8 @@ import { colors } from '../constants';
 import './GameSelfVideo.css';
 import './GameVideoMenu.css';
 
+import {micOff, videoOff, micOn, videoOn} from "../resources/images";
+
 export default function GameSelfVideo (props) {
   const [nameValue, setNameValue] = useState("");
   const [showMenu, setShowMenu] = useState(false);
@@ -68,8 +70,8 @@ export default function GameSelfVideo (props) {
 
   let videoMenu = (
     <div className={"video-Menu"}>
-        <img onClick={() => props.setAudioEnabled(!props.audioEnabled)} style={{width: "32px", height: "32px", marginRight: "12px"}} src={"/images/mic_on.png"}/>
-        <img onClick={() => props.setVideoEnabled(!props.videoEnabled)} style={{width: "32px", height: "32px"}} src={"/images/video_on.png"}/>
+        <div onClick={() => props.setAudioEnabled(!props.audioEnabled)} style={{marginRight: "12px"}} children={micOn}/>
+        <div onClick={() => props.setVideoEnabled(!props.videoEnabled)} style={{marginRight: "12px"}} children={videoOn}/>
     </div>
   );
 
@@ -88,32 +90,14 @@ export default function GameSelfVideo (props) {
             id={props.myScreenBig ? "self-video-big" : "self-video"}>
             </video>
           { showMenu ? videoMenu : <></> }
-
-          {props.myScreenBig ?
-            <div style={{height: 20, padding: "4px 6px", borderRadius: "11px", backgroundColor: "rgba(0,0,0, 0.6)",  position: "absolute", bottom: "-270px", right: "-360px", display: "flex", alignItems: "center", textAlign: "center"}}>
+            <div style={{height: 20, padding: "4px 6px", borderRadius: "11px", backgroundColor: "rgba(0,0,0,0.6)", position: "absolute", bottom: props.myScreenBig ? "-250px" : 10, right: props.myScreenBig ? "-330px" : 10, display: "flex", alignItems: "center", textAlign: "center"}}>
               <span style={{color: "white", fontSize: "11px", display: "flex", alignItems: "center"}}>
-                {
-                  !props.audioEnabled ? <img style={{width: "12px", height: "12px", marginRight: "2px"}} src={"/images/mic/off.png"}/> : <></>
-                }
-                {
-                  !props.videoEnabled  ? <img style={{width: "12px", height: "12px", marginRight: "2px"}} src={"/images/cam/off.png"}/> : <></>
-                }
+                <div style={{marginRight: "2px"}} children={!props.audioEnabled && micOff} />
+                <div style={{marginRight: "2px"}} children={!props.videoEnabled && videoOff} />
                 유저네임 (나)
               </span>
             </div>
-            :
-            <div style={{height: 20, padding: "4px 6px", borderRadius: "11px", backgroundColor: "rgba(0,0,0, 0.6)",  position: "absolute", bottom: 8, right: 4, display: "flex", alignItems: "center", textAlign: "center"}}>
-              <span style={{color: "white", fontSize: "11px", display: "flex", alignItems: "center"}}>
-                {
-                  !props.audioEnabled ? <img style={{width: "12px", height: "12px", marginRight: "2px"}} src={"/images/mic/off.png"}/> : <></>
-                }
-                {
-                  !props.videoEnabled  ? <img style={{width: "12px", height: "12px", marginRight: "2px"}} src={"/images/cam/off.png"}/> : <></>
-                }
-                유저네임 (나)
-              </span>
-            </div>
-          }
+          {/*}*/}
         </div>
     </div>
   )
