@@ -47,6 +47,7 @@ export default class TownClientEngine extends ClientEngine {
 
     this.currentMap = null;
     this.characterId = null;
+    this.autoMoveDirections = {moving: false, dirs: []};
 
     /*
       playerInfo schema:
@@ -189,7 +190,31 @@ export default class TownClientEngine extends ClientEngine {
   }
 
   clientSideInit() {
-    drawInit();
+    drawInit((d) => {
+      this.deliver(d)
+    });
+  }
+  deliver(autoMoveDirections){ // moving:true, directions: []
+    console.log(autoMoveDirections);
+    console.log(this.autoMoveDirections);
+    this.autoMoveDirections = autoMoveDirections;
+    let si = setInterval(() => {
+      console.log('send')
+      if(this.autoMoveDirections.dirs.length === 0){
+        console.log("stoped");
+        this.autoMoveDirections = {moving: false, dirs: []};
+        clearInterval(si);
+        return;
+      } else{
+        console.log("gone: "+this.autoMoveDirections.dirs.length);
+        this.sendInput(this.autoMoveDirections.dirs[0], {move:true});
+        this.autoMoveDirections.dirs.shift();
+      }
+    }, 300)
+    // for 루프 돌면서 계속 이걸 sendInput에 보낸다?
+    // 근데 그걸 언제 줄어들게해?
+    // 한 position을 넘기면?
+    // 그리고 키보드 이벤트 생기면 초기화해야함.
   }
 
   sendInput(input, inputOptions) {
