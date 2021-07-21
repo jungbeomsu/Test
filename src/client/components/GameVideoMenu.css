@@ -1,12 +1,15 @@
 .menu-horizontal-container {
-  display: flex;
-  align-items: center;
+  /*display: flex;*/
+  /*align-items: center;*/
   margin: 3px 0;
 }
 
 .menu-video-icon {
   margin-left: 14px;
   margin-right: 10px;
+  width: 10px;
+  height: 10px;
+  background-color: red;
 }
 
 .menu-disable-video-icon {

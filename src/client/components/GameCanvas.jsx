@@ -1,87 +1,96 @@
-import React, { useState, useEffect } from 'react';
-import GameNamesContainer from './GameNamesContainer.jsx';
-import GameChangeCharacter from './GameChangeCharacter.jsx';
-import GameChat from './GameChat.jsx';
-
-import { localPreferences } from '../LocalPreferences.js';
-
+import React, {useState} from 'react';
 import './GameCanvas.css';
-import { updateUserData } from '../userData.js';
+import Chatting from "./Chatting.jsx";
+import InviteModal from "./InviteModal.jsx";
+import SettingModal from "./SettingModal.jsx";
+import {profileIconM, settingIcon, inviteIcon} from "../resources/images";
 
-export default function GameCanvas (props) {
-  const [showTutorial, setShowTutorial] = useState(false);
+export default function GameCanvas () {
+  const [modalIsOpen, setIsOpen] = useState({
+    invite: false,
+    setting: false,
+  })
 
-  useEffect(() => {
-    let userData = localPreferences.get("user");
-    if (userData && !userData["seenTutorial"]) {
-      setShowTutorial(true);
+  const [settingIndex, setSettingIndex] = useState(1);
+
+  function openModal(type) {
+    switch(type) {
+      case "invite":
+        setIsOpen({...modalIsOpen, invite: true})
+        break;
+      case "setting":
+        setIsOpen({...modalIsOpen, setting: true})
     }
-  }, []);
-
-  function seenTutorial() {
-    setShowTutorial(false);
-    updateUserData({"seenTutorial": true});
   }
 
-  let linkContainer = <div className="ot-link-container">
-  </div>;
-  if(props.hasLinks){
-    linkContainer = <div className="ot-link-container">
-      <p><a href={props.url1}>{props.name1}</a></p>
-      <p><a href={props.url2}>{props.name2}</a></p>
-    </div>;
+  function closeModal(type) {
+    switch(type) {
+      case "invite":
+        setIsOpen({...modalIsOpen, invite: false})
+        break;
+      case "setting":
+        setIsOpen({...modalIsOpen, setting: false})
+    }
   }
 
   return (
     <div style={{position: "relative", width: "100vw", height: "100vh"}} className="game-container">
-      {linkContainer}
-      <canvas id="canvas" style={{width: "100%", height: "100%", position: "absolute"}} />
-      {
-        props.inGame ?
-          <>
-            {/*<GameChat*/}
-            {/*  sendChatMessage={props.sendChatMessage}*/}
-            {/*  chatMessages={props.chatMessages}*/}
-            {/*  playerInfoMap={props.playerInfoMap}*/}
-            {/*  hasLinks={props.hasLinks}*/}
-            {/*/>*/}
-            {/*<GameNamesContainer*/}
-            {/*  playerInfoMap={props.playerInfoMap}*/}
-            {/*  playerVideoMap={props.playerVideoMap}*/}
-            {/*  profPics={props.profPics}*/}
-            {/*/>*/}
-            <GameChangeCharacter
-              setCharacterId={props.setCharacterId}
-              characterId={props.characterId}
-              currentMap={props.currentMap}
-            />
-          </>
-        :
-          null
-      }
-      {Object.keys(props.playerInfoMap).map(key =>
-        <div key={key} className="map-name-container" id={"map-name-container-"+key}></div>
-      )}
-      <div id="blocked-text" hidden>We detect you've been blocked. Press spacebar, if you'd like to teleport out.</div>
-      {
-        showTutorial && props.inGame ?
-          <div id="tutorial-text">
-            <div>
-              1) Use your arrow keys to move around <br />
-              2) You only see and hear people when you move next to them (and if you can't check if your webcam is connected) <br />
-              3) You can block users by hovering your mouse over their video
+      <Chatting />
+
+      <div style={{position:"absolute", top: "30vh", left: "11px", display: "flex", flexDirection: "column", justifyContent: "space-between", color: "white", fontSize: "14px", zIndex: 999}}>
+        <div style={{display: "flex", alignItems: "center", marginBottom: "20px"}}>
+          <div style={{width: "122px", height: "46px", borderRadius: "24px", backgroundColor: "#47335F", display: "flex", alignItems: "center", padding: "11px 11px"}}>
+            <div style={{position: "relative", marginRight: "12px"}}>
+              {profileIconM}
+              <div style={{width: "10px", height: "10px", backgroundColor: "#00FF47", borderRadius: "50%", position: "absolute", bottom: 0, right: 0, border: "2px solid white"}}></div>
             </div>
-            <div onClick={() => { seenTutorial() }}>
-              [click to close]
-              <i
-                className="fas fa-times selection-icon-fas red"
-                style={{position: "absolute", top: "10px", right: "10px"}}
-              ></i>
+            <div
+              onClick={() => {
+                setSettingIndex(1);
+                openModal("setting")
+              }}
+              style={{lineHeight: "15px"}}>
+              내 닉네임
+              <div style={{color: "#C7C7C7", fontSize: "10px"}}>개인 설정 ></div>
             </div>
           </div>
-        :
-          null
-      }
+        </div>
+        <div
+          onClick={() => {
+            setSettingIndex(4);
+            openModal("setting")
+          }}
+          style={{display: "flex", alignItems: "center", marginBottom: "20px"}}>
+          <div style={{width: "122px", height: "46px", borderRadius: "24px", backgroundColor: "#47335F", display: "flex", alignItems: "center", padding: "11px 11px"}}>
+            <div style={{marginRight: "12px"}}>
+              {settingIcon}
+            </div>
+            공간 설정
+          </div>
+        </div>
+        <div
+          onClick={() => openModal("invite")}
+          style={{display: "flex", alignItems: "center", marginBottom: "20px"}}>
+          <div style={{width: "122px", height: "46px", borderRadius: "24px", backgroundColor: "#47335F", display: "flex", alignItems: "center", padding: "11px 11px"}}>
+            <div style={{marginRight: "12px"}}>
+              {inviteIcon}
+            </div>
+            친구 초대
+          </div>
+        </div>
+      </div>
+
+      <canvas id="canvas" style={{width: "100%", height: "100%", position: "absolute"}} />
+
+      {modalIsOpen.invite ?
+        <InviteModal modalIsOpen={modalIsOpen} closeModal={() => closeModal("invite")}/>
+        : <></>}
+
+      {modalIsOpen.setting ?
+        <SettingModal modalIsOpen={modalIsOpen} closeModal={() => closeModal("setting")} settingIndex={settingIndex} setSettingIndex={setSettingIndex}/>
+        : <></>}
     </div>
   );
 }
+
+

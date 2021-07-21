@@ -9,6 +9,8 @@ import { colors } from '../constants';
 import './GameSelfVideo.css';
 import './GameVideoMenu.css';
 
+import {micOff, videoOff, micOn, videoOn} from "../resources/images";
+
 export default function GameSelfVideo (props) {
   const [nameValue, setNameValue] = useState("");
   const [showMenu, setShowMenu] = useState(false);
@@ -67,31 +69,9 @@ export default function GameSelfVideo (props) {
   }
 
   let videoMenu = (
-    <div className="selfvideo-stream-controls" style={{backgroundColor: hexToRGB(color, 0.8)}}>
-      <div className="menu-horizontal-container action" onClick={() => props.setVideoEnabled(!props.videoEnabled)}>
-        {props.videoEnabled ?
-          <i key="enable">
-            <span className="fas fa-video menu-video-icon" />
-          </i> 
-        :
-          <i key="disable">
-            <span className="fas fa-video-slash menu-disable-video-icon" />
-          </i> 
-        }
-        <div>{props.videoEnabled ? "Disable video" : "Enable video"}</div>
-      </div>
-      <div className="menu-horizontal-container action" onClick={() => props.setAudioEnabled(!props.audioEnabled)}>
-        {props.audioEnabled ?
-          <i key="enable">
-            <span className="fas fa-microphone menu-mic-icon" />
-          </i> 
-        :
-          <i key="disable">
-            <span className="fas fa-microphone-slash menu-disable-mic-icon" />
-          </i> 
-        }
-        <div>{props.audioEnabled ? "Mute mic" : "Unmute mic"}</div>
-      </div>
+    <div className={"video-Menu"}>
+        <div onClick={() => props.setAudioEnabled(!props.audioEnabled)} style={{marginRight: "12px"}} children={micOn}/>
+        <div onClick={() => props.setVideoEnabled(!props.videoEnabled)} style={{marginRight: "12px"}} children={videoOn}/>
     </div>
   );
 
@@ -100,16 +80,25 @@ export default function GameSelfVideo (props) {
       className="vertical-container self-video-container"
       onMouseEnter={() => setShowMenu(true)}
       onMouseLeave={() => setShowMenu(false)}>
-        <div style={{position: "relative"}}>
-          <video id="self-video" style={{borderColor: color}}></video>
-          { showMenu ? videoMenu : null }
+        <div style={{}}>
+          {/* 캠 확대 축소 임시 버튼 */}
+          <div
+            onClick={() => {props.setMyScreenBig(!props.myScreenBig)}}
+            style={{position: "absolute", top: "-100px", width: props.myScreenBig ? "1000px" : "50px", height: "50px", backgroundColor: "red"}}>
+          </div>
+          <video
+            id={props.myScreenBig ? "self-video-big" : "self-video"}>
+            </video>
+          { showMenu ? videoMenu : <></> }
+            <div style={{height: 20, padding: "4px 6px", borderRadius: "11px", backgroundColor: "rgba(0,0,0,0.6)", position: "absolute", bottom: props.myScreenBig ? "-250px" : 10, right: props.myScreenBig ? "-330px" : 10, display: "flex", alignItems: "center", textAlign: "center"}}>
+              <span style={{color: "white", fontSize: "11px", display: "flex", alignItems: "center"}}>
+                <div style={{marginRight: "2px"}} children={!props.audioEnabled && micOff} />
+                <div style={{marginRight: "2px"}} children={!props.videoEnabled && videoOff} />
+                유저네임 (나)
+              </span>
+            </div>
+          {/*}*/}
         </div>
-      <input
-        id="self-name-input"
-        className="name-input"
-        placeholder="Enter name here..."
-        onChange={nameOnChange}
-        value={nameValue}></input>
     </div>
   )
 }

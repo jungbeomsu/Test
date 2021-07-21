@@ -402,6 +402,9 @@ export default function GameVideosContainer(props) {
         setVideoEnabled={(enabled) => setOwnVideoEnabled(enabled)}
         setAudioEnabled={(enabled) => setOwnAudioEnabled(enabled)}
         setOwnImage={(imageData) => props.setOwnImage(imageData)}
+        myScreenBig={props.myScreenBig}
+        setMyScreenBig={props.setMyScreenBig}
+        myScreenBig={props.myScreenBig}
       />
       {otherVideoComponents}
     </>
@@ -422,8 +425,8 @@ export default function GameVideosContainer(props) {
   )
 
   return (
-    <>
-      <div id="videos" className="videos-container mobileHide">
+    <div style={{display: "flex"}}>
+      <div id="videos">
         {isError ? errorComponent : videoComponents}
       </div>
       {/*<div className="videos-max-connections mobileHide">*/}
@@ -453,6 +456,6 @@ export default function GameVideosContainer(props) {
       {/*    message2*/}
       {/*  }*/}
       {/*</div>*/}
-    </>
+    </div>
   );
 }
