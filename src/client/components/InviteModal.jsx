@@ -1,14 +1,18 @@
 import Modal from "react-modal";
 import React from "react";
 
-export default function InviteModal({modalIsOpen, closeInviteModal}) {
+export default function InviteModal({modalIsOpen, closeModal}) {
 
   return (
     <div>
       <Modal
-        isOpen={modalIsOpen.inviteModal}
-        onRequestClose={closeInviteModal}
+        isOpen={modalIsOpen.invite}
+        onRequestClose={closeModal}
+        ariaHideApp={false}
         style={{
+          overlay: {
+            backgroundColor: "rgba(0,0,0,0.6)",
+          },
           content: {
             top: '50%',
             left: '50%',
