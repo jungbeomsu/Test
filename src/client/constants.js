@@ -101,8 +101,12 @@ export var characterIds = {
   218: "images/characters/gather/8.png",
   219: "images/characters/gather/9.png",
 
+  // TODO: 새로 추가한 우리 아이콘
+  220: "images/characters/man_1.png",
+  221: "images/characters/woman_1.png",
+  222: "images/characters/man_2.png",
+  223: "images/characters/woman_2.png",
 }
-
 
 export var CHAT_LIMIT = 100;
 
