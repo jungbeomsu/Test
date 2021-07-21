@@ -29,9 +29,9 @@ var smooth = {
   prevY: -1,
 }
 
-var prevtime = 0;
+var recentDist = [];
 
-var maxDiff = 0;
+var minDelta = 0.11;
 
 // var directionCoors = [
 //   { x: 0, y: 0 },
@@ -156,17 +156,17 @@ function draw(x, y, map, myPlayer, players) {
     top_x, top_y, w, h,
     0, 0, w, h);
 
-  ctx.beginPath();
-  ctx.lineWidth = "4";
-  ctx.strokeStyle = "white";
-  ctx.rect(
-    2,
-    2,
-    w - 4,
-    h - 4
-  );
-  ctx.stroke();
-  ctx.closePath();
+  // ctx.beginPath();
+  // ctx.lineWidth = "4";
+  // ctx.strokeStyle = "white";
+  // ctx.rect(
+  //   2,
+  //   2,
+  //   w - 4,
+  //   h - 4
+  // );
+  // ctx.stroke();
+  // ctx.closePath();
 
   updateAnim(map, ctx, top_x, top_y, objectSizes);
 
@@ -194,15 +194,10 @@ function draw(x, y, map, myPlayer, players) {
     let drawX;
     let drawY;
     if (myPlayer.playerId === player.playerId) {
+
       direction = directionCoors[myPlayer.localDir];
       drawX = x * objectSizes - top_x;
       drawY = y * objectSizes - top_y;
-
-      let now = Date.now();
-      let diff = now - prevtime;
-      // console.log("drawCanvas", diff, myPlayer.localDir, x, y);
-      prevtime = now;
-
     } else {
       direction = directionCoors[player.currentDirection];
       drawX = player.position.x * objectSizes - top_x;
@@ -254,18 +249,18 @@ function draw(x, y, map, myPlayer, players) {
         mapNameContainer.hidden = true;
       }
     }
-    else {
-      if (!window.selectedIds || window.selectedIds[player.playerId]) {
-        var position = offScreenLine(drawX + 10, drawY + 10);
-        ctx.beginPath();
-        ctx.lineWidth = "4";
-        ctx.strokeStyle = colors[player.playerId % colors.length];
-        ctx.moveTo(position[0], position[1]);
-        ctx.lineTo(position[2], position[3]);
-        ctx.stroke();
-        ctx.closePath();
-      }
-    }
+    // else {
+    //   if (!window.selectedIds || window.selectedIds[player.playerId]) {
+    //     var position = offScreenLine(drawX + 10, drawY + 10);
+    //     ctx.beginPath();
+    //     ctx.lineWidth = "4";
+    //     ctx.strokeStyle = colors[player.playerId % colors.length];
+    //     ctx.moveTo(position[0], position[1]);
+    //     ctx.lineTo(position[2], position[3]);
+    //     ctx.stroke();
+    //     ctx.closePath();
+    //   }
+    // }
   });
 
   // let blockedText = document.getElementById("blocked-text");
@@ -306,28 +301,49 @@ export function update(myPlayer, players) {
 
   function getSmooth(cur, target) {
 
-    const minDelta = 0.1;
-    let isPositive = target > cur;
-    let diff = Math.abs(target - cur);
-    let delta = diff / 7;
-    if (diff < minDelta) {
+    let sign = target > cur ? 1 : -1;
+    let dist = Math.abs(target - cur);
+    if (dist < minDelta) {
       return target;
-    }
-
-    delta = Math.max(delta, minDelta);
-    if (isPositive) {
-      return cur + delta;
+    } else if (dist <= 1) {
+      return cur + sign * minDelta;
     } else {
-      return cur - delta;
+      let delta = dist * minDelta;
+      return cur + sign * delta;
     }
   }
 
   smooth.prevX = getSmooth(smooth.prevX, myPlayer.position.x);
   smooth.prevY = getSmooth(smooth.prevY, myPlayer.position.y);
 
-  if (maxDiff < Math.abs(myPlayer.position.x - smooth.prevX)) {
-    maxDiff = Math.abs(myPlayer.position.x - smooth.prevX);
+  let dist = Math.sqrt(Math.pow(myPlayer.position.x - smooth.prevX, 2)
+    + Math.pow(myPlayer.position.y - smooth.prevY, 2))
+
+  if (dist > 0) {
+    recentDist.push(dist);
+    if (recentDist.length === 30) {
+
+      let recentMaxDist = 0;
+      recentDist.forEach((dist) => {
+        if (dist > recentMaxDist) {
+          recentMaxDist = dist;
+        };
+      });
+      if (recentMaxDist > 1) {
+        minDelta += 0.001;
+      } else if (recentMaxDist < 1) {
+        minDelta -= 0.001;
+      }
+      // console.log("recentMaxDist", recentMaxDist.toFixed(3), minDelta.toFixed(3));
+      recentDist = [];
+    }
+
+
   }
+
+  // console.log(myPlayer.currentDirection);
+  // console.log("prevSameCnt:", prevSameCnt); //너무 빠름
+  // console.log("maxDist", maxDist);  //너무 느림
 
     // console.log("update->draw", myPlayer.position.x, smooth.prevX, myPlayer.position.y, smooth.prevY);
   // console.log("update->draw", maxDiff, myPlayer.position.x - smooth.prevX, myPlayer.position.y - smooth.prevY);

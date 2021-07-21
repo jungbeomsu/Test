@@ -54,7 +54,7 @@ if (process.env.NODE_ENV === "none") {
 const server = express();
 
 server.use(cors({
-  origin: 'http://localhost:3100',
+  origin: ['http://localhost:3100', 'https://dev-town.tenuto.co.kr'],
   credentials: true,
   optionsSuccessStatus: 200,
 }));

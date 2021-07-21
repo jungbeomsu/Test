@@ -34,7 +34,7 @@ export default function GameCanvas () {
   }
 
   return (
-    <div style={{position: "relative"}} className="game-container">
+    <div style={{position: "relative", width: "100vw", height: "100vh"}} className="game-container">
       <Chatting />
 
       <div style={{position:"absolute", top: "30vh", left: "11px", display: "flex", flexDirection: "column", justifyContent: "space-between", color: "white", fontSize: "14px",}}>
@@ -80,7 +80,7 @@ export default function GameCanvas () {
         </div>
       </div>
 
-      <canvas id="canvas" style={{width: "100%", height: "100vh"}} />
+      <canvas id="canvas" style={{width: "100%", height: "100%", position: "absolute"}} />
 
       {modalIsOpen.invite ?
         <InviteModal modalIsOpen={modalIsOpen} closeModal={() => closeModal("invite")}/>

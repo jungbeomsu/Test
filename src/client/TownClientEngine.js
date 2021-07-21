@@ -186,24 +186,6 @@ export default class TownClientEngine extends ClientEngine {
     // this.gameEngine.controls.bindKey(['right', 'd'], 'right', { repeat: true } );
     this.gameEngine.controls.bindKey('space', 'space', { repeat: false } );
     this.gameEngine.controls.bindKey('k', 'k', { repeat: false } );
-
-    window.addEventListener("keydown", this.keyDown.bind(this));
-    window.addEventListener("keyup", this.keyUp.bind(this));
-
-    setInterval(() => {
-      // console.log(this.keyStatus);
-      let recentPressedTime = -1;
-      let recentDir;
-      for (const [dir, pressedTime] of Object.entries(this.keyStatus)) {
-        if (recentPressedTime < pressedTime) {
-          recentDir = dir;
-          recentPressedTime = pressedTime;
-        }
-      }
-      if (recentDir) {
-        this.sendInput(recentDir, {});
-      }
-    }, 30)
   }
 
   clientSideInit() {
@@ -303,44 +285,4 @@ export default class TownClientEngine extends ClientEngine {
   sendChatMessage(message, blockedMap) {
     this.socket.emit("chatMessage", message, blockedMap);
   }
-
-
-  getKeyIdx(keyCode) {
-    let keyIdx;
-    switch (keyCode) {
-      case Key.UpArrow:
-        keyIdx = "up";
-        break;
-      case Key.DownArrow:
-        keyIdx = "down";
-        break;
-      case Key.LeftArrow:
-        keyIdx = "left";
-        break;
-      case Key.RightArrow:
-        keyIdx = "right";
-        break;
-      default:
-        break;
-    }
-    return keyIdx;
-  }
-
-  keyDown(ev) {
-
-    let keyIdx = this.getKeyIdx(ev.keyCode);
-    if (keyIdx && this.keyStatus[keyIdx] === -1) {
-      this.keyStatus[keyIdx] = Date.now();
-    }
-
-  }
-
-  keyUp(ev) {
-
-    let keyIdx = this.getKeyIdx(ev.keyCode);
-    if (keyIdx) {
-      this.keyStatus[keyIdx] = -1;
-    }
-  }
-
 }

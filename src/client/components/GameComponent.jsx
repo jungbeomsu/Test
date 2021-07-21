@@ -16,6 +16,7 @@ import './GameComponent.css';
 
 import ModContext from './ModContext.jsx';
 import { CHAT_LIMIT } from '../constants';
+import GameVideosContainer2 from "./GameVideosContainer2";
 
 export default function GameComponent(props) {
   const [ownImage, setOwnImage] = useState(null);
@@ -377,7 +378,7 @@ export default function GameComponent(props) {
     shallowCloneMap["playerToDist"] = filteredDistMap;
 
     videoContainer =
-      <GameVideosContainer
+      <GameVideosContainer2
         myPlayerId={myPlayerId}
         playerInfoMap={playerInfoMap}
         playerVideoMap={shallowCloneMap}
@@ -396,7 +397,7 @@ export default function GameComponent(props) {
 
   return (
     <ModContext.Provider value={modContext}>
-      <div style={{width: "100vw", height: "100vh", backgroundColor: "#101033"}}>
+      <div style={{ backgroundColor: "#101033"}}>
       {/*{props.inGame ?*/}
       {/*  <RoomTitle*/}
       {/*    isPrivate={props.isPrivate}*/}
