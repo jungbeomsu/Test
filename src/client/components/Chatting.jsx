@@ -119,7 +119,8 @@ export default function Chatting({}) {
       width: "224px",
       display: "flex",
       flexDirection: "column",
-      justifyContent: "space-between"
+      justifyContent: "space-between",
+      zIndex: 999,
     }}>
       <div
         style={{

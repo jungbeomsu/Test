@@ -37,7 +37,7 @@ export default function GameCanvas () {
     <div style={{position: "relative", width: "100vw", height: "100vh"}} className="game-container">
       <Chatting />
 
-      <div style={{position:"absolute", top: "30vh", left: "11px", display: "flex", flexDirection: "column", justifyContent: "space-between", color: "white", fontSize: "14px",}}>
+      <div style={{position:"absolute", top: "30vh", left: "11px", display: "flex", flexDirection: "column", justifyContent: "space-between", color: "white", fontSize: "14px", zIndex: 999}}>
         <div style={{display: "flex", alignItems: "center", marginBottom: "20px"}}>
           <div style={{width: "122px", height: "46px", borderRadius: "24px", backgroundColor: "#47335F", display: "flex", alignItems: "center", padding: "11px 11px"}}>
             <div style={{position: "relative", marginRight: "12px"}}>

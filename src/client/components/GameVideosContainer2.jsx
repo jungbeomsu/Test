@@ -296,6 +296,8 @@ export default function GameVideosContainer2(props) {
         setVideoEnabled={(enabled) => setOwnVideoEnabled(enabled)}
         setAudioEnabled={(enabled) => setOwnAudioEnabled(enabled)}
         setOwnImage={(imageData) => props.setOwnImage(imageData)}
+        myScreenBig={props.myScreenBig}
+        setMyScreenBig={props.setMyScreenBig}
       />
       {otherVideoComponents}
     </>
