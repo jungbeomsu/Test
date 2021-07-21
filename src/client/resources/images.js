@@ -26,3 +26,5 @@ export const micOn = <img style={{width: "32px", height: "32px"}} src={require("
 export const micOff = <img style={{width: "12px", height: "12px"}} src={require("../images/v1/mic/off.png").default}/>
 export const videoOn = <img style={{width: "32px", height: "32px"}} src={require("../images/v1/video_on.png").default}/>
 export const videoOff = <img style={{width: "12px", height: "12px"}} src={require("../images/v1/cam/off.png").default}/>
+export const cloud = <img style={{width: "100vw", height: "250px"}} src={require("../images/v1/cloud.png").default}/>
+export const village = <img style={{width: "100vw", height: "200px"}} src={require("../images/v1/village.png").default}/>
