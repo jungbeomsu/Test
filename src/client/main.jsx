@@ -18,6 +18,7 @@ import PrivateRoom from './components/PrivateRoom.jsx';
 import Homepage from './components/Homepage.jsx';
 import Help from './components/Help.jsx';
 import EmailAuth from './components/EmailAuth.jsx';
+import CreateProfile from './components/CreateProfile.jsx';
 
 // Add user cookie
 let userStorage = localPreferences.get('user');
@@ -62,6 +63,7 @@ let App = () => {
         <Route path="/private" exact component={CreatePrivate} />
         <Route path="/auth" component={EmailAuth} />
         <Route path="/:room/:name" component={PrivateRoom} />
+        <Route path="/createProfile" exact component={CreateProfile} />
       </Switch>
     </BrowserRouter>
   );
