@@ -197,14 +197,16 @@ export default class TownClientEngine extends ClientEngine {
       this.setDestinations(d)
     });
   }
-  clientPreStep(){
-    if(this.autoMoveDirections.moving){
-      if(this.objs.length > 0){
-        this.objs[0].frames -= this.objs[0].frames === 0 ? 0 : 1;
-      } else{ // 첫 생성.
-        this.objs = [{x: this.autoMoveDirections.dest.x, y: this.autoMoveDirections.dest.y, frames: 20}]
+  clientPreStep() {
+    if (this.autoMoveDirections.moving) {
+      if (this.objs.length > 0) {
+        if (this.objs[0].x === this.autoMoveDirections.dest.x && this.objs[0].y === this.autoMoveDirections.dest.y) {
+          this.objs[0].frames -= this.objs[0].frames === 0 ? 0 : 1;
+          return;
+        }
       }
-    }else{
+      this.objs = [{x: this.autoMoveDirections.dest.x, y: this.autoMoveDirections.dest.y, frames: 20}]
+    } else {
       this.objs = []
     }
   }
