@@ -17,10 +17,11 @@ export default class CentiKeyboard {
         this.isStopped = true;
         this.stoppedCnt = 0;
         this.currentDirection = "stand";
+        this.ce = undefined;
     }
 
     init(clientEngine) {
-
+        this.ce = clientEngine;
         window.addEventListener("keydown", this.keyDown.bind(this));
         window.addEventListener("keyup", this.keyUp.bind(this));
 
@@ -34,6 +35,7 @@ export default class CentiKeyboard {
                     latestHoldTime = timestamp;
                 }
             }
+            // console.log(`inputStep: ${this.inputStep}`)
 
             let moved = false;
             let sentPress = undefined;
@@ -131,6 +133,10 @@ export default class CentiKeyboard {
         let input = this.getInput(ev.keyCode);
         if (!input) {
             return;
+        }
+        if(this.ce && this.ce.autoMoveDirections.moving){
+            // this.ce.setAutoMove({moving: false, dirs: [], dest:{x: 0, y:0}});
+            this.ce.setDestinations({destX: 0, destY: 0, isMoving: false});
         }
         if (this.inputStatus[input].timestamp === -1) {
             this.inputStatus[input].timestamp = Date.now();

@@ -1,11 +1,12 @@
 import { colors, PUBLIC_MAP } from './constants';
-import { clamp, max, getSubDomain } from './utils';
+import {clamp, max, getSubDomain, calculateShortestPath, convertPathToDirections, createKeyEventFromDir} from './utils';
 import { updateAnim } from './environmentAnimation';
 import { isBlocked } from '../common/utils';
 import { imageDimensionsMap, collisionMap, characterMap } from '../common/maps';
 import { imageMap } from '../common/mapsResource';
 import { characterIds } from './constants';
 import { directionMap } from "../common/constants";
+import {Key} from "ts-keycode-enum";
 
 export var objectSizes = 64;
 
@@ -22,6 +23,7 @@ let playersNameMap = {};
 var mouseCoorX = 0;
 var mouseCoorY = 0;
 
+let currentMap;
 var showNames = true;
 
 var smooth = {
@@ -60,12 +62,32 @@ var directionCoors = [
 var curCanvasWidth = 0;
 var curCanvasHeight = 0;
 
-export function drawInit() {
+export function drawInit(setDestinations) {
   // TODO: optimization, only load when necessary and not all at once
   let canvas = document.getElementById("canvas");
+
+
   canvas.onmousemove = (e) => {
     mouseCoorX = e.clientX - canvas.getBoundingClientRect().x;
     mouseCoorY = e.clientY - canvas.getBoundingClientRect().y;
+  }
+  canvas.ondblclick = (e) => {
+    if (!currentMap) return;
+
+    let w = document.getElementById("canvas").offsetWidth;
+    let h = document.getElementById("canvas").offsetHeight;
+    let mouseDoubleClickX = e.clientX - canvas.getBoundingClientRect().x;
+    let mouseDoubleClickY = e.clientY - canvas.getBoundingClientRect().y;
+    let tx = smooth.prevX * objectSizes + (objectSizes / 2) - (w / 2);
+    let ty = smooth.prevY * objectSizes + (objectSizes / 2) - (h / 2);
+    tx = clamp(tx, 0, max(0, imageDimensionsMap[currentMap][0] - w - 1));
+    ty = clamp(ty, 0, max(0, imageDimensionsMap[currentMap][1] - h - 1));
+    const tileX = Math.floor((tx + mouseDoubleClickX) / objectSizes);
+    const tileY = Math.floor((ty + mouseDoubleClickY) / objectSizes);
+    const curX = Math.floor(smooth.prevX);
+    const curY = Math.floor(smooth.prevY);
+    console.log(`캐릭터:${curX},${curY}.목표:${tileX},${tileY}`);
+    setDestinations({destX: tileX, destY: tileY, isMoving: true});
   }
 }
 
@@ -112,7 +134,8 @@ function offScreenLine(x, y) {
 }
 
 
-function draw(x, y, map, myPlayer, players) {
+function draw(x, y, map, myPlayer, players, objs) {
+  currentMap = myPlayer.currentMap;
   var canvas = document.getElementById("canvas");
   var ctx = canvas.getContext("2d");
   var w = document.getElementById("canvas").offsetWidth;
@@ -189,6 +212,26 @@ function draw(x, y, map, myPlayer, players) {
   for (let mapNameContainer of mapNames) {
     mapNameContainer.hidden = true;
   }
+  //=== object drawing ===//
+  if(objs.length > 0){
+    // console.log(objs);
+    objs.forEach(object => {
+      // Animation있으면 좋겠다.....지만 renderer를 따로 만들지 않으면 되게 복잡할 듯.
+      let objX = object.x;
+      let objY = object.y;
+      let drawX = objX * objectSizes - top_x + objectSizes / 2;
+      let drawY = objY * objectSizes - top_y + objectSizes / 2;
+      let circle = new Path2D();
+      let radiusDivider = -0.2 * object.frames + 6.2;
+      circle.arc(drawX, drawY, objectSizes/radiusDivider, 0, 2 * Math.PI);
+      ctx.fillStyle = "#EEEEEE";
+      ctx.fill(circle);
+      // ctx.fillStyle = "#12FF00";
+      // ctx.fillRect(drawX, drawY, objectSizes / 2, objectSizes / 2)
+    })
+  }
+
+
   players.forEach(player => {
     let direction;
     let drawX;
@@ -281,7 +324,7 @@ export function updatePlayerMap(newPlayerMap) {
   playerMap = newPlayerMap;
 }
 
-export function update(myPlayer, players) {
+export function update(myPlayer, players, objs) {
   if (!myPlayer) {
     return;
   }
@@ -347,10 +390,10 @@ export function update(myPlayer, players) {
 
     // console.log("update->draw", myPlayer.position.x, smooth.prevX, myPlayer.position.y, smooth.prevY);
   // console.log("update->draw", maxDiff, myPlayer.position.x - smooth.prevX, myPlayer.position.y - smooth.prevY);
-  draw(smooth.prevX, smooth.prevY, myPlayer.currentMap, myPlayer, players);
+  draw(smooth.prevX, smooth.prevY, myPlayer.currentMap, myPlayer, players, objs);
 }
 
-export function publicUpdate(players) {
+export function publicUpdate(players, obj) {
   if (!publicStartX || !publicStartY) {
     collisionMap[PUBLIC_MAP[getSubDomain()]].forEach((row, idxY) => {
       row.forEach((element, idxX) => {
@@ -361,5 +404,5 @@ export function publicUpdate(players) {
       });
     });
   }
-  draw(publicStartX, publicStartY, PUBLIC_MAP[getSubDomain()], players);
+  draw(publicStartX, publicStartY, PUBLIC_MAP[getSubDomain()], players, obj);
 }
