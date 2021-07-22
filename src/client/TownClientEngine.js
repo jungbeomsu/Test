@@ -217,7 +217,7 @@ export default class TownClientEngine extends ClientEngine {
         this.autoMoveDirections = {moving: false, dirs: [], dest: {x: 0, y: 0}}
         return;
       }
-      let nextDirection = this.calculatePath(destX, destY);
+      let nextDirection = this.calculateDirection(destX, destY);
       if (nextDirection) {
         this.sendInput(nextDirection, {move: true});
         this.setDestinations({destX, destY, isMoving});
@@ -321,7 +321,7 @@ export default class TownClientEngine extends ClientEngine {
     this.socket.emit("chatMessage", message, blockedMap);
   }
 
-  calculatePath(destX, destY) {
+  calculateDirection(destX, destY) {
     let playerId = this.gameEngine.playerId, myPlayer = this.gameEngine.world.queryObject({playerId}),
       playerX = myPlayer.position.x, playerY = myPlayer.position.y;
     let shortestPath = calculateShortestPath(collisionMap[this.currentMap], playerX, playerY, destX, destY);
