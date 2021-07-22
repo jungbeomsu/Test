@@ -48,6 +48,7 @@ export default class TownClientEngine extends ClientEngine {
     this.currentMap = null;
     this.characterId = null;
     this.autoMoveDirections = {moving: false, dirs: [], dest:{x:0, y:0}};
+    this.autoMoveTimer = null;
 
     /*
       playerInfo schema:
@@ -196,18 +197,15 @@ export default class TownClientEngine extends ClientEngine {
   }
   setAutoMove(autoMoveDirections){ // moving:true, directions: []
     console.log(autoMoveDirections);
-    // console.log(this.autoMoveDirections);
+    if(this.autoMoveTimer){
+      clearTimeout(this.autoMoveTimer);
+    }
     this.autoMoveDirections = autoMoveDirections;
-    setTimeout(() => {
-      // console.log('send')
+    this.autoMoveTimer = setTimeout(() => {
       if (this.autoMoveDirections.dirs.length === 0) {
-        // console.log("stoped");
         this.autoMoveDirections = {moving: false, dirs: []};
-        // clearInterval(si);
       } else {
-        // console.log("gone: " + this.autoMoveDirections.dirs.length);
         this.sendInput(this.autoMoveDirections.dirs[0], {move: true});
-        // this.autoMoveDirections.dirs.shift();
         this.recalculate(this.autoMoveDirections.dest.x, this.autoMoveDirections.dest.y);
       }
     }, 1000 / 7);
