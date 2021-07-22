@@ -192,21 +192,22 @@ export default class TownClientEngine extends ClientEngine {
 
   clientSideInit() {
     drawInit((d) => {
-      this.setAutoMove(d)
+      this.setDestinations(d)
     });
   }
-  setAutoMove(autoMoveDirections){ // moving:true, directions: []
-    console.log(autoMoveDirections);
-    if(this.autoMoveTimer){
+  setDestinations({destX, destY, isMoving}) { // moving:true, directions: []
+    if (this.autoMoveTimer) {
       clearTimeout(this.autoMoveTimer);
     }
-    this.autoMoveDirections = autoMoveDirections;
     this.autoMoveTimer = setTimeout(() => {
-      if (this.autoMoveDirections.dirs.length === 0) {
-        this.autoMoveDirections = {moving: false, dirs: []};
-      } else {
-        this.sendInput(this.autoMoveDirections.dirs[0], {move: true});
-        this.recalculate(this.autoMoveDirections.dest.x, this.autoMoveDirections.dest.y);
+      if (!isMoving) {
+        this.autoMoveDirections = {moving: false, dirs: [], dest: {x: 0, y: 0}}
+        return;
+      }
+      let nextDirection = this.calculatePath(destX, destY);
+      if (nextDirection) {
+        this.sendInput(nextDirection, {move: true});
+        this.setDestinations({destX, destY, isMoving});
       }
     }, 1000 / 7);
   }
@@ -304,16 +305,19 @@ export default class TownClientEngine extends ClientEngine {
   sendChatMessage(message, blockedMap) {
     this.socket.emit("chatMessage", message, blockedMap);
   }
-  recalculate(destX, destY) {
+
+  calculatePath(destX, destY) {
     let playerId = this.gameEngine.playerId, myPlayer = this.gameEngine.world.queryObject({playerId}),
       playerX = myPlayer.position.x, playerY = myPlayer.position.y;
-    // console.log('recalculate' + ','  + playerX + ',' + playerY + ',' + destX + ',' + destY);
     let shortestPath = calculateShortestPath(collisionMap[this.currentMap], playerX, playerY, destX, destY);
-    // console.log(shortestPath);
     let directions = convertPathToDirections(shortestPath);
     // console.log(directions);
     if (directions.length !== 0) {
-      this.setAutoMove({moving: true, dirs: directions, dest: {x: destX, y: destY}});
+      this.autoMoveDirections = {moving: true, dirs: directions, dest: {x: destX, y: destY}}
+      return directions[0];
+    } else {
+      return null
     }
   }
+
 }
