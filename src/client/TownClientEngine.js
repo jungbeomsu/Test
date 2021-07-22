@@ -1,6 +1,6 @@
 import { ClientEngine } from 'lance-gg';
-import { getRoomFromPath, isPublic, isProd, getSubDomain } from './utils';
-import { drawInit, update, updatePlayerMap, publicUpdate, setShowNames }  from './drawCanvas';
+import {getRoomFromPath, isPublic, isProd, getSubDomain, calculateShortestPath, convertPathToDirections} from './utils';
+import {drawInit, update, updatePlayerMap, publicUpdate, setShowNames, objectSizes} from './drawCanvas';
 import { updateSound } from './environmentSounds';
 import { PUBLIC_MAP, auth } from './constants';
 import { localPreferences } from './LocalPreferences';
@@ -47,7 +47,7 @@ export default class TownClientEngine extends ClientEngine {
 
     this.currentMap = null;
     this.characterId = null;
-    this.autoMoveDirections = {moving: false, dirs: []};
+    this.autoMoveDirections = {moving: false, dirs: [], dest:{x:0, y:0}};
 
     /*
       playerInfo schema:
@@ -191,30 +191,26 @@ export default class TownClientEngine extends ClientEngine {
 
   clientSideInit() {
     drawInit((d) => {
-      this.deliver(d)
+      this.setAutoMove(d)
     });
   }
-  deliver(autoMoveDirections){ // moving:true, directions: []
+  setAutoMove(autoMoveDirections){ // moving:true, directions: []
     console.log(autoMoveDirections);
-    console.log(this.autoMoveDirections);
+    // console.log(this.autoMoveDirections);
     this.autoMoveDirections = autoMoveDirections;
-    let si = setInterval(() => {
-      console.log('send')
-      if(this.autoMoveDirections.dirs.length === 0){
-        console.log("stoped");
+    setTimeout(() => {
+      // console.log('send')
+      if (this.autoMoveDirections.dirs.length === 0) {
+        // console.log("stoped");
         this.autoMoveDirections = {moving: false, dirs: []};
-        clearInterval(si);
-        return;
-      } else{
-        console.log("gone: "+this.autoMoveDirections.dirs.length);
-        this.sendInput(this.autoMoveDirections.dirs[0], {move:true});
-        this.autoMoveDirections.dirs.shift();
+        // clearInterval(si);
+      } else {
+        // console.log("gone: " + this.autoMoveDirections.dirs.length);
+        this.sendInput(this.autoMoveDirections.dirs[0], {move: true});
+        // this.autoMoveDirections.dirs.shift();
+        this.recalculate(this.autoMoveDirections.dest.x, this.autoMoveDirections.dest.y);
       }
-    }, 300)
-    // for 루프 돌면서 계속 이걸 sendInput에 보낸다?
-    // 근데 그걸 언제 줄어들게해?
-    // 한 position을 넘기면?
-    // 그리고 키보드 이벤트 생기면 초기화해야함.
+    }, 1000 / 7);
   }
 
   sendInput(input, inputOptions) {
@@ -309,5 +305,17 @@ export default class TownClientEngine extends ClientEngine {
 
   sendChatMessage(message, blockedMap) {
     this.socket.emit("chatMessage", message, blockedMap);
+  }
+  recalculate(destX, destY) {
+    let playerId = this.gameEngine.playerId, myPlayer = this.gameEngine.world.queryObject({playerId}),
+      playerX = myPlayer.position.x, playerY = myPlayer.position.y;
+    // console.log('recalculate' + ','  + playerX + ',' + playerY + ',' + destX + ',' + destY);
+    let shortestPath = calculateShortestPath(collisionMap[this.currentMap], playerX, playerY, destX, destY);
+    // console.log(shortestPath);
+    let directions = convertPathToDirections(shortestPath);
+    // console.log(directions);
+    if (directions.length !== 0) {
+      this.setAutoMove({moving: true, dirs: directions, dest: {x: destX, y: destY}});
+    }
   }
 }

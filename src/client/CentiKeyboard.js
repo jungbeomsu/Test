@@ -134,8 +134,8 @@ export default class CentiKeyboard {
         if (!input) {
             return;
         }
-        if(this.ce){
-            this.ce.deliver({moving: false, dirs: []});
+        if(this.ce && this.ce.autoMoveDirections.moving){
+            this.ce.setAutoMove({moving: false, dirs: [], dest:{x: 0, y:0}});
         }
         if (this.inputStatus[input].timestamp === -1) {
             this.inputStatus[input].timestamp = Date.now();

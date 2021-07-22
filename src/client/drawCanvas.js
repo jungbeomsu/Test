@@ -64,7 +64,9 @@ var directionCoors = [
 var curCanvasWidth = 0;
 var curCanvasHeight = 0;
 
-export function drawInit(deliver) {
+export function drawInit(setAutoMove) {
+  // TODO: 이곳에 autoMoving관련 로직이 있어도 될까? - 근데 마우스 클릭이 여기서 되니까 어쩔 수 없는 걸까? 다른곳에 mouseHandler를 넣는다면?
+
   // TODO: optimization, only load when necessary and not all at once
   let canvas = document.getElementById("canvas");
 
@@ -94,7 +96,7 @@ export function drawInit(deliver) {
     let directions = convertPathToDirections(shortestPath);
     console.log(directions);
     if(directions.length !== 0){
-      deliver({moving: true, dirs: directions});
+      setAutoMove({moving: true, dirs: directions, dest: {x: tileX, y: tileY}});
     }
 
     //==== Temporary
