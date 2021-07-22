@@ -158,7 +158,7 @@ function offScreenLine(x, y) {
 }
 
 
-function draw(x, y, map, myPlayer, players) {
+function draw(x, y, map, myPlayer, players, objs) {
   globalMap = myPlayer.currentMap;
   var canvas = document.getElementById("canvas");
   var ctx = canvas.getContext("2d");
@@ -236,6 +236,26 @@ function draw(x, y, map, myPlayer, players) {
   for (let mapNameContainer of mapNames) {
     mapNameContainer.hidden = true;
   }
+  //=== object drawing ===//
+  if(objs.length > 0){
+    // console.log(objs);
+    objs.forEach(object => {
+      // Animation있으면 좋겠다.....지만 renderer를 따로 만들지 않으면 되게 복잡할 듯.
+      let objX = object.x;
+      let objY = object.y;
+      let drawX = objX * objectSizes - top_x + objectSizes / 2;
+      let drawY = objY * objectSizes - top_y + objectSizes / 2;
+      let circle = new Path2D();
+      let radiusDivider = -0.2 * object.frames + 6.2;
+      circle.arc(drawX, drawY, objectSizes/radiusDivider, 0, 2 * Math.PI);
+      ctx.fillStyle = "#EEEEEE";
+      ctx.fill(circle);
+      // ctx.fillStyle = "#12FF00";
+      // ctx.fillRect(drawX, drawY, objectSizes / 2, objectSizes / 2)
+    })
+  }
+
+
   players.forEach(player => {
     let direction;
     let drawX;
@@ -328,7 +348,7 @@ export function updatePlayerMap(newPlayerMap) {
   playerMap = newPlayerMap;
 }
 
-export function update(myPlayer, players) {
+export function update(myPlayer, players, objs) {
   if (!myPlayer) {
     return;
   }
@@ -394,10 +414,10 @@ export function update(myPlayer, players) {
 
     // console.log("update->draw", myPlayer.position.x, smooth.prevX, myPlayer.position.y, smooth.prevY);
   // console.log("update->draw", maxDiff, myPlayer.position.x - smooth.prevX, myPlayer.position.y - smooth.prevY);
-  draw(smooth.prevX, smooth.prevY, myPlayer.currentMap, myPlayer, players);
+  draw(smooth.prevX, smooth.prevY, myPlayer.currentMap, myPlayer, players, objs);
 }
 
-export function publicUpdate(players) {
+export function publicUpdate(players, obj) {
   if (!publicStartX || !publicStartY) {
     collisionMap[PUBLIC_MAP[getSubDomain()]].forEach((row, idxY) => {
       row.forEach((element, idxX) => {
@@ -408,5 +428,5 @@ export function publicUpdate(players) {
       });
     });
   }
-  draw(publicStartX, publicStartY, PUBLIC_MAP[getSubDomain()], players);
+  draw(publicStartX, publicStartY, PUBLIC_MAP[getSubDomain()], players, obj);
 }

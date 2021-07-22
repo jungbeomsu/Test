@@ -30,6 +30,7 @@ export default class TownClientEngine extends ClientEngine {
 
     gameEngine.on('client__rendererReady', this.clientSideInit.bind(this));
     gameEngine.on('client__draw', this.clientSideDraw.bind(this));
+    gameEngine.on('client__preStep', this.clientPreStep.bind(this));
 
     this.eventProvider = new EventProvider([]);
 
@@ -49,6 +50,7 @@ export default class TownClientEngine extends ClientEngine {
     this.characterId = null;
     this.autoMoveDirections = {moving: false, dirs: [], dest:{x:0, y:0}};
     this.autoMoveTimer = null;
+    this.objs = [];
 
     /*
       playerInfo schema:
@@ -195,6 +197,17 @@ export default class TownClientEngine extends ClientEngine {
       this.setDestinations(d)
     });
   }
+  clientPreStep(){
+    if(this.autoMoveDirections.moving){
+      if(this.objs.length > 0){
+        this.objs[0].frames -= this.objs[0].frames === 0 ? 0 : 1;
+      } else{ // 첫 생성.
+        this.objs = [{x: this.autoMoveDirections.dest.x, y: this.autoMoveDirections.dest.y, frames: 20}]
+      }
+    }else{
+      this.objs = []
+    }
+  }
   setDestinations({destX, destY, isMoving}) { // moving:true, directions: []
     if (this.autoMoveTimer) {
       clearTimeout(this.autoMoveTimer);
@@ -208,6 +221,8 @@ export default class TownClientEngine extends ClientEngine {
       if (nextDirection) {
         this.sendInput(nextDirection, {move: true});
         this.setDestinations({destX, destY, isMoving});
+      } else {//도착했거나 경로가 막혔을 때.
+        this.setDestinations({destX, destY, isMoving: false});
       }
     }, 1000 / 7);
   }
@@ -243,7 +258,7 @@ export default class TownClientEngine extends ClientEngine {
       players = players.filter((tempPlayer) => {
         return tempPlayer.currentMap === PUBLIC_MAP[getSubDomain()];
       });
-      publicUpdate(players);
+      publicUpdate(players, null);
     } else {
       if (!myPlayer) {
         return;
@@ -253,7 +268,7 @@ export default class TownClientEngine extends ClientEngine {
       });
 
       updateSound(myPlayer);
-      update(myPlayer, players);
+      update(myPlayer, players, this.objs);
     }
 
     if (this.videosEnabled && this.videosInitialized) {
