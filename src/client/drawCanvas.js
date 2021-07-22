@@ -23,9 +23,7 @@ let playersNameMap = {};
 var mouseCoorX = 0;
 var mouseCoorY = 0;
 
-let mouseDoubleClickX = 0;
-let mouseDoubleClickY = 0;
-let globalMap;
+let currentMap;
 var showNames = true;
 
 var smooth = {
@@ -74,44 +72,22 @@ export function drawInit(setDestinations) {
     mouseCoorY = e.clientY - canvas.getBoundingClientRect().y;
   }
   canvas.ondblclick = (e) => {
-    if (!globalMap) return;
+    if (!currentMap) return;
 
     let w = document.getElementById("canvas").offsetWidth;
     let h = document.getElementById("canvas").offsetHeight;
-    mouseDoubleClickX = e.clientX - canvas.getBoundingClientRect().x;
-    mouseDoubleClickY = e.clientY - canvas.getBoundingClientRect().y;
+    let mouseDoubleClickX = e.clientX - canvas.getBoundingClientRect().x;
+    let mouseDoubleClickY = e.clientY - canvas.getBoundingClientRect().y;
     let tx = smooth.prevX * objectSizes + (objectSizes / 2) - (w / 2);
     let ty = smooth.prevY * objectSizes + (objectSizes / 2) - (h / 2);
-    tx = clamp(tx, 0, max(0, imageDimensionsMap[globalMap][0] - w - 1));
-    ty = clamp(ty, 0, max(0, imageDimensionsMap[globalMap][1] - h - 1));
+    tx = clamp(tx, 0, max(0, imageDimensionsMap[currentMap][0] - w - 1));
+    ty = clamp(ty, 0, max(0, imageDimensionsMap[currentMap][1] - h - 1));
     const tileX = Math.floor((tx + mouseDoubleClickX) / objectSizes);
     const tileY = Math.floor((ty + mouseDoubleClickY) / objectSizes);
     const curX = Math.floor(smooth.prevX);
     const curY = Math.floor(smooth.prevY);
     console.log(`캐릭터:${curX},${curY}.목표:${tileX},${tileY}`);
     setDestinations({destX: tileX, destY: tileY, isMoving: true});
-    // let shortestPath = calculateShortestPath(collisionMap[globalMap], curX, curY, tileX, tileY);
-    // console.log(shortestPath);
-    // let directions = convertPathToDirections(shortestPath);
-    // console.log(directions);
-    // if(directions.length !== 0){
-    //   setDestinations({moving: true, dirs: directions, dest: {x: tileX, y: tileY}});
-    // }
-
-    //==== Temporary
-
-    // let ev = new KeyboardEvent("keydown", createKeyEventFromDir(directions[0]));
-    // window.dispatchEvent(ev);
-    // window.dispatchEvent(ev);
-    // setTimeout(() => {
-    //   let ev = new KeyboardEvent("keyup", createKeyEventFromDir(directions[0]));
-    //   window.dispatchEvent(ev);
-    // }, 10);
-
-
-    //TODO: 결정된 DIRECTION을 loop에 넣어서 같이 보면서 실제로 move event를 발생시키는 부분.
-    //  한 좌표를 넘어갈 때마다 recalculate하면 좋겠네.
-    //TODO: 뭔가 destinationCoordinates 에 Highlight effect 도 있으면 좋을 것 같음.
   }
 }
 
@@ -159,7 +135,7 @@ function offScreenLine(x, y) {
 
 
 function draw(x, y, map, myPlayer, players, objs) {
-  globalMap = myPlayer.currentMap;
+  currentMap = myPlayer.currentMap;
   var canvas = document.getElementById("canvas");
   var ctx = canvas.getContext("2d");
   var w = document.getElementById("canvas").offsetWidth;
