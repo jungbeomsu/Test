@@ -20,7 +20,8 @@ import Help from './components/Help.jsx';
 import EmailAuth from './components/EmailAuth.jsx';
 import CreateProfile from './components/CreateProfile.jsx';
 import Tutorial from './components/Tutorial.jsx';
-import Dashboard from './components/Dashboard.jsx'
+import Dashboard from "./components/Dashboard";
+import Setting from "./components/Setting";
 
 // Add user cookie
 let userStorage = localPreferences.get('user');
@@ -66,6 +67,7 @@ let App = () => {
         <Route path="/createProfile" exact component={CreateProfile} />
         <Route path="/tutorial" exact component={Tutorial} />} />
         <Route path="/dashboard" exact component={Dashboard} />} />
+        <Route path="/setting" exact component={Setting} />} />
       </Switch>
     </BrowserRouter>
   );

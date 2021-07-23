@@ -9,6 +9,7 @@ export default function Tutorial(props) {
   // const [nicknameChange, setNicknameChange] = useState(false);
   const history = useHistory();
   const userData = useSelector(({userData}) => userData);
+  const history = useHistory();
 
   useEffect(() => {
     setNickname(userData.nickname);
