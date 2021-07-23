@@ -12,7 +12,7 @@ import {
   speaker,
   googleIcon,
   copy,
-  profileIconXL,
+  profileIconL,
   exitIconB,
   exitIconW,
   closeButtonB,
@@ -418,7 +418,7 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
                     <div style={{display: "flex", justifyContent: "space-between", width: "100%", padding: "0 16px 0 16px", alignItems: "center"}}>
                       <div style={{display: "flex", alignItems: "center"}}>
                         <div style={{marginRight: "6px"}}>
-                          {profileIconXL}
+                          {profileIconL}
                         </div>
                         <div style={{display: "flex", flexDirection: "column"}}>
                           <div style={{color: "1C1C1E", fontSize: "14px"}}>

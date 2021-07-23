@@ -1,17 +1,29 @@
 import React, {useState, useRef} from 'react';
 import GameChangeCharacter from "./GameChangeCharacter";
-import {cloud, village} from "../resources/images";
+import {cloud, town} from "../resources/images";
+import {useHistory} from "react-router-dom";
+import {useDispatch} from "react-redux";
+import {setUserData} from "../redux/actionFunction";
 
 export default function CreateProfile() {
   const [nickname, setNickname] = useState("내 이름은 지호에요");
   const [characterId, setCharacterId] = useState(211);
   const [nicknameChange, setNicknameChange] = useState(false);
-
+  const history = useHistory();
+  const dispatch = useDispatch();
   let currentMap = 301;
 
   const goToTutorial = () => {
     alert(`이름 : ${nickname}\n캐릭터번호 : ${characterId} \n프로필이 저장되었습니다!`)
-    // document.location.href="/tutorial";
+    history.push({pathname: "/tutorial"})
+
+    const userData = {
+      nickname,
+      characterId,
+    }
+
+    dispatch(setUserData(userData))
+
   }
 
   const inputRef = useRef();
@@ -27,7 +39,6 @@ export default function CreateProfile() {
       </div>
       <div style={{
         backgroundColor: "white",
-        // width: "650px",
         height: "500px",
         borderRadius: "15px",
         padding: "25px 20px",
@@ -101,7 +112,7 @@ export default function CreateProfile() {
         </div>
       </div>
       <div style={{position: "absolute", bottom: 0}}>
-        {village}
+        {town}
       </div>
     </div>
   )

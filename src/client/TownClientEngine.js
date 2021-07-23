@@ -1,6 +1,6 @@
 import { ClientEngine } from 'lance-gg';
-import { getRoomFromPath, isPublic, isProd, getSubDomain } from './utils';
-import { drawInit, update, updatePlayerMap, publicUpdate, setShowNames }  from './drawCanvas';
+import {getRoomFromPath, isPublic, isProd, getSubDomain, calculateShortestPath, convertPathToDirections} from './utils';
+import {drawInit, update, updatePlayerMap, publicUpdate, setShowNames, objectSizes} from './drawCanvas';
 import { updateSound } from './environmentSounds';
 import { PUBLIC_MAP, auth } from './constants';
 import { localPreferences } from './LocalPreferences';
@@ -30,6 +30,7 @@ export default class TownClientEngine extends ClientEngine {
 
     gameEngine.on('client__rendererReady', this.clientSideInit.bind(this));
     gameEngine.on('client__draw', this.clientSideDraw.bind(this));
+    gameEngine.on('client__preStep', this.clientPreStep.bind(this));
 
     this.eventProvider = new EventProvider([]);
 
@@ -47,6 +48,9 @@ export default class TownClientEngine extends ClientEngine {
 
     this.currentMap = null;
     this.characterId = null;
+    this.autoMoveDirections = {moving: false, dest:{x:0, y:0}};
+    this.autoMoveTimer = null;
+    this.destObject = null;
 
     /*
       playerInfo schema:
@@ -189,7 +193,34 @@ export default class TownClientEngine extends ClientEngine {
   }
 
   clientSideInit() {
-    drawInit();
+    drawInit((d) => {
+      this.setDestinations(d)
+    });
+  }
+  clientPreStep() {
+    if (this.autoMoveDirections.moving) {
+      this.destObject = pushDestinationObject(this.destObject, this.autoMoveDirections.dest);
+    } else {
+      this.destObject = null;
+    }
+  }
+  setDestinations({destX, destY, isMoving}) { // moving:true, directions: []
+    if (this.autoMoveTimer) {
+      clearTimeout(this.autoMoveTimer);
+    }
+    this.autoMoveTimer = setTimeout(() => {
+      if (!isMoving) {
+        this.autoMoveDirections = {moving: false, dest: {x: 0, y: 0}}
+        return;
+      }
+      let nextDirection = this.calculateDirection(destX, destY);
+      if (nextDirection) {
+        this.sendInput(nextDirection, {move: true});
+        this.setDestinations({destX, destY, isMoving});
+      } else {//도착했거나 경로가 막혔을 때.
+        this.setDestinations({destX, destY, isMoving: false});
+      }
+    }, 1000 / 7);
   }
 
   sendInput(input, inputOptions) {
@@ -223,7 +254,7 @@ export default class TownClientEngine extends ClientEngine {
       players = players.filter((tempPlayer) => {
         return tempPlayer.currentMap === PUBLIC_MAP[getSubDomain()];
       });
-      publicUpdate(players);
+      publicUpdate(players, null);
     } else {
       if (!myPlayer) {
         return;
@@ -233,7 +264,7 @@ export default class TownClientEngine extends ClientEngine {
       });
 
       updateSound(myPlayer);
-      update(myPlayer, players);
+      update(myPlayer, players, this.destObject);
     }
 
     if (this.videosEnabled && this.videosInitialized) {
@@ -285,4 +316,29 @@ export default class TownClientEngine extends ClientEngine {
   sendChatMessage(message, blockedMap) {
     this.socket.emit("chatMessage", message, blockedMap);
   }
+
+  calculateDirection(destX, destY) {
+    let playerId = this.gameEngine.playerId, myPlayer = this.gameEngine.world.queryObject({playerId}),
+      playerX = myPlayer.position.x, playerY = myPlayer.position.y;
+    let shortestPath = calculateShortestPath(collisionMap[this.currentMap], playerX, playerY, destX, destY);
+    let directions = convertPathToDirections(shortestPath);
+    // console.log(directions);
+    if (directions.length !== 0) {
+      this.autoMoveDirections = {moving: true, dest: {x: destX, y: destY}}
+      return directions[0];
+    } else {
+      return null
+    }
+  }
+}
+
+function pushDestinationObject(objs, dest){
+  let destX = dest.x, destY = dest.y;
+  if (objs) {
+    if (objs.x === destX && objs.y === destY) {
+      objs.frames -= objs.frames === 0 ? 0 : 1;
+      return objs;
+    }
+  }
+  return {x: destX, y: destY, frames: 20}
 }

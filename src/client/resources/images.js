@@ -2,8 +2,9 @@ import React from "react";
 
 export const profileIconS = <img style={{width: "16px", height: "16px"}} src={require("../images/v1/profile_image.png").default}/>;
 export const profileIconM = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/profile_image.png").default}/>;
-export const profileIconXL = <img style={{width: "32px", height: "32px"}} src={require("../images/v1/profile_image.png").default}/>
+export const profileIconL = <img style={{width: "32px", height: "32px"}} src={require("../images/v1/profile_image.png").default}/>
 export const settingIcon = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/setting.png").default} />;
+export const settingIconG = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/setting_gray.png").default} />;
 export const inviteIcon = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/invite.png").default}/>;
 export const memberIcon = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/users/bold.png").default}/>;
 export const arrowUp = <img style={{width: "16px", height: "16px"}} src={require("../images/v1/arrow_up_gray.png").default}/>;
@@ -20,14 +21,18 @@ export const googleIcon = <img style={{width: "24px", height: "24px"}} src={requ
 export const copy = <img style={{width: "16px", height: "16px"}} src={require("../images/v1/copy.png").default}/>
 export const exitIconB = <img style={{width: "16px", height: "16px"}} src={require("../images/v1/exit_black.png").default}/>
 export const exitIconW = <img style={{width: "16px", height: "16px"}} src={require("../images/v1/exit_white.png").default}/>
+export const exitIconG = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/exit_gray.png").default}/>
 export const checkButton = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/radio.png").default}/>
 export const unCheckButton = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/radioDefault.png").default}/>
 export const micOn = <img style={{width: "32px", height: "32px"}} src={require("../images/v1/mic_on.png").default}/>
 export const micOff = <img style={{width: "12px", height: "12px"}} src={require("../images/v1/mic/off.png").default}/>
 export const videoOn = <img style={{width: "32px", height: "32px"}} src={require("../images/v1/video_on.png").default}/>
 export const videoOff = <img style={{width: "12px", height: "12px"}} src={require("../images/v1/cam/off.png").default}/>
-export const cloud = <img style={{width: "100vw", height: "250px"}} src={require("../images/v1/cloud.png").default}/>
-export const village = <img style={{width: "100vw", height: "200px"}} src={require("../images/v1/village.png").default}/>
 export const fullScreen = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/full.png").default}/>
 export const carouselLeft = <img style={{width: "32px", height: "32px"}} src={require("../images/v1/carouselLeft.png").default}/>
 export const carouselRight = <img style={{width: "32px", height: "32px"}} src={require("../images/v1/carouselRight.png").default}/>
+export const cloud = <img style={{}} src={require("../images/v1/cloud.png").default}/>
+export const town = <img style={{}} src={require("../images/v1/town.png").default}/>
+export const loginBackground = require("../images/v1/login_background.png").default
+export const kakaoIcon = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/Kakao.png").default}/>
+export const FacebookIcon = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/Facebook.png").default}/>

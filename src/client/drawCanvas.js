@@ -1,11 +1,9 @@
 import { colors, PUBLIC_MAP } from './constants';
-import { clamp, max, getSubDomain } from './utils';
+import {clamp, max, getSubDomain} from './utils';
 import { updateAnim } from './environmentAnimation';
-import { isBlocked } from '../common/utils';
 import { imageDimensionsMap, collisionMap, characterMap } from '../common/maps';
 import { imageMap } from '../common/mapsResource';
 import { characterIds } from './constants';
-import { directionMap } from "../common/constants";
 
 export var objectSizes = 64;
 
@@ -22,6 +20,7 @@ let playersNameMap = {};
 var mouseCoorX = 0;
 var mouseCoorY = 0;
 
+let currentMap;
 var showNames = true;
 
 var smooth = {
@@ -60,12 +59,32 @@ var directionCoors = [
 var curCanvasWidth = 0;
 var curCanvasHeight = 0;
 
-export function drawInit() {
+export function drawInit(setDestinations) {
   // TODO: optimization, only load when necessary and not all at once
   let canvas = document.getElementById("canvas");
+
+
   canvas.onmousemove = (e) => {
     mouseCoorX = e.clientX - canvas.getBoundingClientRect().x;
     mouseCoorY = e.clientY - canvas.getBoundingClientRect().y;
+  }
+  canvas.ondblclick = (e) => {
+    if (!currentMap) return;
+
+    let w = document.getElementById("canvas").offsetWidth;
+    let h = document.getElementById("canvas").offsetHeight;
+    let mouseDoubleClickX = e.clientX - canvas.getBoundingClientRect().x;
+    let mouseDoubleClickY = e.clientY - canvas.getBoundingClientRect().y;
+    let tx = smooth.prevX * objectSizes + (objectSizes / 2) - (w / 2);
+    let ty = smooth.prevY * objectSizes + (objectSizes / 2) - (h / 2);
+    tx = clamp(tx, 0, max(0, imageDimensionsMap[currentMap][0] - w - 1));
+    ty = clamp(ty, 0, max(0, imageDimensionsMap[currentMap][1] - h - 1));
+    const tileX = Math.floor((tx + mouseDoubleClickX) / objectSizes);
+    const tileY = Math.floor((ty + mouseDoubleClickY) / objectSizes);
+    const curX = Math.floor(smooth.prevX);
+    const curY = Math.floor(smooth.prevY);
+    console.log(`캐릭터:${curX},${curY}.목표:${tileX},${tileY}`);
+    setDestinations({destX: tileX, destY: tileY, isMoving: true});
   }
 }
 
@@ -74,56 +93,57 @@ export function drawInit() {
 
 function offScreenLine(x, y) {
 
-  var offset = 2;
-  var radius = 8;
+  let offset = 2;
+  let radius = 8;
 
-  var a1 = (Math.atan2(-200, 300) + (2 * Math.PI)) % (2 * Math.PI); //top right
-  var a2 = (Math.atan2(200, 300) + (2 * Math.PI)) % (2 * Math.PI); //bottom right
-  var a3 = (Math.atan2(200, -300) + (2 * Math.PI)) % (2 * Math.PI); //bottom left
-  var a4 = (Math.atan2(-200, -300) + (2 * Math.PI)) % (2 * Math.PI); //top left
+  let a1 = (Math.atan2(-200, 300) + (2 * Math.PI)) % (2 * Math.PI); //top right
+  let a2 = (Math.atan2(200, 300) + (2 * Math.PI)) % (2 * Math.PI); //bottom right
+  let a3 = (Math.atan2(200, -300) + (2 * Math.PI)) % (2 * Math.PI); //bottom left
+  let a4 = (Math.atan2(-200, -300) + (2 * Math.PI)) % (2 * Math.PI); //top left
 
-  var angle = (Math.atan2((y - 200), (x - 300)) + (2 * Math.PI)) % (2 * Math.PI);
+  let angle = (Math.atan2((y - 200), (x - 300)) + (2 * Math.PI)) % (2 * Math.PI);
 
   if ((a2 <= angle) && (angle < a3)) { //bottom wall
-    var new_x1 = 300 + (200 * Math.tan((0.5 * Math.PI) - angle)) - radius;
-    var new_y1 = -offset + 400;
-    var new_x2 = new_x1 + (2 * radius);
-    var new_y2 = new_y1;
+    let new_x1 = 300 + (200 * Math.tan((0.5 * Math.PI) - angle)) - radius;
+    let new_y1 = -offset + 400;
+    let new_x2 = new_x1 + (2 * radius);
+    let new_y2 = new_y1;
   }
   else if ((a3 <= angle) && (angle < a4)) { //left wall
-    var new_x1 = offset;
-    var new_y1 = 200 + (-300 * Math.tan(angle)) - radius;
-    var new_x2 = new_x1;
-    var new_y2 = new_y1 + (2 * radius);
+    let new_x1 = offset;
+    let new_y1 = 200 + (-300 * Math.tan(angle)) - radius;
+    let new_x2 = new_x1;
+    let new_y2 = new_y1 + (2 * radius);
   }
   else if ((a4 <= angle) && (angle < a1)) { //top wall
-    var new_x1 = 300 + (-200 * Math.tan((0.5 * Math.PI) - angle)) - radius;
-    var new_y1 = offset;
-    var new_x2 = new_x1 + (2 * radius);
-    var new_y2 = new_y1;
+    let new_x1 = 300 + (-200 * Math.tan((0.5 * Math.PI) - angle)) - radius;
+    let new_y1 = offset;
+    let new_x2 = new_x1 + (2 * radius);
+    let new_y2 = new_y1;
   }
   else { //right wall
-    var new_x1 = -offset + 600;
-    var new_y1 = 200 + (300 * Math.tan(angle)) - radius;
-    var new_x2 = new_x1;
-    var new_y2 = new_y1 + (2 * radius);
+    let new_x1 = -offset + 600;
+    let new_y1 = 200 + (300 * Math.tan(angle)) - radius;
+    let new_x2 = new_x1;
+    let new_y2 = new_y1 + (2 * radius);
   }
   return [new_x1, new_y1, new_x2, new_y2];
 }
 
 
-function draw(x, y, map, myPlayer, players) {
-  var canvas = document.getElementById("canvas");
-  var ctx = canvas.getContext("2d");
-  var w = document.getElementById("canvas").offsetWidth;
-  var h = document.getElementById("canvas").offsetHeight;
+function draw(x, y, map, myPlayer, players, destObject) {
+  currentMap = myPlayer.currentMap;
+  let canvas = document.getElementById("canvas");
+  let ctx = canvas.getContext("2d");
+  let w = document.getElementById("canvas").offsetWidth;
+  let h = document.getElementById("canvas").offsetHeight;
 
   let top_x = x * objectSizes + (objectSizes / 2) - (w / 2);
   let top_y = y * objectSizes + (objectSizes / 2) - (h / 2);
   top_x = clamp(top_x, 0, max(0, imageDimensionsMap[map][0] - w - 1));
   top_y = clamp(top_y, 0, max(0, imageDimensionsMap[map][1] - h - 1));
 
-  var needFill = false;
+  let needFill = false;
   if (curCanvasWidth !== w) {
     canvas.width  = w;
     curCanvasWidth = w;
@@ -189,6 +209,18 @@ function draw(x, y, map, myPlayer, players) {
   for (let mapNameContainer of mapNames) {
     mapNameContainer.hidden = true;
   }
+  //=== destObject drawing ===//
+  if(destObject){
+    let drawX = destObject.x * objectSizes - top_x + objectSizes / 2;
+    let drawY = destObject.y * objectSizes - top_y + objectSizes / 2;
+    let circle = new Path2D();
+    let radiusDivider = -0.2 * destObject.frames + 6.2;
+    circle.arc(drawX, drawY, objectSizes / radiusDivider, 0, 2 * Math.PI);
+    ctx.fillStyle = "#EEEEEE";
+    ctx.fill(circle);
+  }
+
+
   players.forEach(player => {
     let direction;
     let drawX;
@@ -281,7 +313,7 @@ export function updatePlayerMap(newPlayerMap) {
   playerMap = newPlayerMap;
 }
 
-export function update(myPlayer, players) {
+export function update(myPlayer, players, destObject) {
   if (!myPlayer) {
     return;
   }
@@ -347,10 +379,10 @@ export function update(myPlayer, players) {
 
     // console.log("update->draw", myPlayer.position.x, smooth.prevX, myPlayer.position.y, smooth.prevY);
   // console.log("update->draw", maxDiff, myPlayer.position.x - smooth.prevX, myPlayer.position.y - smooth.prevY);
-  draw(smooth.prevX, smooth.prevY, myPlayer.currentMap, myPlayer, players);
+  draw(smooth.prevX, smooth.prevY, myPlayer.currentMap, myPlayer, players, destObject);
 }
 
-export function publicUpdate(players) {
+export function publicUpdate(players, destObject) {
   if (!publicStartX || !publicStartY) {
     collisionMap[PUBLIC_MAP[getSubDomain()]].forEach((row, idxY) => {
       row.forEach((element, idxX) => {
@@ -361,5 +393,5 @@ export function publicUpdate(players) {
       });
     });
   }
-  draw(publicStartX, publicStartY, PUBLIC_MAP[getSubDomain()], players);
+  draw(publicStartX, publicStartY, PUBLIC_MAP[getSubDomain()], players, destObject);
 }

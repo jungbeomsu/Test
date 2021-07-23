@@ -74,7 +74,7 @@ export default function setupGameServer(server, httpServer) {
   })
   server.post('/setModMessage', (req, res) => {
     serverEngine.setModMessage(req.body.room, req.body.password, req.body.message).then(() => {
-      
+
     })
   })
 }
@@ -84,13 +84,13 @@ export default function setupGameServer(server, httpServer) {
 if (require.main === module) {
 
   const PORT = 4000;
-  
+
   if (process.env.NODE_ENV == 'none') {
     const server = express();
     const httpServer = http.createServer(server);
 
     server.use(cors({
-      origin: 'http://localhost:3000',
+      origin: 'http://localhost:3100',
       credentials: true,
       optionsSuccessStatus: 200,
     }));
