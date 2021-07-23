@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {memberIcon, arrowUp, arrowDown, groupChatting, profileIconM, closeButtonG, profileIconS, profileIconXL} from "../resources/images";
+import {memberIcon, arrowUp, arrowDown, groupChatting, profileIconM, closeButtonG, profileIconS, profileIconL} from "../resources/images";
 
 let memberArray = [
   {id: 1, name: "내 닉네임(나)", status: "online", isChatting: false},
@@ -169,7 +169,7 @@ export default function Chatting({}) {
                   <div style={{display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%"}}>
                     <div style={{display: "flex"}}>
                       <div style={{position: "relative"}}>
-                        {profileIconXL}
+                        {profileIconL}
                         <div style={{
                           width: "12px",
                           height: "12px",
