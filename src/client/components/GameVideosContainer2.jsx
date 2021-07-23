@@ -49,14 +49,14 @@ export default function GameVideosContainer2(props) {
     let lostVideos = prevRangeVideos.current.filter(x => !(inRangeIds.includes(x)));
     gainedVideos.forEach(playerId => {
       if (sfuClient.current) {
-        sfuClient.current.debounceSub(playerId);
+        sfuClient.current.debounceSub("#"+playerId);
       } else {
         console.warn('sfuClient not exist in gainedVideos');
       }
     });
     lostVideos.forEach(playerId => {
       if (sfuClient.current) {
-        sfuClient.current.debounceUnSub(playerId);
+        sfuClient.current.debounceUnSub("#"+playerId);
       } else {
         console.warn('sfuClient not exist in lostVideos');
       }
@@ -179,7 +179,7 @@ export default function GameVideosContainer2(props) {
       const joinConfig = {
         no_publish: false,
         no_subscribe: false,
-        selective_pub_sub: false, //TODO: 나중엔 pub/sub으로 빼내기.
+        selective_pub_sub: true, //TODO: 나중엔 pub/sub으로 빼내기.
       }
       const sessionName = getRoomFromPath();
       // url, config, joinConfig, sessionName, userId

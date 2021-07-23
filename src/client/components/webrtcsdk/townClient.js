@@ -67,20 +67,23 @@ class townClient {
             if(this.debouncer[playerId].type === 'sub'){
                 clearTimeout(this.debouncer[playerId].to);
                 this.debouncer[playerId].to = setTimeout(() => {
-                    console.log(`debounceSub EXECUTED!!!!!!!!!! ${playerId} from sub`);
+                    // console.log(`debounceSub EXECUTED!!!!!!!!!! ${playerId} from sub`);
+                    this.subscribe(playerId, 'Sub');
                     delete this.debouncer[playerId]
                 }, 1000);
             } else { // 'unsub'
                 clearTimeout(this.debouncer[playerId].to);
                 this.debouncer[playerId].to = setTimeout(() => {
-                    console.log(`debounceSub EXECUTED!!!!!!!!!! ${playerId} from unsub`);
+                    // console.log(`debounceSub EXECUTED!!!!!!!!!! ${playerId} from unsub`);
+                  this.subscribe(playerId, 'Sub');
                     delete this.debouncer[playerId]
                 }, 1000);
             }
         } else {
             this.debouncer[playerId] = {type: 'sub', to: () => {}}
             this.debouncer[playerId].to = setTimeout(() => {
-                console.log(`debounceSub EXECUTED!!!!!!!!!! ${playerId} from nothing`);
+                // console.log(`debounceSub EXECUTED!!!!!!!!!! ${playerId} from nothing`);
+                this.subscribe(playerId, 'Sub');
                 delete this.debouncer[playerId]
             }, 1000)
         }
@@ -92,20 +95,23 @@ class townClient {
             if(this.debouncer[playerId].type === 'unSub'){
                 clearTimeout(this.debouncer[playerId].to);
                 this.debouncer[playerId].to = setTimeout(() => {
-                    console.log(`debounceUnSub EXECUTED!!!!!!!!!! ${playerId} from unSub`);
+                    // console.log(`debounceUnSub EXECUTED!!!!!!!!!! ${playerId} from unSub`);
+                    this.subscribe(playerId, 'UnSub');
                     delete this.debouncer[playerId]
                 }, 1000);
             } else { // 'unsub'
                 clearTimeout(this.debouncer[playerId].to);
                 this.debouncer[playerId].to = setTimeout(() => {
-                    console.log(`debounceUnSub EXECUTED!!!!!!!!!! ${playerId} from sub`);
+                    // console.log(`debounceUnSub EXECUTED!!!!!!!!!! ${playerId} from sub`);
+                    this.subscribe(playerId, 'UnSub');
                     delete this.debouncer[playerId]
                 }, 1000);
             }
         } else {
             this.debouncer[playerId] = {type: 'unSub', to: () => {}}
             this.debouncer[playerId].to = setTimeout(() => {
-                console.log(`debounceUnSub EXECUTED!!!!!!!!!! ${playerId} from nothing`);
+                // console.log(`debounceUnSub EXECUTED!!!!!!!!!! ${playerId} from nothing`);
+                this.subscribe(playerId, 'UnSub');
                 delete this.debouncer[playerId]
             }, 1000)
         }
@@ -118,7 +124,7 @@ class townClient {
         this._onApiReady = f;
     }
 
-    subscribe(targetUserId, pubsubType) {
+    subscribe(targetUserId, pubsubType) { //'Sub' | 'UnSub' | 'Pub' | 'UnPub' | 'SubAudio' | 'UnSubVideo'
         const request = {
             uid: this.userId, tid: targetUserId, type: pubsubType,
         };
