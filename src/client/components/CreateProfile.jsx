@@ -1,6 +1,6 @@
 import React, {useState, useRef} from 'react';
 import GameChangeCharacter from "./GameChangeCharacter";
-import {cloud, village} from "../resources/images";
+import {cloud, town} from "../resources/images";
 
 export default function CreateProfile() {
   const [nickname, setNickname] = useState("내 이름은 지호에요");
@@ -101,7 +101,7 @@ export default function CreateProfile() {
         </div>
       </div>
       <div style={{position: "absolute", bottom: 0}}>
-        {village}
+        {town}
       </div>
     </div>
   )
