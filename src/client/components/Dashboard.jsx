@@ -3,6 +3,7 @@ import {cloud, town} from "../resources/images";
 import {useSelector} from "react-redux";
 import {profileIconL, settingIconG, exitIconG} from "../resources/images";
 import "./Dashboard.css";
+import {useHistory} from "react-router-dom";
 
 export default function Dashboard(props) {
   const [nickname, setNickname] = useState(undefined);
@@ -12,6 +13,7 @@ export default function Dashboard(props) {
   const [memberList, setMemberList] = useState([]);
   const [roomList, setRoomList] = useState([]);
 
+  const history = useHistory();
   const userData = useSelector(({userData}) => userData);
 
   useEffect(() => {

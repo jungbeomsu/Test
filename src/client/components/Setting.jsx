@@ -61,11 +61,6 @@ export default function Setting(props) {
         </div>
 
         <div
-          onClick={() => {
-            setMessages({one: "변경 되었습니다"});
-            setOneBtnPopup(true);
-            setEvents({...events, one: () => console.log("changes saved - roomname: ", roomname, "copyLink", sampleData.inviteLink, "newAdmin", sampleArr[adminIndex-1].name)})
-          }}
           style={{
             height: "36px",
             width: "100%",
