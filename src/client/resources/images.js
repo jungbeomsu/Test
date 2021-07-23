@@ -14,6 +14,7 @@ export const closeButtonG = <img style={{width: "16px", height: "16px"}} src={re
 export const closeButtonB = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/close.png").default}/>
 export const notice = <img style={{width: "16px", height: "16px"}} src={require("../images/v1/notice.png").default}/>
 export const mediaSettingImage = <img style={{width: "305px", height: "198px"}} src={require("../images/v1/media_setting_profile.png").default}/>
+export const mediaSettingImageM = <img style={{width: "450px", height: "290px"}} src={require("../images/v1/media_setting_profile.png").default}/>
 export const camera = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/camOn/bold.png").default}/>
 export const audio = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/micOn/bold.png").default}/>
 export const speaker = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/speaker/bold.png").default}/>
