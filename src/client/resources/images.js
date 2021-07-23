@@ -28,3 +28,6 @@ export const videoOn = <img style={{width: "32px", height: "32px"}} src={require
 export const videoOff = <img style={{width: "12px", height: "12px"}} src={require("../images/v1/cam/off.png").default}/>
 export const cloud = <img style={{}} src={require("../images/v1/cloud.png").default}/>
 export const town = <img style={{}} src={require("../images/v1/town.png").default}/>
+export const loginBackground = require("../images/v1/login_background.png").default
+export const kakaoIcon = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/Kakao.png").default}/>
+export const FacebookIcon = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/Facebook.png").default}/>

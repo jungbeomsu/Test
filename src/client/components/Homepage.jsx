@@ -1,14 +1,11 @@
 import React, {useEffect, useState} from 'react';
-
 import YesNoPrompt from './YesNoPrompt.jsx';
 import Feedback from './Feedback.jsx';
-
 import {localPreferences} from '../LocalPreferences.js';
 import {updateUserData} from '../userData.js';
-
+import {loginBackground, kakaoIcon, googleIcon, FacebookIcon} from "../resources/images";
 import './Homepage.css';
 import Modal from "react-modal";
-
 const Twitter = '/images/site/twitter.png';
 const {Kakao} = window;
 
@@ -111,7 +108,6 @@ function Top() {
 
 function LoginWithKakao({login}) {
 
-
   return (
     <div
       onClick={login}
@@ -119,7 +115,7 @@ function LoginWithKakao({login}) {
       width: '324px',
       height: '48px',
       background: '#FFE812',
-      border: '1px solid #F0F0F0',
+      border: "none",
       boxSizing: 'border-box',
       borderRadius: '8px',
       marginBottom: '12px',
@@ -128,6 +124,9 @@ function LoginWithKakao({login}) {
       justifyContent: 'center',
       alignItems: 'center'
     }}>
+      <div style={{marginTop: "4px"}}>
+        {kakaoIcon}
+      </div>
       <div
         style={{
           fontWeight: 'normal',
@@ -138,9 +137,90 @@ function LoginWithKakao({login}) {
           alignItems: 'center',
           color: '#110000',
           marginTop: '4px',
+          marginLeft: "2px"
         }}
       >
         카카오톡으로 로그인
+      </div>
+    </div>
+  )
+}
+
+function LoginWithGoogle() {
+  return (
+    <div
+      // onClick={login}
+      style={{
+        width: '324px',
+        height: '48px',
+        background: 'white',
+        border: '1px solid #F0F0F0',
+        boxSizing: 'border-box',
+        borderRadius: '8px',
+        marginBottom: '12px',
+        cursor: 'pointer',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}>
+      <div style={{marginTop: "4px"}}>
+        {googleIcon}
+      </div>
+      <div
+        style={{
+          fontWeight: 'normal',
+          fontSize: '16px',
+          lineHeight: '130%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          color: '#110000',
+          marginTop: '4px',
+          border: "#C7C7C7",
+          marginLeft: "2px"
+        }}
+      >
+        구글 계정으로 로그인
+      </div>
+    </div>
+  )
+}
+
+function LoginWithFacebook() {
+  return (
+    <div
+      // onClick={login}
+      style={{
+        width: '324px',
+        height: '48px',
+        background: '#1877F2',
+        border: 'none',
+        boxSizing: 'border-box',
+        borderRadius: '8px',
+        marginBottom: '12px',
+        cursor: 'pointer',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}>
+      <div style={{marginTop: "4px"}}>
+        {FacebookIcon}
+      </div>
+      <div
+        style={{
+          fontWeight: 'normal',
+          fontSize: '16px',
+          lineHeight: '130%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          color: 'white',
+          marginTop: '4px',
+
+          marginLeft: "2px"
+        }}
+      >
+        페이스북 계정으로 로그인
       </div>
     </div>
   )
@@ -165,12 +245,12 @@ function Logout({logout}) {
       <div
         style={{
           fontWeight: 'normal',
-          fontSize: '16px',
+          fontSize: '20px',
           lineHeight: '130%',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          color: '#110000',
+          color: 'white',
           marginTop: '4px',
         }}
       >
@@ -224,99 +304,79 @@ export default function Homepage() {
     });
   }
 
-  const customStyles = {
-    content: {
-      top: '50%',
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
-      transform: 'translate(-50%, -50%)',
-      // width: "423px",
-      // height: "423px",
-      display: "flex",
-      alignItems: "center",
-      flexDirection: "column",
-      // alignItems: "center",
-    },
-  };
-
-
-
   function openModal() {
     setIsOpen(true);
   }
-
-  // function afterOpenModal() {
-  //   // references are now sync'd and can be accessed.
-  //   subtitle.style.color = '#f00';
-  // }
 
   function closeModal() {
     setIsOpen(false);
   }
 
   return (
-    // <div className={classNames({"vertical-center-container": true, "dark-mode": false})}>
-    <div style={{backgroundColor: "pink", width: "100vw", height: "100vh"}}>
-      <div style={{display: "flex", justifyContent: "center", paddingTop: "50px", alignItems: "center"}}>
-        <div style={{fontSize: "60px", fontWeight: "bold"}}>LOGO</div>
+    <div style={{ width: "100vw", height: "100vh"}}>
+      <div style={{backgroundImage: `url(${loginBackground})`, height: "100%",  backgroundRepeat : "no-repeat", backgroundSize : "cover"}}>
+        <div style={{display: "flex", justifyContent: "space-between", padding: "50px 50px 0 50px", alignItems: "center"}}>
+          <div style={{fontSize: "60px", fontWeight: "bold", color: "white"}}>센티미터</div>
 
-        <div style={{backgroundColor: "#DDDDDD", width: "200px", height: "30px", margin: "0 20px"}}></div>
-        <div style={{backgroundColor: "#DDDDDD", width: "200px", height: "30px", margin: "0 20px"}}></div>
-        <div style={{backgroundColor: "#DDDDDD", width: "200px", height: "30px", margin: "0 20px"}}></div>
-        <div style={{backgroundColor: "#DDDDDD", width: "200px", height: "30px", margin: "0 20px"}}></div>
-
-        {Kakao.Auth.getAccessToken() ? <div><Logout logout={logout}/></div> : <div
-          onClick={() => {Kakao.Auth.getAccessToken() ? document.location.href = '/createProfile' : openModal()}}
-          style={{backgroundColor: "dodgerblue", width: "200px", height: "60px", borderRadius: "10px", color: "white", fontSize: "25px", display: "flex", alignItems: "center", justifyContent: "center"}}>
-          서비스 시작
-        </div>}
-
-      </div>
-
-      {modalIsOpen &&
-        <div>
-          <Modal
-            isOpen={modalIsOpen}
-            // onAfterOpen={afterOpenModal}
-            onRequestClose={closeModal}
-            style={customStyles}
-            contentLabel="Example Modal"
-          >
-            <div style={{padding: "75px 75px 0 75px"}}>
-              <h2 style={{color: "#939393", fontSize: "18px", display: "flex", justifyContent: "center"}}>Welcome To</h2>
-              <h1 style={{color: "#FF6F61", fontSize: "36px"}}>TENUTO WORLD</h1>
-            </div>
-            {/*<button onClick={closeModal}>close</button>*/}
-            <div style={{width: "100%", display: "flex", alignItems: "center", justifyContent: "center", marginTop: "50px"}}>
-              <div style={{width : "100px"}}>
-                <div style={{border: "1px solid #E5E5E5"}}>
-                </div>
-              </div>
-              <div style={{color: "#AEAEAE", fontSize: "14px", margin: "0 5px"}}>아래 소셜계정으로 로그인</div>
-              <div style={{width : "100px"}}>
-                <div style={{border: "1px solid #E5E5E5"}}>
-                </div>
-              </div>
-            </div>
-
-            <div style={{marginTop: "25px"}}>
-              {!isLogin ?
-                <div>
-                  <LoginWithKakao login={login} />
-                </div> : <></>
-              }
-            </div>
-
-          </Modal>
+          {Kakao.Auth.getAccessToken() ? <div><Logout logout={logout}/></div> : <div
+            onClick={() => {Kakao.Auth.getAccessToken() ? document.location.href = '/createProfile' : openModal()}}
+            style={{backgroundColor: "dodgerblue", width: "200px", height: "60px", borderRadius: "10px", color: "white", fontSize: "20px", display: "flex", alignItems: "center", justifyContent: "center"}}>
+            서비스 시작
+          </div>}
         </div>
-      }
 
-      {/* 방 만드는 화면으로 바로 이동 */}
-      {/*<Top />*/}
+        {modalIsOpen &&
+          <div>
+            <Modal
+              isOpen={modalIsOpen}
+              onRequestClose={closeModal}
+              style={{
+                overlay: {
+                  backgroundColor: "rgba(0,0,0,0.6)",
+                },
+                content: {
+                  top: '50%',
+                  left: '50%',
+                  right: 'auto',
+                  bottom: 'auto',
+                  transform: 'translate(-50%, -50%)',
+                  display: "flex",
+                  alignItems: "center",
+                  flexDirection: "column",
+                  padding: "0 20px",
+                  borderRadius: "20px",
+                  border: "none"
+                },
+              }}
+              contentLabel="Example Modal"
+            >
+              <div style={{marginTop: "56px"}}>
+                <h2 style={{color: "#939393", fontSize: "18px", display: "flex", justifyContent: "center"}}>Welcome To</h2>
+                <h1 style={{color: "#FF6F61", fontSize: "36px"}}>CENTIMETER</h1>
+              </div>
+              <div style={{width: "100%", display: "flex", alignItems: "center", justifyContent: "center", marginTop: "50px"}}>
+                <div style={{borderTop: "1px solid #E5E5E5", width: "100px"}} />
+                <div style={{color: "#AEAEAE", fontSize: "14px", margin: "0 5px", fontWeight: "normal"}}>아래 소셜계정으로 로그인</div>
+                <div style={{borderTop: "1px solid #E5E5E5", width: "100px"}} />
+              </div>
 
-      <div style={{position: "absolute", bottom: 0, backgroundColor: "#DDDDDD", width: "100vw", height: "30vh"}}></div>
+              <div style={{marginTop: "25px", marginBottom: "40px"}}>
+                {!isLogin ?
+                  <div>
+                    <LoginWithGoogle  />
+                    <LoginWithKakao login={login} />
+                    <LoginWithFacebook  />
+                  </div> : <></>
+                }
+              </div>
+
+            </Modal>
+          </div>
+        }
+
+        {/* 방 만드는 화면으로 바로 이동 */}
+        {/*<Top />*/}
+      </div>
     </div>
   );
 }
