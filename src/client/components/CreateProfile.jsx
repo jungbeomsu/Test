@@ -15,9 +15,7 @@ export default function CreateProfile() {
 
   const goToTutorial = () => {
     alert(`이름 : ${nickname}\n캐릭터번호 : ${characterId} \n프로필이 저장되었습니다!`)
-    history.push({
-      pathname: "/tutorial",
-    })
+    history.push({pathname: "/tutorial"})
 
     const userData = {
       nickname,
@@ -41,7 +39,6 @@ export default function CreateProfile() {
       </div>
       <div style={{
         backgroundColor: "white",
-        // width: "650px",
         height: "500px",
         borderRadius: "15px",
         padding: "25px 20px",

@@ -1,12 +1,13 @@
 import React, {useState, useEffect} from 'react';
 import {cloud, town} from "../resources/images";
 import {useSelector} from "react-redux";
+import {useHistory} from "react-router-dom";
 
 export default function Tutorial(props) {
   const [nickname, setNickname] = useState(undefined);
   // const [characterId, setCharacterId] = useState(undefined);
   // const [nicknameChange, setNicknameChange] = useState(false);
-
+  const history = useHistory();
   const userData = useSelector(({userData}) => userData);
 
   useEffect(() => {
