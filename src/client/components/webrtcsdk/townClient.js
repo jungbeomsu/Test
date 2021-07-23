@@ -32,6 +32,9 @@ class townClient {
                 console.error('ontrack triggerd but no peer exist in peerlist');
             })
         }
+
+        //=== debounce ===//
+        this.debouncer = {}; //playerId: {type: 'sub'}
     }
 
     publish(media) {
@@ -57,6 +60,55 @@ class townClient {
     unpublish() {
         this.media.unpublish();
         this.media = null;
+    }
+    debounceSub(playerId){
+        console.log(`debounceSub ---called ${playerId}`);
+        if(this.debouncer[playerId]){
+            if(this.debouncer[playerId].type === 'sub'){
+                clearTimeout(this.debouncer[playerId].to);
+                this.debouncer[playerId].to = setTimeout(() => {
+                    console.log(`debounceSub EXECUTED!!!!!!!!!! ${playerId} from sub`);
+                    delete this.debouncer[playerId]
+                }, 1000);
+            } else { // 'unsub'
+                clearTimeout(this.debouncer[playerId].to);
+                this.debouncer[playerId].to = setTimeout(() => {
+                    console.log(`debounceSub EXECUTED!!!!!!!!!! ${playerId} from unsub`);
+                    delete this.debouncer[playerId]
+                }, 1000);
+            }
+        } else {
+            this.debouncer[playerId] = {type: 'sub', to: () => {}}
+            this.debouncer[playerId].to = setTimeout(() => {
+                console.log(`debounceSub EXECUTED!!!!!!!!!! ${playerId} from nothing`);
+                delete this.debouncer[playerId]
+            }, 1000)
+        }
+    }
+
+    debounceUnSub(playerId){
+        console.log(`debounceUnSub ---called ${playerId}`);
+        if(this.debouncer[playerId]){
+            if(this.debouncer[playerId].type === 'unSub'){
+                clearTimeout(this.debouncer[playerId].to);
+                this.debouncer[playerId].to = setTimeout(() => {
+                    console.log(`debounceUnSub EXECUTED!!!!!!!!!! ${playerId} from unSub`);
+                    delete this.debouncer[playerId]
+                }, 1000);
+            } else { // 'unsub'
+                clearTimeout(this.debouncer[playerId].to);
+                this.debouncer[playerId].to = setTimeout(() => {
+                    console.log(`debounceUnSub EXECUTED!!!!!!!!!! ${playerId} from sub`);
+                    delete this.debouncer[playerId]
+                }, 1000);
+            }
+        } else {
+            this.debouncer[playerId] = {type: 'unSub', to: () => {}}
+            this.debouncer[playerId].to = setTimeout(() => {
+                console.log(`debounceUnSub EXECUTED!!!!!!!!!! ${playerId} from nothing`);
+                delete this.debouncer[playerId]
+            }, 1000)
+        }
     }
 
     set ontrack(f) {
