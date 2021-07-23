@@ -1,12 +1,9 @@
 import { colors, PUBLIC_MAP } from './constants';
-import {clamp, max, getSubDomain, calculateShortestPath, convertPathToDirections, createKeyEventFromDir} from './utils';
+import {clamp, max, getSubDomain} from './utils';
 import { updateAnim } from './environmentAnimation';
-import { isBlocked } from '../common/utils';
 import { imageDimensionsMap, collisionMap, characterMap } from '../common/maps';
 import { imageMap } from '../common/mapsResource';
 import { characterIds } from './constants';
-import { directionMap } from "../common/constants";
-import {Key} from "ts-keycode-enum";
 
 export var objectSizes = 64;
 
@@ -96,57 +93,57 @@ export function drawInit(setDestinations) {
 
 function offScreenLine(x, y) {
 
-  var offset = 2;
-  var radius = 8;
+  let offset = 2;
+  let radius = 8;
 
-  var a1 = (Math.atan2(-200, 300) + (2 * Math.PI)) % (2 * Math.PI); //top right
-  var a2 = (Math.atan2(200, 300) + (2 * Math.PI)) % (2 * Math.PI); //bottom right
-  var a3 = (Math.atan2(200, -300) + (2 * Math.PI)) % (2 * Math.PI); //bottom left
-  var a4 = (Math.atan2(-200, -300) + (2 * Math.PI)) % (2 * Math.PI); //top left
+  let a1 = (Math.atan2(-200, 300) + (2 * Math.PI)) % (2 * Math.PI); //top right
+  let a2 = (Math.atan2(200, 300) + (2 * Math.PI)) % (2 * Math.PI); //bottom right
+  let a3 = (Math.atan2(200, -300) + (2 * Math.PI)) % (2 * Math.PI); //bottom left
+  let a4 = (Math.atan2(-200, -300) + (2 * Math.PI)) % (2 * Math.PI); //top left
 
-  var angle = (Math.atan2((y - 200), (x - 300)) + (2 * Math.PI)) % (2 * Math.PI);
+  let angle = (Math.atan2((y - 200), (x - 300)) + (2 * Math.PI)) % (2 * Math.PI);
 
   if ((a2 <= angle) && (angle < a3)) { //bottom wall
-    var new_x1 = 300 + (200 * Math.tan((0.5 * Math.PI) - angle)) - radius;
-    var new_y1 = -offset + 400;
-    var new_x2 = new_x1 + (2 * radius);
-    var new_y2 = new_y1;
+    let new_x1 = 300 + (200 * Math.tan((0.5 * Math.PI) - angle)) - radius;
+    let new_y1 = -offset + 400;
+    let new_x2 = new_x1 + (2 * radius);
+    let new_y2 = new_y1;
   }
   else if ((a3 <= angle) && (angle < a4)) { //left wall
-    var new_x1 = offset;
-    var new_y1 = 200 + (-300 * Math.tan(angle)) - radius;
-    var new_x2 = new_x1;
-    var new_y2 = new_y1 + (2 * radius);
+    let new_x1 = offset;
+    let new_y1 = 200 + (-300 * Math.tan(angle)) - radius;
+    let new_x2 = new_x1;
+    let new_y2 = new_y1 + (2 * radius);
   }
   else if ((a4 <= angle) && (angle < a1)) { //top wall
-    var new_x1 = 300 + (-200 * Math.tan((0.5 * Math.PI) - angle)) - radius;
-    var new_y1 = offset;
-    var new_x2 = new_x1 + (2 * radius);
-    var new_y2 = new_y1;
+    let new_x1 = 300 + (-200 * Math.tan((0.5 * Math.PI) - angle)) - radius;
+    let new_y1 = offset;
+    let new_x2 = new_x1 + (2 * radius);
+    let new_y2 = new_y1;
   }
   else { //right wall
-    var new_x1 = -offset + 600;
-    var new_y1 = 200 + (300 * Math.tan(angle)) - radius;
-    var new_x2 = new_x1;
-    var new_y2 = new_y1 + (2 * radius);
+    let new_x1 = -offset + 600;
+    let new_y1 = 200 + (300 * Math.tan(angle)) - radius;
+    let new_x2 = new_x1;
+    let new_y2 = new_y1 + (2 * radius);
   }
   return [new_x1, new_y1, new_x2, new_y2];
 }
 
 
-function draw(x, y, map, myPlayer, players, objs) {
+function draw(x, y, map, myPlayer, players, destObject) {
   currentMap = myPlayer.currentMap;
-  var canvas = document.getElementById("canvas");
-  var ctx = canvas.getContext("2d");
-  var w = document.getElementById("canvas").offsetWidth;
-  var h = document.getElementById("canvas").offsetHeight;
+  let canvas = document.getElementById("canvas");
+  let ctx = canvas.getContext("2d");
+  let w = document.getElementById("canvas").offsetWidth;
+  let h = document.getElementById("canvas").offsetHeight;
 
   let top_x = x * objectSizes + (objectSizes / 2) - (w / 2);
   let top_y = y * objectSizes + (objectSizes / 2) - (h / 2);
   top_x = clamp(top_x, 0, max(0, imageDimensionsMap[map][0] - w - 1));
   top_y = clamp(top_y, 0, max(0, imageDimensionsMap[map][1] - h - 1));
 
-  var needFill = false;
+  let needFill = false;
   if (curCanvasWidth !== w) {
     canvas.width  = w;
     curCanvasWidth = w;
@@ -212,23 +209,15 @@ function draw(x, y, map, myPlayer, players, objs) {
   for (let mapNameContainer of mapNames) {
     mapNameContainer.hidden = true;
   }
-  //=== object drawing ===//
-  if(objs.length > 0){
-    // console.log(objs);
-    objs.forEach(object => {
-      // Animation있으면 좋겠다.....지만 renderer를 따로 만들지 않으면 되게 복잡할 듯.
-      let objX = object.x;
-      let objY = object.y;
-      let drawX = objX * objectSizes - top_x + objectSizes / 2;
-      let drawY = objY * objectSizes - top_y + objectSizes / 2;
-      let circle = new Path2D();
-      let radiusDivider = -0.2 * object.frames + 6.2;
-      circle.arc(drawX, drawY, objectSizes/radiusDivider, 0, 2 * Math.PI);
-      ctx.fillStyle = "#EEEEEE";
-      ctx.fill(circle);
-      // ctx.fillStyle = "#12FF00";
-      // ctx.fillRect(drawX, drawY, objectSizes / 2, objectSizes / 2)
-    })
+  //=== destObject drawing ===//
+  if(destObject){
+    let drawX = destObject.x * objectSizes - top_x + objectSizes / 2;
+    let drawY = destObject.y * objectSizes - top_y + objectSizes / 2;
+    let circle = new Path2D();
+    let radiusDivider = -0.2 * destObject.frames + 6.2;
+    circle.arc(drawX, drawY, objectSizes / radiusDivider, 0, 2 * Math.PI);
+    ctx.fillStyle = "#EEEEEE";
+    ctx.fill(circle);
   }
 
 
@@ -324,7 +313,7 @@ export function updatePlayerMap(newPlayerMap) {
   playerMap = newPlayerMap;
 }
 
-export function update(myPlayer, players, objs) {
+export function update(myPlayer, players, destObject) {
   if (!myPlayer) {
     return;
   }
@@ -390,10 +379,10 @@ export function update(myPlayer, players, objs) {
 
     // console.log("update->draw", myPlayer.position.x, smooth.prevX, myPlayer.position.y, smooth.prevY);
   // console.log("update->draw", maxDiff, myPlayer.position.x - smooth.prevX, myPlayer.position.y - smooth.prevY);
-  draw(smooth.prevX, smooth.prevY, myPlayer.currentMap, myPlayer, players, objs);
+  draw(smooth.prevX, smooth.prevY, myPlayer.currentMap, myPlayer, players, destObject);
 }
 
-export function publicUpdate(players, obj) {
+export function publicUpdate(players, destObject) {
   if (!publicStartX || !publicStartY) {
     collisionMap[PUBLIC_MAP[getSubDomain()]].forEach((row, idxY) => {
       row.forEach((element, idxX) => {
@@ -404,5 +393,5 @@ export function publicUpdate(players, obj) {
       });
     });
   }
-  draw(publicStartX, publicStartY, PUBLIC_MAP[getSubDomain()], players, obj);
+  draw(publicStartX, publicStartY, PUBLIC_MAP[getSubDomain()], players, destObject);
 }

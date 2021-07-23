@@ -48,9 +48,9 @@ export default class TownClientEngine extends ClientEngine {
 
     this.currentMap = null;
     this.characterId = null;
-    this.autoMoveDirections = {moving: false, dirs: [], dest:{x:0, y:0}};
+    this.autoMoveDirections = {moving: false, dest:{x:0, y:0}};
     this.autoMoveTimer = null;
-    this.objs = [];
+    this.destObject = null;
 
     /*
       playerInfo schema:
@@ -199,15 +199,9 @@ export default class TownClientEngine extends ClientEngine {
   }
   clientPreStep() {
     if (this.autoMoveDirections.moving) {
-      if (this.objs.length > 0) {
-        if (this.objs[0].x === this.autoMoveDirections.dest.x && this.objs[0].y === this.autoMoveDirections.dest.y) {
-          this.objs[0].frames -= this.objs[0].frames === 0 ? 0 : 1;
-          return;
-        }
-      }
-      this.objs = [{x: this.autoMoveDirections.dest.x, y: this.autoMoveDirections.dest.y, frames: 20}]
+      this.destObject = pushDestinationObject(this.destObject, this.autoMoveDirections.dest);
     } else {
-      this.objs = []
+      this.destObject = null;
     }
   }
   setDestinations({destX, destY, isMoving}) { // moving:true, directions: []
@@ -216,7 +210,7 @@ export default class TownClientEngine extends ClientEngine {
     }
     this.autoMoveTimer = setTimeout(() => {
       if (!isMoving) {
-        this.autoMoveDirections = {moving: false, dirs: [], dest: {x: 0, y: 0}}
+        this.autoMoveDirections = {moving: false, dest: {x: 0, y: 0}}
         return;
       }
       let nextDirection = this.calculateDirection(destX, destY);
@@ -270,7 +264,7 @@ export default class TownClientEngine extends ClientEngine {
       });
 
       updateSound(myPlayer);
-      update(myPlayer, players, this.objs);
+      update(myPlayer, players, this.destObject);
     }
 
     if (this.videosEnabled && this.videosInitialized) {
@@ -330,11 +324,21 @@ export default class TownClientEngine extends ClientEngine {
     let directions = convertPathToDirections(shortestPath);
     // console.log(directions);
     if (directions.length !== 0) {
-      this.autoMoveDirections = {moving: true, dirs: directions, dest: {x: destX, y: destY}}
+      this.autoMoveDirections = {moving: true, dest: {x: destX, y: destY}}
       return directions[0];
     } else {
       return null
     }
   }
+}
 
+function pushDestinationObject(objs, dest){
+  let destX = dest.x, destY = dest.y;
+  if (objs) {
+    if (objs.x === destX && objs.y === destY) {
+      objs.frames -= objs.frames === 0 ? 0 : 1;
+      return objs;
+    }
+  }
+  return {x: destX, y: destY, frames: 20}
 }
