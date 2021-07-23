@@ -5,6 +5,11 @@ import {useHistory} from "react-router-dom";
 import "./Setting.css";
 
 export default function Setting(props) {
+  const history = useHistory();
+
+  const goToPrivate = () => {
+    history.push({pathname: "/private"})
+  }
 
   return (
     <div style={{backgroundColor: "#47335F",width: "100vw", height: "100vh", display: "flex", justifyContent: "space-evenly", alignItems: "center"}}>
@@ -61,6 +66,7 @@ export default function Setting(props) {
         </div>
 
         <div
+          onClick={goToPrivate}
           style={{
             height: "36px",
             width: "100%",
@@ -76,8 +82,6 @@ export default function Setting(props) {
           입장하기
         </div>
       </div>
-
-
     </div>
   )
 }
