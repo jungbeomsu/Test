@@ -28,3 +28,6 @@ export const videoOn = <img style={{width: "32px", height: "32px"}} src={require
 export const videoOff = <img style={{width: "12px", height: "12px"}} src={require("../images/v1/cam/off.png").default}/>
 export const cloud = <img style={{width: "100vw", height: "250px"}} src={require("../images/v1/cloud.png").default}/>
 export const village = <img style={{width: "100vw", height: "200px"}} src={require("../images/v1/village.png").default}/>
+export const fullScreen = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/full.png").default}/>
+export const carouselLeft = <img style={{width: "32px", height: "32px"}} src={require("../images/v1/carouselLeft.png").default}/>
+export const carouselRight = <img style={{width: "32px", height: "32px"}} src={require("../images/v1/carouselRight.png").default}/>

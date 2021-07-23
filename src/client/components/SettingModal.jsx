@@ -259,15 +259,15 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
                   <div style={{fontSize: "12px", color: "#636363"}}>
                     이메일
                   </div>
-                  <div style={{width: "276px", height: "36px", backgroundColor: "#F0F0F0", display: "flex", alignItems: "center", paddingLeft: "16px", borderRadius: "8px", marginTop: "4px"}}>
+                  <div style={{width: "276px", height: "36px", backgroundColor: "#F0F0F0", display: "flex", alignItems: "center", paddingLeft: "16px", borderRadius: "8px", marginTop: "4px", color: "#1C1C1E"}}>
                     jksong0206@tenuto.co.kr
                   </div>
                 </div>
-                <div style={{display: "flex", flexDirection: "column"}}>
+                <div style={{display: "flex", flexDirection: "column", fontWeight: "normal"}}>
                   <div style={{fontSize: "12px", color: "#636363"}}>
                     연동계정
                   </div>
-                  <div style={{width: "276px", height: "36px", backgroundColor: "#F0F0F0", display: "flex", alignItems: "center", paddingLeft: "16px", borderRadius: "8px", marginTop: "4px"}}>
+                  <div style={{width: "276px", height: "36px", backgroundColor: "#F0F0F0", display: "flex", alignItems: "center", paddingLeft: "16px", borderRadius: "8px", marginTop: "4px", color: "#1C1C1E"}}>
                     {googleIcon}
                     구글 계정으로 로그인 됨
                   </div>
@@ -292,7 +292,7 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
               style={{
                 height: "36px",
                 width: "100%",
-                backgroundColor: "#5E1CAF",
+                backgroundColor: "#FF9330",
                 color: "white",
                 alignItems: "center",
                 justifyContent: "center",
