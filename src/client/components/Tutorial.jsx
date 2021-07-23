@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {cloud, town} from "../resources/images";
 import {useSelector} from "react-redux";
+import {useHistory} from "react-router-dom";
 
 export default function Tutorial(props) {
   const [nickname, setNickname] = useState(undefined);
@@ -8,6 +9,7 @@ export default function Tutorial(props) {
   // const [nicknameChange, setNicknameChange] = useState(false);
 
   const userData = useSelector(({userData}) => userData);
+  const history = useHistory();
 
   useEffect(() => {
     setNickname(userData.nickname);
