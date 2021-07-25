@@ -14,11 +14,12 @@ export default function Dashboard(props) {
   const [roomList, setRoomList] = useState([]);
 
   const history = useHistory();
-  const userData = useSelector(({userData}) => userData);
+  const accountData = useSelector(({account}) => account);
+
 
   useEffect(() => {
-    setNickname(userData.nickname);
-    // setCharacterId(userData.characterId);
+    setNickname(accountData.nickname);
+    // setCharacterId(accountData.characterId);
 
   }, [])
 
