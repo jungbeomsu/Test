@@ -330,6 +330,8 @@ export default function Homepage() {
             <Modal
               isOpen={modalIsOpen}
               onRequestClose={closeModal}
+              // modal waring 제거
+              ariaHideApp={false}
               style={{
                 overlay: {
                   backgroundColor: "rgba(0,0,0,0.6)",
