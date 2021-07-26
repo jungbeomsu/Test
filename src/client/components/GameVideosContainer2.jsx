@@ -32,6 +32,8 @@ export default function GameVideosContainer2(props) {
   const [maxVideos, setMaxVideos] = useState(MAX_VIDEOS_DEFAULT);
   // const [isScreensharing, setIsScreensharing] = useState(false);
 
+  const prevRangeVideos = useRef([]);
+  const sfuClient = useRef(undefined);
   const peers = useRef({});
   // const imageRef = useRef(null);
   // const screenStreamRef = useRef(null);
@@ -41,6 +43,27 @@ export default function GameVideosContainer2(props) {
     // MAKE SURE TO THOROUHGLY TEST _ANY_ CHANGES
     // IT'S POSSIBLE TO MAKE VIDEO MUTING NOT WORK BUT LOOK LIKE IT WORKS BY DOING
     // THIS WRONG
+    let inRangeIds = Object.keys(props.playerVideoMap["playerToDist"])
+      .filter(playerId => {
+        return props.playerVideoMap["playerToDist"][playerId] <= props.videoThreshold &&  playerId !== props.myPlayerId + "";
+      });
+    let gainedVideos = inRangeIds.filter(x => !(prevRangeVideos.current.includes(x)));
+    let lostVideos = prevRangeVideos.current.filter(x => !(inRangeIds.includes(x)));
+    gainedVideos.forEach(playerId => {
+      if (sfuClient.current) {
+        sfuClient.current.debounceSub("#"+playerId);
+      } else {
+        console.warn('sfuClient not exist in gainedVideos');
+      }
+    });
+    lostVideos.forEach(playerId => {
+      if (sfuClient.current) {
+        sfuClient.current.debounceUnSub("#"+playerId);
+      } else {
+        console.warn('sfuClient not exist in lostVideos');
+      }
+    })
+    prevRangeVideos.current = inRangeIds;
     let closestIds = Object.keys(props.playerVideoMap["playerToDist"])
       .filter(playerId => {
         return (playerId !== props.myPlayerId + "") && (playerId !== props.playerVideoMap["announcerPlayer"] + "")
@@ -111,6 +134,7 @@ export default function GameVideosContainer2(props) {
 
   // 처음 시동할 때
   useEffect(() => {
+    if(props.myPlayerId == undefined) alert('props.myPlayerId is undefined');
     let playerId = "#" + props.myPlayerId;
     let mediaSettings = {
       audio: {latency: 0.03, echoCancellation: true},
@@ -157,7 +181,7 @@ export default function GameVideosContainer2(props) {
       const joinConfig = {
         no_publish: false,
         no_subscribe: false,
-        selective_pub_sub: false, //TODO: 나중엔 pub/sub으로 빼내기.
+        selective_pub_sub: true, //TODO: 나중엔 pub/sub으로 빼내기.
       }
       const sessionName = getRoomFromPath();
       // url, config, joinConfig, sessionName, userId
@@ -189,6 +213,7 @@ export default function GameVideosContainer2(props) {
           return newStreamMap;
         });
       }
+      sfuClient.current = mine;
     }
   }, []);
 
