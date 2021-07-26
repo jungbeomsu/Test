@@ -14,7 +14,7 @@ import './GameComponent.css';
 
 import ModContext from './ModContext.jsx';
 import { CHAT_LIMIT } from '../constants';
-import GameVideosContainer2 from "./GameVideosContainer2";
+import GameVideosContainer from "./GameVideosContainer";
 import GameSelfVideo from "./GameSelfVideo";
 import {LocalStream} from "./webrtcsdk/stream";
 import {townClient} from "./webrtcsdk/townClient";
@@ -474,7 +474,7 @@ export default function GameComponent(props) {
     shallowCloneMap["playerToDist"] = filteredDistMap;
 
     videoContainer =
-      <GameVideosContainer2
+      <GameVideosContainer
         myPlayerId={myPlayerId}
         playerInfoMap={playerInfoMap}
         playerVideoMap={shallowCloneMap}
