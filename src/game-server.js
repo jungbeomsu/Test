@@ -74,8 +74,12 @@ export default function setupGameServer(server, httpServer) {
   })
   server.post('/setModMessage', (req, res) => {
     serverEngine.setModMessage(req.body.room, req.body.password, req.body.message).then(() => {
-
     })
+  })
+  server.post('/roomInfo', (req, res) => {
+    const {room} = req.body;
+    console.log(room);
+    res.status(200).send(`${3}`)
   })
 }
 
