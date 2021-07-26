@@ -161,10 +161,10 @@ export default function GameVideosContainer(props) {
         return LocalStream.getUserMedia(mediaSettings);
       })
       .then(stream => {
-        // if(props.myPlayerId === undefined){
-        //   alert("playerId is undefined");
-        //   return;
-        // }
+        if(props.myPlayerId === undefined){
+          alert("playerId is undefined. Not connect to SFU");
+          return;
+        }
         initialize(stream);
         console.log('getUserMedia Success');
       })
