@@ -129,5 +129,13 @@ export function setUpGameApiRouter(serverEngine) {
     res.status(200).send("GOOD");
   })
 
+  router.post('/roomInfo', checkAuth, (req, res) => {
+    const rawRoomId = req.body.room;
+    if(!rawRoomId) return res.status(400).send();
+    logger.http(''+JSON.stringify(rawRoomId));
+    const ret = serverEngine.getRoomInfo(rawRoomId);
+    res.status(200).send(''+ret);
+  })
+
   return router;
 }

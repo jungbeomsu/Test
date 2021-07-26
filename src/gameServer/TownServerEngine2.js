@@ -307,6 +307,16 @@ export default class TownServerEngine2 extends ServerEngine {
       });
     });
   }
+  getRoomInfo(rawRoomId) {
+    if (!this.playerInfo[rawRoomId])
+      return 0;
+    try {
+      const playerList = Object.keys(this.playerInfo[rawRoomId]);
+      return playerList.length;
+    } catch (e) {
+      return 0;
+    }
+  }
 
   _makeNotFoundError() {
     return {
