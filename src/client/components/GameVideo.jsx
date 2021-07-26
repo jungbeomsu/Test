@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
-
-import { hexToRGB } from '../utils';
-import { colors } from '../constants';
+import React, {useContext, useEffect, useState} from 'react';
+import {colors} from '../constants';
 
 import ModContext from './ModContext.jsx';
 
 import './GameVideo.css';
 import './GameVideoMenu.css';
+import {fullScreen, micOff, micOn, videoOff, videoOn} from "../resources/images";
 
 function distToOpacity(distance) {
   let opacities = [1, 1, 1, 1, 0.8, 0.6, 0.4, 0.2, 0, 0, 0, 0, 0];
@@ -20,6 +19,8 @@ function distToVolume(distance) {
 
 export default function GameVideo (props) {
   const [showMenu, setShowMenu] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [videoId, setVideoId] = useState(undefined);
 
   const { modPasswordCorrect } = useContext(ModContext);
 
@@ -59,37 +60,28 @@ export default function GameVideo (props) {
     props.setBlocked(!props.blocked);
   }
 
+  function toggleFullscreenEnabled() {
+    setIsFullScreen(!isFullScreen);
+  }
+
   let color = colors[parseInt(props.id) % colors.length];
 
+  console.log(videoId, isFullScreen);
+
   let videoMenu = (
-    <div className="selfvideo-stream-controls" style={{backgroundColor: hexToRGB(color, 0.8)}}>
-      <div className="menu-horizontal-container action" onClick={() => toggleVideoEnabled()}>
-        {props.videoEnabled ?
-          <i key="enable">
-            <span className="fas fa-video menu-video-icon" />
-          </i> 
-        :
-          <i key="disable">
-            <span className="fas fa-video-slash menu-disable-video-icon" />
-          </i> 
-        }
-        <div>{!props.videoEnabled ? "Enable video" : "Disable video"}</div>
+    <div>
+      <div onClick={() => {
+        toggleFullscreenEnabled()
+        setVideoId(props.id)
+      }} className="othervideo-fullscreen-control">
+        <div style={{width: "90px", height: "28px", padding: "8px 3px", borderRadius: "8px", backgroundColor: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", textAlign: "center"}}>
+          <div style={{marginRight: "7px"}}>{fullScreen}</div>
+          <div style={{fontSize: "13px", color: "white"}}>전체 화면</div>
+        </div>
       </div>
-      <div className="menu-horizontal-container action" onClick={() => toggleAudioEnabled()}>
-        {props.audioEnabled ?
-          <i key="enable">
-            <span className="fas fa-microphone menu-mic-icon" />
-          </i> 
-        :
-          <i key="disable">
-            <span className="fas fa-microphone-slash menu-disable-mic-icon" />
-          </i> 
-        }
-        <div>{props.audioEnabled ? "Mute mic" : "Unmute mic"}</div>
-      </div>
-      <div className="menu-horizontal-container action" onClick={() => toggleBlocked()}>
-        <i className="fas fa-ban menu-ban-icon" />
-        <div>{props.blocked ? "Unblock" : "Block"}</div>
+      <div className="othervideo-stream-controls">
+        <div onClick={() => toggleAudioEnabled()} style={{marginRight: "12px"}} children={micOn}></div>
+        <div onClick={() => toggleVideoEnabled()} children={videoOn}></div>
       </div>
     </div>
   );
@@ -101,12 +93,35 @@ export default function GameVideo (props) {
   if (modPasswordCorrect) displayName = name + "#" + id.substr(0, 6);
   return (
     <div
-      className="vertical-container video-container"
+      style={{
+        margin: "0 8px",
+        borderRadius: "20px",
+      }}
       onMouseEnter={() => setShowMenu(true)}
       onMouseLeave={() => setShowMenu(false)}>
       <div style={{position: "relative"}}>
-        <video id={"video-" + props.id} style={{borderColor: color}}></video>
+        <video id={"video-" + props.id} style={{
+
+        }}/>
         { showMenu ? videoMenu : null }
+        <div style={{
+          height: "23px",
+          padding: "4px 6px",
+          borderRadius: "12px",
+          backgroundColor: "rgba(0,0,0,0.6)",
+          position: "absolute",
+          bottom: 10,
+          right: 10,
+          display: "flex",
+          alignItems: "center",
+          textAlign: "center"
+        }}>
+            <span style={{color: "white", fontSize: "11px", display: "flex", alignItems: "center"}}>
+              <div style={{marginRight: "2px"}} children={!props.audioEnabled && micOff} />
+              <div style={{marginRight: "2px"}} children={!props.videoEnabled && videoOff} />
+              다른사람 ({props.id})
+            </span>
+        </div>
       </div>
       <div className="name-video-container" style={{color: color}}>
         {displayName}

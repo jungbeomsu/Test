@@ -11,6 +11,8 @@ import {localPreferences} from '../LocalPreferences.js';
 import {townClient} from "./webrtcsdk/townClient";
 import {LocalStream} from './webrtcsdk/stream';
 
+import {carouselLeft, carouselRight} from "../resources/images";
+
 import './GameVideosContainer.css';
 
 let DEV_ENDPOINT = `wss://dev-tove-api.tenuto.co.kr/ws`;
@@ -251,6 +253,8 @@ export default function GameVideosContainer2(props) {
           setVideoEnabled={(enabled) => setOtherVideoEnabled({...otherVideoEnabled, [playerId]: enabled})}
           setAudioEnabled={(enabled) => setOtherAudioEnabled({...otherAudioEnabled, [playerId]: enabled})}
           setBlocked={(blocked) => setBlocked(blocked)}
+          myScreenBig={props.myScreenBig}
+          setMyScreenBig={props.setMyScreenBig}
         />
         {
           playerId in screenStreamMap ?
@@ -284,83 +288,82 @@ export default function GameVideosContainer2(props) {
     .map(playerId => getGameVideo(playerId));
 
   let videoComponents = (
-    <>
-      {props.playerVideoMap["announcerPlayer"] && (props.playerVideoMap["announcerPlayer"] !== props.myPlayerId) ?
-        getGameVideo(props.playerVideoMap["announcerPlayer"])
-        : null}
-      <GameSelfVideo
-        myPlayer={props.myPlayerId}
-        stream={ownStreamMap[props.myPlayerId]}
-        videoEnabled={ownVideoEnabled}
-        audioEnabled={ownAudioEnabled}
-        setVideoEnabled={(enabled) => setOwnVideoEnabled(enabled)}
-        setAudioEnabled={(enabled) => setOwnAudioEnabled(enabled)}
-        setOwnImage={(imageData) => props.setOwnImage(imageData)}
-        myScreenBig={props.myScreenBig}
-        setMyScreenBig={props.setMyScreenBig}
-      />
-      {otherVideoComponents}
-    </>
-  )
+        <div style={{display: "flex"}}>
+          {props.playerVideoMap["announcerPlayer"] && (props.playerVideoMap["announcerPlayer"] !== props.myPlayerId) ?
+            getGameVideo(props.playerVideoMap["announcerPlayer"])
+            : null}
 
-  let message1 = (
-    <div>
-      <p>You can't see/hear some people around you because there's too many people around.</p>
-      <p>If you think your computer can handle it, increase the max connections to see them.</p>
-    </div>
-  )
+            {otherVideoComponents}
+        </div>
+      )
 
-  let message2 = (
-    <div>
-      <p>Experiencing lag?</p>
-      <p>Try lowering the max connections.</p>
-    </div>
-  )
-
-  return (
-    <>
-      <div id="videos" className="videos-container mobileHide">
-        {isError ? errorComponent : videoComponents}
+      let message1 = (
+      <div>
+        <p>You can't see/hear some people around you because there's too many people around.</p>
+        <p>If you think your computer can handle it, increase the max connections to see them.</p>
       </div>
-      {/*<div className="videos-max-connections mobileHide">*/}
-      {/*  { props.hasScreenshare ?*/}
-      {/*    (isScreensharing ?*/}
-      {/*      <p><button onClick={() => stopScreenshare()}>stop screenshare</button></p>*/}
-      {/*    :*/}
-      {/*      <p><button onClick={() => startScreenshare()}>screenshare</button></p>*/}
-      {/*    )*/}
-      {/*  :*/}
-      {/*  <></>*/}
-      {/*  }*/}
-      {/*  <p style={{width: "100%"}}>{"Max connections: "}*/}
-      {/*    <select value={maxVideos} onChange={(e) => setMaxVideos(e.target.value)}>*/}
-      {/*      <option value={1}>1</option>*/}
-      {/*      <option value={2}>2</option>*/}
-      {/*      <option value={4}>4</option>*/}
-      {/*      <option value={8}>8</option>*/}
-      {/*      <option value={16}>16</option>*/}
-      {/*      <option value={32}>32</option>*/}
-      {/*      <option value={10000}>no limit</option>*/}
-      {/*    </select>*/}
-      {/*  </p>*/}
-      {/*  {maxVideos < otherVideoComponents.length ?*/}
-      {/*    message1*/}
-      {/*    :*/}
-      {/*    message2*/}
-      {/*  }*/}
-      {/*</div>*/}
-    </>
-  );
-}
+      )
 
-function mergePeerWhenOntrack(peer, track, stream) {
-  // track 합치기
-  if (!peer.tracks.includes(track)) {
-    peer.tracks = [track, ...peer.tracks];
-  }
-  // stream 합치기
-  if (!peer.streams.includes(stream)) {
-    peer.streams = [stream, ...peer.streams];
-  }
-  return peer;
-}
+      let message2 = (
+      <div>
+        <p>Experiencing lag?</p>
+        <p>Try lowering the max connections.</p>
+      </div>
+      )
+
+      return (
+      <>
+        <div id="videos" className="videos-container mobileHide">
+
+            {isError ? errorComponent :
+              <div style={{display: "flex", alignItems: "center"}}>
+                {otherVideoComponents.length > 0 && carouselLeft}
+                  {videoComponents}
+                {otherVideoComponents.length > 0 && carouselRight}
+              </div>
+            }
+
+        </div>
+
+        {/*<div className="videos-max-connections mobileHide">*/}
+        {/*  { props.hasScreenshare ?*/}
+        {/*    (isScreensharing ?*/}
+        {/*      <p><button onClick={() => stopScreenshare()}>stop screenshare</button></p>*/}
+        {/*    :*/}
+        {/*      <p><button onClick={() => startScreenshare()}>screenshare</button></p>*/}
+        {/*    )*/}
+        {/*  :*/}
+        {/*  <></>*/}
+        {/*  }*/}
+        {/*  <p style={{width: "100%"}}>{"Max connections: "}*/}
+        {/*    <select value={maxVideos} onChange={(e) => setMaxVideos(e.target.value)}>*/}
+        {/*      <option value={1}>1</option>*/}
+        {/*      <option value={2}>2</option>*/}
+        {/*      <option value={4}>4</option>*/}
+        {/*      <option value={8}>8</option>*/}
+        {/*      <option value={16}>16</option>*/}
+        {/*      <option value={32}>32</option>*/}
+        {/*      <option value={10000}>no limit</option>*/}
+        {/*    </select>*/}
+        {/*  </p>*/}
+        {/*  {maxVideos < otherVideoComponents.length ?*/}
+        {/*    message1*/}
+        {/*    :*/}
+        {/*    message2*/}
+        {/*  }*/}
+        {/*</div>*/}
+      </>
+      );
+      }
+
+      function mergePeerWhenOntrack(peer, track, stream) {
+      // track 합치기
+      if (!peer.tracks.includes(track)) {
+      peer.tracks = [track, ...peer.tracks];
+    }
+      // stream 합치기
+      if (!peer.streams.includes(stream)) {
+      peer.streams = [stream, ...peer.streams];
+    }
+      return peer;
+    }

@@ -1,18 +1,22 @@
 .video-container {
-  position: relative;
+  /*margin: 0 8px;*/
+  /*border-radius: 20px;*/
+  /*width: 40vw;*/
+  /*height: 40vh;*/
 }
 
 .name-video-container {
-  max-width: 140px;
+  /*max-width: 140px;*/
   white-space: nowrap;
   overflow: hidden;
   margin-top: 2px;
 }
 
 video {
-  /*width: 140px;*/
+  width: 224px;
+  height: 100%;
   /*padding: 0px;*/
-  /*border-radius: 16px;*/
+  border-radius: 20px;
   /*margin: 0px 3px;*/
   /*border-style: solid;*/
   /*border-width: 3px;*/

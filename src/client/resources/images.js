@@ -29,6 +29,9 @@ export const micOn = <img style={{width: "32px", height: "32px"}} src={require("
 export const micOff = <img style={{width: "12px", height: "12px"}} src={require("../images/v1/mic/off.png").default}/>
 export const videoOn = <img style={{width: "32px", height: "32px"}} src={require("../images/v1/video_on.png").default}/>
 export const videoOff = <img style={{width: "12px", height: "12px"}} src={require("../images/v1/cam/off.png").default}/>
+export const fullScreen = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/full.png").default}/>
+export const carouselLeft = <img style={{width: "32px", height: "32px"}} src={require("../images/v1/carouselLeft.png").default}/>
+export const carouselRight = <img style={{width: "32px", height: "32px"}} src={require("../images/v1/carouselRight.png").default}/>
 export const cloud = <img style={{}} src={require("../images/v1/cloud.png").default}/>
 export const town = <img style={{}} src={require("../images/v1/town.png").default}/>
 export const loginBackground = require("../images/v1/login_background.png").default

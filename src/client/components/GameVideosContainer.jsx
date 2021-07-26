@@ -404,7 +404,6 @@ export default function GameVideosContainer(props) {
         setOwnImage={(imageData) => props.setOwnImage(imageData)}
         myScreenBig={props.myScreenBig}
         setMyScreenBig={props.setMyScreenBig}
-        myScreenBig={props.myScreenBig}
       />
       {otherVideoComponents}
     </>
