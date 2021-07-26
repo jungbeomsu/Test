@@ -26,6 +26,7 @@ export default function GameVideosContainer(props) {
   const [ownAudioEnabled, setOwnAudioEnabled] = useState(true);
   const [streamMap, setStreamMap] = useState({});
   const [screenStreamMap, setScreenStreamMap] = useState({});
+  const [myScreenBig, setMyScreenBig] = useState(false);
   const [ownStreamMap, setOwnStreamMap] = useState({});
   const [otherVideoEnabled, setOtherVideoEnabled] = useState({});
   const [otherAudioEnabled, setOtherAudioEnabled] = useState({});
@@ -45,20 +46,20 @@ export default function GameVideosContainer(props) {
     // THIS WRONG
     let inRangeIds = Object.keys(props.playerVideoMap["playerToDist"])
       .filter(playerId => {
-        return props.playerVideoMap["playerToDist"][playerId] <= props.videoThreshold &&  playerId !== props.myPlayerId + "";
+        return props.playerVideoMap["playerToDist"][playerId] <= props.videoThreshold && playerId !== props.myPlayerId + "";
       });
     let gainedVideos = inRangeIds.filter(x => !(prevRangeVideos.current.includes(x)));
     let lostVideos = prevRangeVideos.current.filter(x => !(inRangeIds.includes(x)));
     gainedVideos.forEach(playerId => {
       if (sfuClient.current) {
-        sfuClient.current.debounceSub("#"+playerId);
+        sfuClient.current.debounceSub("#" + playerId);
       } else {
         console.warn('sfuClient not exist in gainedVideos');
       }
     });
     lostVideos.forEach(playerId => {
       if (sfuClient.current) {
-        sfuClient.current.debounceUnSub("#"+playerId);
+        sfuClient.current.debounceUnSub("#" + playerId);
       } else {
         console.warn('sfuClient not exist in lostVideos');
       }
@@ -134,7 +135,7 @@ export default function GameVideosContainer(props) {
 
   // 처음 시동할 때
   useEffect(() => {
-    if(props.myPlayerId == undefined) alert('props.myPlayerId is undefined');
+    if (props.myPlayerId == undefined) alert('props.myPlayerId is undefined');
     let playerId = "#" + props.myPlayerId;
     let mediaSettings = {
       audio: {latency: 0.03, echoCancellation: true},
@@ -161,7 +162,7 @@ export default function GameVideosContainer(props) {
         return LocalStream.getUserMedia(mediaSettings);
       })
       .then(stream => {
-        if(props.myPlayerId === undefined){
+        if (props.myPlayerId === undefined) {
           alert("playerId is undefined. Not connect to SFU");
           return;
         }
@@ -282,8 +283,8 @@ export default function GameVideosContainer(props) {
           setVideoEnabled={(enabled) => setOtherVideoEnabled({...otherVideoEnabled, [playerId]: enabled})}
           setAudioEnabled={(enabled) => setOtherAudioEnabled({...otherAudioEnabled, [playerId]: enabled})}
           setBlocked={(blocked) => setBlocked(blocked)}
-          myScreenBig={props.myScreenBig}
-          setMyScreenBig={props.setMyScreenBig}
+          myScreenBig={myScreenBig}
+          setMyScreenBig={setMyScreenBig}
         />
         {
           playerId in screenStreamMap ?
@@ -317,82 +318,65 @@ export default function GameVideosContainer(props) {
     .map(playerId => getGameVideo(playerId));
 
   let videoComponents = (
-        <div style={{display: "flex"}}>
-          {props.playerVideoMap["announcerPlayer"] && (props.playerVideoMap["announcerPlayer"] !== props.myPlayerId) ?
-            getGameVideo(props.playerVideoMap["announcerPlayer"])
-            : null}
+    <div style={{display: "flex"}}>
+      {props.playerVideoMap["announcerPlayer"] && (props.playerVideoMap["announcerPlayer"] !== props.myPlayerId) ?
+        getGameVideo(props.playerVideoMap["announcerPlayer"])
+        : null}
 
-            {otherVideoComponents}
-        </div>
-      )
+      {otherVideoComponents}
+    </div>
+  )
 
-      let message1 = (
-      <div>
-        <p>You can't see/hear some people around you because there's too many people around.</p>
-        <p>If you think your computer can handle it, increase the max connections to see them.</p>
+  let message1 = (
+    <div>
+      <p>You can't see/hear some people around you because there's too many people around.</p>
+      <p>If you think your computer can handle it, increase the max connections to see them.</p>
+    </div>
+  )
+
+  let message2 = (
+    <div>
+      <p>Experiencing lag?</p>
+      <p>Try lowering the max connections.</p>
+    </div>
+  )
+
+  return (
+    <>
+      <div id="videos" className="videos-container mobileHide">
+
+        {isError ? errorComponent :
+          <div style={{display: "flex", alignItems: "center"}}>
+            {otherVideoComponents.length > 0 && carouselLeft}
+            {videoComponents}
+            {otherVideoComponents.length > 0 && carouselRight}
+          </div>
+        }
+
       </div>
-      )
+      <GameSelfVideo
+        myPlayer={props.myPlayerId}
+        stream={ownStreamMap[props.myPlayerId]}
+        videoEnabled={ownVideoEnabled}
+        audioEnabled={ownAudioEnabled}
+        setVideoEnabled={(enabled) => setOwnVideoEnabled(enabled)}
+        setAudioEnabled={(enabled) => setOwnAudioEnabled(enabled)}
+        // setOwnImage={(imageData) => props.setOwnImage(imageData)}
+        myScreenBig={myScreenBig}
+        setMyScreenBig={setMyScreenBig}
+      />
+    </>
+  );
+}
 
-      let message2 = (
-      <div>
-        <p>Experiencing lag?</p>
-        <p>Try lowering the max connections.</p>
-      </div>
-      )
-
-      return (
-      <>
-        <div id="videos" className="videos-container mobileHide">
-
-            {isError ? errorComponent :
-              <div style={{display: "flex", alignItems: "center"}}>
-                {otherVideoComponents.length > 0 && carouselLeft}
-                  {videoComponents}
-                {otherVideoComponents.length > 0 && carouselRight}
-              </div>
-            }
-
-        </div>
-
-        {/*<div className="videos-max-connections mobileHide">*/}
-        {/*  { props.hasScreenshare ?*/}
-        {/*    (isScreensharing ?*/}
-        {/*      <p><button onClick={() => stopScreenshare()}>stop screenshare</button></p>*/}
-        {/*    :*/}
-        {/*      <p><button onClick={() => startScreenshare()}>screenshare</button></p>*/}
-        {/*    )*/}
-        {/*  :*/}
-        {/*  <></>*/}
-        {/*  }*/}
-        {/*  <p style={{width: "100%"}}>{"Max connections: "}*/}
-        {/*    <select value={maxVideos} onChange={(e) => setMaxVideos(e.target.value)}>*/}
-        {/*      <option value={1}>1</option>*/}
-        {/*      <option value={2}>2</option>*/}
-        {/*      <option value={4}>4</option>*/}
-        {/*      <option value={8}>8</option>*/}
-        {/*      <option value={16}>16</option>*/}
-        {/*      <option value={32}>32</option>*/}
-        {/*      <option value={10000}>no limit</option>*/}
-        {/*    </select>*/}
-        {/*  </p>*/}
-        {/*  {maxVideos < otherVideoComponents.length ?*/}
-        {/*    message1*/}
-        {/*    :*/}
-        {/*    message2*/}
-        {/*  }*/}
-        {/*</div>*/}
-      </>
-      );
-      }
-
-      function mergePeerWhenOntrack(peer, track, stream) {
-      // track 합치기
-      if (!peer.tracks.includes(track)) {
-      peer.tracks = [track, ...peer.tracks];
-    }
-      // stream 합치기
-      if (!peer.streams.includes(stream)) {
-      peer.streams = [stream, ...peer.streams];
-    }
-      return peer;
-    }
+function mergePeerWhenOntrack(peer, track, stream) {
+  // track 합치기
+  if (!peer.tracks.includes(track)) {
+    peer.tracks = [track, ...peer.tracks];
+  }
+  // stream 합치기
+  if (!peer.streams.includes(stream)) {
+    peer.streams = [stream, ...peer.streams];
+  }
+  return peer;
+}

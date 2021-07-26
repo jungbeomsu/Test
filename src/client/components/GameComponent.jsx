@@ -62,8 +62,6 @@ export default function GameComponent(props) {
   const blockedRef = useRef({});
   blockedRef.current = blocked;
 
-  const [myScreenBig, setMyScreenBig] = useState(false);
-
   useEffect(() => {
     initClientEngine().then(clientEngine => {
       clientEngine.password = props.password;
@@ -262,90 +260,6 @@ export default function GameComponent(props) {
     }
   }
 
-  useEffect(() => {
-    let playerId = "#" + props.myPlayerId;
-    let mediaSettings = {
-      audio: {latency: 0.03, echoCancellation: true},
-      video: {width: 150, facingMode: "user"}
-    };
-
-    navigator.mediaDevices.enumerateDevices()
-      .then((devices) => {
-        console.log('devices ~~~~~~', devices);
-        let connectDeviceId = "";
-        devices = devices.filter(device => device.kind === "videoinput");
-        let notIR = devices.filter(device => !(device.label.includes("IR")));
-        if (notIR.length < devices.length) {
-          let frontDevices = notIR.filter(device => device.label.includes("Front"));
-          if (frontDevices.length > 0) {
-            connectDeviceId = frontDevices[0].deviceId;
-          } else {
-            connectDeviceId = notIR[0].deviceId;
-          }
-        }
-
-        if (connectDeviceId) {
-          mediaSettings.video = Object.assign(mediaSettings.video, {deviceId: connectDeviceId});
-        }
-        return LocalStream.getUserMedia(mediaSettings);
-      })
-      .then(stream => {
-        console.log('stream !!!', stream);
-        initialize(stream);
-        console.log('getUserMedia Success');
-      })
-      .catch(err => {
-        console.warn('media devices err', err.toString());
-        // setIsError(true);
-      })
-
-    function initialize(stream) {
-      const url = window.location.origin.includes("localhost") ? DEV_ENDPOINT : PROD_ENDPOINT;
-      const config = {
-        iceServers: [
-          {
-            urls: "stun:stun.l.google.com:19302",
-          },
-        ],
-      };
-      const joinConfig = {
-        no_publish: false,
-        no_subscribe: false,
-        selective_pub_sub: false, //TODO: 나중엔 pub/sub으로 빼내기.
-      }
-      const sessionName = getRoomFromPath();
-      // url, config, joinConfig, sessionName, userId
-      const mine = new townClient(url, config, joinConfig, sessionName, playerId);
-
-      setOwnStreamMap((prevOwnStreamMap) => {
-        let newOwnStreamMap = Object.assign({}, prevOwnStreamMap);
-        newOwnStreamMap[props.myPlayerId] = stream;
-        return newOwnStreamMap;
-      });
-
-
-      // ready가 되면 stream Publish
-      mine.onReady = (ready) => {
-        if (ready) mine.publish(stream);
-      }
-      mine.ontrack = (track, stream, peerId) => {
-        const idIdx = peerId.substring(1);
-        // alert('onTrack: '+peerId);
-        console.log('onTrackCalled: ', peerId, ', trackId: ', track.id, ', streamId: ', stream.id);
-        if (idIdx in peers.current) {
-          peers.current[idIdx] = mergePeerWhenOntrack(peers.current[idIdx], track, stream);
-        } else {
-          peers.current[idIdx] = {tracks: [track], streams: [stream]}
-        }
-        setStreamMap((prevStreamMap) => {
-          let newStreamMap = Object.assign({}, prevStreamMap);
-          newStreamMap[idIdx] = stream;
-          return newStreamMap;
-        });
-      }
-    }
-  }, []);
-
   function gameServerAPIURL() {
     let gameServerURL = new URL(clientEngineRef.current.options.serverURL);
     console.log("GameComponent->gameServerAPIURL"+gameServerAPIURL)
@@ -484,9 +398,6 @@ export default function GameComponent(props) {
         blocked={blocked}
         videoThreshold={videoThreshold}
         hasScreenshare={hasScreenshare}
-
-        myScreenBig={myScreenBig}
-        setMyScreenBig={setMyScreenBig}
         setMoveLeft={setMoveLeft}
         setMoveRight={setMoveRight}
         moveLeft={moveLeft}
@@ -546,18 +457,6 @@ export default function GameComponent(props) {
         {videoContainer}
       </div>
       {/*{!isError &&*/}
-
-        <GameSelfVideo
-          myPlayer={props.myPlayerId}
-          stream={ownStreamMap[props.myPlayerId]}
-          videoEnabled={ownVideoEnabled}
-          audioEnabled={ownAudioEnabled}
-          setVideoEnabled={(enabled) => setOwnVideoEnabled(enabled)}
-          setAudioEnabled={(enabled) => setOwnAudioEnabled(enabled)}
-          setOwnImage={(imageData) => props.setOwnImage(imageData)}
-          myScreenBig={myScreenBig}
-          setMyScreenBig={setMyScreenBig}
-        />
 
       <div className="mobileShow" style={{ width: "250px", fontSize: "18px", textAlign: "center" }}>
         We don't support mobile right now. Please visit us on desktop!
