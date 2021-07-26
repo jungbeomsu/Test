@@ -1,8 +1,8 @@
 .videos-container {
-  width: 625px;
+  /*width: 625px;*/
   display: flex;
   margin-top: 10px;
-  flex-wrap: wrap;
+  /*flex-wrap: wrap;*/
 }
 
 .videos-max-connections {
@@ -11,3 +11,15 @@
   margin-top: 40px;
   flex-wrap: wrap;
 }
+
+.animated {
+  display: flex;
+}
+
+.carousel-slider {
+  display: flex;
+}
+
+/*.slick-arrow {*/
+/*  background-color: red;*/
+/*}*/
