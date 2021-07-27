@@ -6,13 +6,13 @@ export const RtToken = {
 
   save: async (accessToken, expiresAt, refreshToken) => {
     Cache.accessToken = accessToken;
-    await AsyncStorage.setItem('@access_token', accessToken);
+    await localStorage.setItem('@access_token', accessToken);
 
     Cache.expiresAt = expiresAt;
-    await AsyncStorage.setItem('@expires_at', expiresAt.toString());
+    await localStorage.setItem('@expires_at', expiresAt.toString());
 
     Cache.refreshToken = refreshToken;
-    await AsyncStorage.setItem('@refresh_token', refreshToken);
+    await localStorage.setItem('@refresh_token', refreshToken);
   },
 
   getAccessToken: async () => {
@@ -21,7 +21,7 @@ export const RtToken = {
       const now = moment().unix();
       let expiresAt = Cache.expiresAt;
       if (!expiresAt) {
-        const expiresAtStr = await AsyncStorage.getItem('@expires_at');
+        const expiresAtStr = await localStorage.getItem('@expires_at');
         if (expiresAtStr) {
           expiresAt = parseInt(expiresAtStr);
           Cache.expiresAt = expiresAt;
@@ -34,7 +34,7 @@ export const RtToken = {
 
       let accessToken = Cache.accessToken;
       if (!accessToken) {
-        accessToken = await AsyncStorage.getItem('@access_token');
+        accessToken = await localStorage.getItem('@access_token');
         Cache.accessToken = accessToken;
       }
       return accessToken;
@@ -48,7 +48,7 @@ export const RtToken = {
     try {
       let refreshToken = Cache.refreshToken;
       if (!refreshToken) {
-        refreshToken = await AsyncStorage.getItem('@refresh_token');
+        refreshToken = await localStorage.getItem('@refresh_token');
         Cache.refreshToken = refreshToken;
       }
       return refreshToken;
@@ -60,18 +60,18 @@ export const RtToken = {
 
   test: async () => {
     Cache.expiresAt = null;
-    await AsyncStorage.removeItem('@expires_at');
+    await localStorage.removeItem('@expires_at');
   },
 
   remove: async () => {
     Cache.refreshToken = null;
-    await AsyncStorage.removeItem('@refresh_token');
+    await localStorage.removeItem('@refresh_token');
 
     Cache.expiresAt = null;
-    await AsyncStorage.removeItem('@expires_at');
+    await localStorage.removeItem('@expires_at');
 
     Cache.accessToken = null;
-    await AsyncStorage.removeItem('@access_token');
+    await localStorage.removeItem('@access_token');
   },
 
   refreshToken: async () => {
