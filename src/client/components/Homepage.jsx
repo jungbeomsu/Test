@@ -3,9 +3,14 @@ import YesNoPrompt from './YesNoPrompt.jsx';
 import Feedback from './Feedback.jsx';
 import {localPreferences} from '../LocalPreferences.js';
 import {updateUserData} from '../userData.js';
-import {loginBackground, kakaoIcon, googleIcon, FacebookIcon} from "../resources/images";
+import {loginBackground, kakaoIcon, googleIcon, facebookIcon} from "../resources/images";
 import './Homepage.css';
 import Modal from "react-modal";
+import getServerData from "../api/getServerData";
+
+import {RtToken} from "../lib/Utils";
+import {useHistory} from "react-router-dom";
+
 const Twitter = '/images/site/twitter.png';
 const {Kakao} = window;
 
@@ -204,7 +209,7 @@ function LoginWithFacebook() {
         alignItems: 'center'
       }}>
       <div style={{marginTop: "4px"}}>
-        {FacebookIcon}
+        {facebookIcon}
       </div>
       <div
         style={{
@@ -263,6 +268,7 @@ function Logout({logout}) {
 export default function Homepage() {
   const [isLogin, setLogin] = useState(undefined);
   const [modalIsOpen, setIsOpen] = useState(false);
+  const history = useHistory();
 
   useEffect(() => {
     if (!localStorage.getItem('access_token')) {
@@ -282,7 +288,19 @@ export default function Homepage() {
         console.log('access_token, refresh_token : ', authObj.access_token, authObj.refresh_token);
         localStorage.setItem('access_token', authObj.access_token);
         localStorage.setItem('refresh_token', authObj.refresh_token);
-        document.location.href = '/createProfile';
+
+        // TODO: 카카오 서버 API 붙이기
+        // const req = {
+        //   account_type: "KAKAO",
+        //   account_token: authObj.access_token
+        // };
+
+        // getServerData(req, '/v1/user/login', (res) => {
+        history.push({pathname: '/createProfile'});
+        // }, (e) => {
+        //   console.log("error:" + JSON.stringify(e))
+        // })
+
       },
       fail: function (err) {
         console.log(JSON.stringify(err))
@@ -330,7 +348,6 @@ export default function Homepage() {
             <Modal
               isOpen={modalIsOpen}
               onRequestClose={closeModal}
-              // modal waring 제거
               ariaHideApp={false}
               style={{
                 overlay: {
@@ -375,9 +392,6 @@ export default function Homepage() {
             </Modal>
           </div>
         }
-
-        {/* 방 만드는 화면으로 바로 이동 */}
-        {/*<Top />*/}
       </div>
     </div>
   );

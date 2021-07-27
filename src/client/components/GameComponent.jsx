@@ -99,27 +99,27 @@ export default function GameComponent(props) {
         if ("hasScreenshare" in settings) {
           setHasScreenshare(settings["hasScreenshare"]);
         }
-        if ("hasAlternateLayout" in settings) {
-          props.setHasAlternateLayout(settings["hasAlternateLayout"]);
-        }
-        if ("showHeader" in settings) {
-          props.setShowHeader(settings["showHeader"]);
-        }
+        // if ("hasAlternateLayout" in settings) {
+        //   props.setHasAlternateLayout(settings["hasAlternateLayout"]);
+        // }
+        // if ("showHeader" in settings) {
+        //   props.setShowHeader(settings["showHeader"]);
+        // }
         if ("hasLinks" in settings) {
           props.setHasLinks(settings["hasLinks"]);
         }
-        if ("name1" in settings) {
-          props.setName1(settings["name1"]);
-        }
-        if ("url1" in settings) {
-          props.setURL1(settings["url1"]);
-        }
-        if ("name2" in settings) {
-          props.setName2(settings["name2"]);
-        }
-        if ("url2" in settings) {
-          props.setURL2(settings["url2"]);
-        }
+        // if ("name1" in settings) {
+        //   props.setName1(settings["name1"]);
+        // }
+        // if ("url1" in settings) {
+        //   props.setURL1(settings["url1"]);
+        // }
+        // if ("name2" in settings) {
+        //   props.setName2(settings["name2"]);
+        // }
+        // if ("url2" in settings) {
+        //   props.setURL2(settings["url2"]);
+        // }
       });
       clientEngine.eventProvider.on("sizeLimit", limit => {
         setSizeLimit(limit);

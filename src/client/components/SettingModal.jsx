@@ -476,6 +476,7 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
               <Switch
                 isOn={switchValue}
                 handleToggle={() => setSwitchValue(!switchValue)}
+                color={"#5E1CAF"}
               />
             </div>
 
