@@ -28,13 +28,7 @@ export default class RoomService {
       return false;
     }
   }
-
-  // async isAccessibleToken(decodedToken, roomName) {
-  //   let uid = decodedToken.uid;
-  //   const data = await this.roomRepository.getRoomWithUsers(roomName, uid);
-  //   return data["hasAccess"]
-  // }
-
+  
   async getRoomWithAdmin(rawRoomId, userId) {
     const room = await this.roomRepository.getRoom(rawRoomId);
     if (!room.isAdmin(userId)) {

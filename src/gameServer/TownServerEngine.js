@@ -1,24 +1,23 @@
-import {
-  ServerEngine,
-  TwoVector
-} from 'lance-gg';
-import bcrypt from 'bcrypt';
+import {ServerEngine, TwoVector} from 'lance-gg';
 import osu from 'node-os-utils';
-import { directionMap, VIDEO_THRESHOLD } from '../common/constants';
-import { collisionMap } from '../common/maps';
-import { Player } from '../common/gameObjects';
-import { db, auth } from '../server/constants';
-import firebase from 'firebase-admin';
-
-import { characterMap } from '../common/maps';
-import { getPlayerDistance } from '../common/utils';
+import {directionMap} from '../common/constants';
+import {characterMap, collisionMap} from '../common/maps';
+import {Player} from '../common/gameObjects';
+import {getPlayerDistance} from '../common/utils';
+import RoomService from "./components/room/roomService";
+import {logger} from "./components/utils/logger";
 
 export default class TownServerEngine extends ServerEngine {
 
-  assignPlayerToRoom(playerId, roomName) {
-    super.assignPlayerToRoom(playerId, roomName);
-    this.playerToRoom[playerId] = roomName;
-    this.playerInfo[roomName][playerId] = {};
+  constructor(io, ge, options) {
+    super(io, ge, options);
+    this.RoomService = new RoomService();
+  }
+
+  assignPlayerToRoom(playerId, rawRoomId, userId) {
+    super.assignPlayerToRoom(playerId, rawRoomId);
+    this.playerToRoom[playerId] = rawRoomId;
+    this.playerInfo[rawRoomId][playerId] = {userId: userId};
   }
 
   createRoom(room) {
@@ -28,8 +27,6 @@ export default class TownServerEngine extends ServerEngine {
       this.playerToMap = {};
       this.playerToSocket = {};
       this.playerNeedsInit = {};
-      this.playerVideoMetric = {};
-      this.playerOnVideoMetric = {};
       this.modMessages = {};
       this.roomSettings = {};
       this.initialized = true;
@@ -53,7 +50,7 @@ export default class TownServerEngine extends ServerEngine {
       });
     });
 
-    var newPlayer = new Player(this.gameEngine, null, { position: new TwoVector(startX, startY) });
+    let newPlayer = new Player(this.gameEngine, null, {position: new TwoVector(startX, startY)});
     newPlayer.currentDirection = directionMap['stand'];
     newPlayer.currentMap = map;
     if (map in characterMap) {
@@ -70,7 +67,7 @@ export default class TownServerEngine extends ServerEngine {
     if (!playerId) {
       return;
     }
-    let myPlayer = this.gameEngine.world.queryObject({ playerId });
+    let myPlayer = this.gameEngine.world.queryObject({playerId});
     if (!myPlayer) {
       return;
     }
@@ -88,98 +85,43 @@ export default class TownServerEngine extends ServerEngine {
   onPlayerConnected(socket) {
     super.onPlayerConnected(socket);
     this.playerToSocket[socket.playerId] = socket;
-    this.playerVideoMetric[socket.playerId] = {};
-    this.playerOnVideoMetric[socket.playerId] = null;
-    socket.on('roomId', (data) => {
-      let room = data.roomId;
+    socket.on('roomId', async (data) => {
+      let rawRoomId = data.roomId;
       let password = data.password;
-      let authToken = data.userToken;
-
-      let roomFirebase = room.replace("/", "\\");
-      db.collection("rooms").doc(roomFirebase).get()
-        .then(doc => {
-          if (!doc.exists) {
-            throw new Error('Room does not exist in db');
+      let userId = data.userId || 1;//TODO: client에서 보내줘야함.
+      try {
+        const room = await this.RoomService.canJoinToRoom(rawRoomId, userId);
+        if (!room) {
+          socket.emit("roomClosed");
+          socket.conn.close();
+          return;
+        }
+        if (room.comparePassword(password)) {
+          //2. 정원초과가 아니니까 접속함.
+          let playerId = socket.playerId;
+          this.playerToMap[playerId] = room.map;
+          this.createRoom(rawRoomId); // override한 함수. 일종의 지연초기화 패턴.
+          this.assignPlayerToRoom(playerId, rawRoomId, userId);
+          if (this.playerNeedsInit[playerId]) {
+            this.initializePlayer(room.map, socket.playerId, rawRoomId);
           }
-
-          /* handle banned users */
-          let bannedIPs = doc.data()["bannedIPs"] || {}
-          if (bannedIPs[socket.handshake.address]) {
-            console.log("rejecting banned user: ", socket.handshake.address);
-            socket.conn.close();
-            return;
-          }
-
-          let roomClosed = doc.data()["closed"]
-          if (roomClosed === undefined) roomClosed = false;
-
-          if (roomClosed) {
-            socket.emit("roomClosed");
-            socket.conn.close();
-            return;
-          }
-
-          let map = doc.data()['map'];
-          if (!map) {
-            throw new Error('Map is not valid');
-          }
-
-          let roomSettings = doc.data()['settings'];
-          if (roomSettings) {
-            this.roomSettings[room] = roomSettings;
-          }
-
-          const initialize = () => {
-            if (this.roomSettings[room] && "sizeLimit" in this.roomSettings[room] && this.playerInfo[room]) {
-              if (Object.keys(this.playerInfo[room]).length >= this.roomSettings[room]["sizeLimit"]) {
-                socket.emit("sizeLimit", this.roomSettings[room]["sizeLimit"]);
-                return;
-              }
-            }
-
-            let playerId = socket.playerId;
-            this.playerToMap[playerId] = map;
-            this.createRoom(room);
-            this.assignPlayerToRoom(playerId, room);
-            if (this.playerNeedsInit[playerId]) {
-              this.initializePlayer(map, socket.playerId, room);
-            }
-            socket.emit("serverPlayerInfo", Object.assign({ "firstUpdate": true }, this.playerInfo[room]));
-            socket.emit("modMessage", this.modMessages[room]);
-            if (this.roomSettings[room]) {
-              socket.emit("roomSettings", this.roomSettings[room]);
-            }
-          }
-
-          if ("password" in doc.data()) {
-            if (password && bcrypt.compareSync(password, doc.data()["password"])) {
-              initialize();
-            } else if (authToken) {
-              auth.verifyIdToken(authToken)
-                .then(decodedToken => {
-                  let uid = decodedToken.uid;
-                  return db.collection("rooms").doc(roomFirebase).collection("users").doc(uid).get();
-                }).then(doc => {
-                  if (doc.exists && doc.data()["hasAccess"]) {
-                    initialize();
-                  }
-                }).catch(error => {
-                  throw new Error("error verifying token" + error.message);
-                });
-            } else {
-              throw new Error("incorrect password/ doesnt have access");
-            }
-          } else {
-            initialize();
-          }
-        })
-        .catch(err => {
-          console.log("Error onplayerconnect", err);
-        })
-    })
+          socket.emit("serverPlayerInfo", Object.assign({"firstUpdate": true}, this.playerInfo[room]));
+          socket.emit("modMessage", this.modMessages[rawRoomId]);
+          logger.info("Player Joined")
+        } else {
+          logger.info('접근 권한 없음');
+          socket.emit("roomClosed");
+          socket.conn.close();
+        }
+      } catch (e) {
+        logger.warn(`Catch하지 못한 에러 발생: ${JSON.stringify(e)}`);
+        socket.emit("roomClosed");
+        socket.conn.close();
+      }
+    });
 
     socket.on('initPlayer', () => {
-      console.log("got initPlayer", socket.playerId);
+      logger.info(`got initPlayer : ${socket.playerId}`);
       if (socket.playerId in this.playerToRoom) {
         this.initializePlayer(this.playerToMap[socket.playerId], socket.playerId, this.playerToRoom[socket.playerId]);
       } else {
@@ -191,33 +133,13 @@ export default class TownServerEngine extends ServerEngine {
       this.setCharacterId(socket.playerId, newId);
     });
 
-    socket.on('sendPrivatePrompt', data => {
-      console.log("got sendPrivatePrompt");
-      let room = data.room || "";
-      let password = data.password || "";
-      let roomFirebase = room.replace("/", "\\");
-      if (!roomFirebase) return;
-      db.collection("rooms").doc(roomFirebase).get()
-        .then(doc => {
-          if (!doc.exists) {
-            return;
-          }
-          if (doc.data()["modPassword"] && bcrypt.compareSync(password, doc.data()["modPassword"])) {
-            console.log("sendPrivatePrompt to ", roomFirebase);
-            Object.keys(this.playerInfo[roomFirebase]).forEach(playerId => {
-              this.playerToSocket[playerId].emit("createPrivatePrompt");
-              this.playerToSocket[playerId].conn.close();
-            });
-          } else {
-            console.log("incorrect password");
-          }
-        })
-        .catch(err => {
-          console.log(err);
-        });
+    socket.on('sendPrivatePrompt', _ => {
+      logger.info("got sendPrivatePrompt");
+      //TODO: 이게 뭔지 모르겠음...
     });
 
     socket.on("playerInfo", (data) => {
+      logger.silly('playerInfo called: '+JSON.stringify(data));
       let curRoom = this.playerToRoom[socket.playerId];
       if (this.playerInfo[curRoom]) {
         Object.assign(this.playerInfo[curRoom][socket.playerId], data);
@@ -229,48 +151,10 @@ export default class TownServerEngine extends ServerEngine {
       }
     });
 
-    socket.on("videoMetric", (data) => {
-      if (data.isStart) {
-        this.playerVideoMetric[socket.playerId][data.playerId] = {
-          "userId": data.userId,
-          "time": data.time,
-          "isProd": data.isProd,
-        };
-      } else {
-        if (this.playerVideoMetric &&
-          this.playerVideoMetric[socket.playerId] &&
-          this.playerVideoMetric[socket.playerId][data.playerId] &&
-          this.playerVideoMetric[socket.playerId][data.playerId].time) {
-          let interactedTime = (data.time - this.playerVideoMetric[socket.playerId][data.playerId].time) / 1000;
-          console.log("interacted for ", interactedTime);
-          // logAmpEvent(data.userId, "Exit Video Call", { "duration_seconds": interactedTime }, data.isProd);
-          delete this.playerVideoMetric[socket.playerId][data.playerId];
-        }
-      }
-    });
-
-    socket.on("onVideoMetric", (data) => {
-      if (data.isStart) {
-        this.playerOnVideoMetric[socket.playerId] = {
-          "userId": data.userId,
-          "time": data.time,
-          "isProd": data.isProd,
-        };
-      } else {
-        if (this.playerOnVideoMetric &&
-            this.playerOnVideoMetric[socket.playerId] &&
-            this.playerOnVideoMetric[socket.playerId].time) {
-            let interactedTime = (data.time - this.playerOnVideoMetric[socket.playerId].time) / 1000;
-            // logAmpEvent(data.userId, "Exit On Video Call", { "duration_seconds": interactedTime }, data.isProd);
-            this.playerOnVideoMetric[socket.playerId] = null;
-        }
-      }
-    });
-
     socket.on("chatMessage", (message, blockedMap) => {
       let playerId = socket.playerId;
-      let myPlayer = this.gameEngine.world.queryObject({ playerId });
-      let players = this.gameEngine.world.queryObjects({ instanceType: Player });
+      let myPlayer = this.gameEngine.world.queryObject({playerId});
+      let players = this.gameEngine.world.queryObjects({instanceType: Player});
       let playersObj = {};
       players.forEach(player => {
         let dist = getPlayerDistance(myPlayer, player);
@@ -287,12 +171,12 @@ export default class TownServerEngine extends ServerEngine {
       if (!infoFromRoom) {
         return;
       }
-      // DB 저장
+
       Object.keys(playersObj).forEach(id => {
         if (!(id in infoFromRoom)) {
           return;
         }
-        let publicId = infoFromRoom[id].publicId;
+        let publicId = infoFromRoom[id].publicId; //TODO: client측 API 가 완성되면 그때 userId로 바꾸면 좋을 듯..?
         let blocked = !publicId || (publicId in blockedMap && blockedMap[publicId]);
         //if (playersObj[id] <= VIDEO_THRESHOLD && !blocked) {
         if (!blocked) {
@@ -307,24 +191,9 @@ export default class TownServerEngine extends ServerEngine {
 
   onPlayerDisconnected(socketId, playerId) {
     super.onPlayerDisconnected(socketId, playerId);
-    let player = this.gameEngine.world.queryObject({ playerId });
+    let player = this.gameEngine.world.queryObject({playerId});
     if (player) {
       this.gameEngine.removeObjectFromWorld(player);
-    }
-
-    // Log video call ended metric
-    let nowTime = new Date().getTime();
-    // console.log(this.playerVideoMetric[playerId]);
-    Object.keys(this.playerVideoMetric[playerId]).forEach(otherPlayerId => {
-      let metricData = this.playerVideoMetric[playerId][otherPlayerId];
-      let interactedTime = (nowTime - metricData.time) / 1000;
-      // console.log("disconnect with ", otherPlayerId, "interacted for ", interactedTime);
-      // logAmpEvent(metricData.userId, "Exit Video Call", { "duration_seconds": interactedTime }, metricData.isProd);
-    })
-    if (this.playerOnVideoMetric[playerId]) {
-      let metricData = this.playerOnVideoMetric[playerId];
-      let interactedTime = (nowTime - metricData.time) / 1000;
-      // logAmpEvent(metricData.userId, "Exit On Video Call", { "duration_seconds": interactedTime }, metricData.isProd);
     }
 
     let curRoom = this.playerToRoom[playerId];
@@ -343,130 +212,120 @@ export default class TownServerEngine extends ServerEngine {
     delete this.playerToSocket[playerId];
     delete this.playerToMap[playerId];
     delete this.playerToRoom[playerId];
-    delete this.playerVideoMetric[playerId];
-    console.log("disconnect", this.playerInfo);
+    logger.info(`disconnect: ${socketId}, ${playerId}`);
   }
 
   async gameStatus() {
     try {
       let [cpu, memInfo] = await Promise.all([osu.cpu.usage(), osu.mem.used()])
-      let gameStatus = {
+      return {
         numPlayers: Object.keys(this.connectedPlayers).length,
         cpuPercentLoad: cpu,
         memLoad: memInfo.usedMemMb + "MB / " + memInfo.totalMemMb + "MB",
         roomCount: Object.keys(this.playerInfo).map(roomId => Object.keys(this.playerInfo[roomId]).length)
-      }
-      return gameStatus;
-    }
-    catch (err) {
-      console.log("gameStatus err: ", err);
+      };
+    } catch (err) {
+      logger.info(`gameStatus err: ${err}`);
       return null;
     }
   }
 
   // moderation tools
-  checkModPasswordInternal(room, password) {
-    let roomFirebase = room.replace("/", "\\");
-    if (!roomFirebase) return;
-    return db.collection("rooms").doc(roomFirebase).get()
-      .then(doc => {
-        if (!doc.exists) {
-          return Promise.reject();
-        }
-        if (doc.data()["modPassword"] && bcrypt.compareSync(password, doc.data()["modPassword"])) {
-          return Promise.resolve(doc.data());
-        }
-        return Promise.reject();
+  // deprecate하기
+  checkRoomWithAdmin(rawRoomId, userId) {
+    return this.RoomService.getRoomWithAdmin(rawRoomId, userId)
+      .then(room => {
+        return Promise.resolve(room);
       })
-  }
-
-  checkModPassword(room, password) {
-    let roomFirebase = room.replace("/", "\\");
-    return this.checkModPasswordInternal(room, password).then((roomData) => {
-      if (roomData.bannedIPs) {
-        return Object.values(roomData.bannedIPs);
-      }
-      return [];
-    })
-  };
-
-  banPlayer(room, password, player) {
-    let roomFirebase = room.replace("/", "\\");
-    if (!this.playerToSocket[player]) throw Exception;
-    return this.checkModPasswordInternal(room, password).then((roomData) => {
-      let newBannedIPs = {
-        ...roomData["bannedIPs"],
-        [this.playerToSocket[player].handshake.address]: this.playerInfo[roomFirebase][player]
-      }
-      db.collection("rooms").doc(roomFirebase).update("bannedIPs", newBannedIPs);
-      this.playerToSocket[player].conn.close();
-      return Object.values(newBannedIPs);
-    })
-  }
-
-  unbanPlayer(room, password, player) {
-    let roomFirebase = room.replace("/", "\\");
-    return this.checkModPasswordInternal(room, password).then((roomData) => {
-      let banned = roomData["bannedIPs"];
-      Object.keys(banned).forEach((ip) => {
-        if (banned[ip]["publicId"] === player) {
-          delete banned[ip];
-        }
-      })
-      db.collection("rooms").doc(roomFirebase).update("bannedIPs", banned);
-      return Object.values(banned);
-    })
-  }
-
-  setRoomClosed(room, password, closed) {
-    let roomFirebase = room.replace("/", "\\");
-    return this.checkModPasswordInternal(room, password).then((_) => {
-      db.collection("rooms").doc(roomFirebase).update({
-        "closed": !!closed
+      .catch((e) => {
+        return Promise.reject(e);
       });
-      if (closed) {
-        Object.keys(this.playerInfo[roomFirebase]).forEach(playerId => {
-          this.playerToSocket[playerId].emit("roomClosed");
-          this.playerToSocket[playerId].conn.close();
-        });
+  }
+
+  banPlayer(rawRoomId, player, adminId) {
+    return new Promise((resolve, reject) => {
+      if (!this.playerToSocket[player]) {
+        return resolve(this._makeNotFoundError());
       }
-      return;
+      if (!this.playerInfo[this.playerToRoom[player]]) {
+        return resolve(this._makeNotFoundError());
+      }
+      if (!this.playerInfo[this.playerToRoom[player]][player]?.userId) {
+        return resolve(this._makeNotFoundError());
+      }
+
+      const userId = this.playerInfo[this.playerToRoom[player]][player].userId
+      logger.info(`banPlayer Called: ${rawRoomId} ${player} ${userId} ${adminId}`);
+      this.RoomService.BanPlayer(rawRoomId, userId, adminId)
+        .then((bannedIDs) => {
+          this.playerToSocket[player].conn.close();
+          resolve(bannedIDs);
+        }).catch((e) => {
+        reject(e);
+      });
     });
   }
 
-  changeModPassword(room, password, newPassword) {
-    let roomFirebase = room.replace("/", "\\");
-    return this.checkModPasswordInternal(room, password).then(() => {
-      return db.collection("rooms").doc(roomFirebase).update({
-        "modPassword": bcrypt.hashSync(newPassword, 10)
+  unbanPlayer(rawRoomId, userId, requesterId) {
+    return this.RoomService.UnBanPlayer(rawRoomId, userId, requesterId)
+      .then((bannedIDs) => {
+        return bannedIDs
+      }).catch(e => {
+        throw e;
+      });
+  }
+
+  setRoomClosed(rawRoomId, adminId, closed) {
+    return this.RoomService.setRoomClose(rawRoomId, adminId, closed)
+      .then(() => {
+        if (closed) {
+          if (this.playerInfo[rawRoomId]) {
+            Object.keys(this.playerInfo[rawRoomId]).forEach(playerId => {
+              this.playerToSocket[playerId].emit("roomClosed");
+              this.playerToSocket[playerId].conn.close();
+            });
+          }
+        }
       })
-    });
+      .catch((e) => {
+        logger.warn(e);
+      });
   }
 
-  changePassword(room, password, newPassword) {
-    let roomFirebase = room.replace("/", "\\");
-    return this.checkModPasswordInternal(room, password).then(() => {
-      if (newPassword) {
-        return db.collection("rooms").doc(roomFirebase).update({
-          "password": bcrypt.hashSync(newPassword, 10)
-        })
-      } else {
-        // remove password
-        return db.collection("rooms").doc(roomFirebase).update({
-          "password": firebase.firestore.FieldValue.delete()
-        })
-      }
-    });
+  changePassword(rawRoomId, newPassword, userId) {
+    logger.info(`changePassword: ${rawRoomId}, ${newPassword}, ${userId}`);
+    return this.RoomService.changePassword(rawRoomId, newPassword, userId);
   }
 
-  setModMessage(room, password, message) {
-    return this.checkModPasswordInternal(room, password).then(() => {
-      Object.keys(this.playerInfo[room]).forEach(playerId => {
-        if (this.playerToRoom[playerId] === room) {
+  setModMessage(rawRoomId, password, message) {
+    return this.checkRoomWithAdmin(rawRoomId, password).then(() => {
+      Object.keys(this.playerInfo[rawRoomId]).forEach(playerId => {
+        if (this.playerToRoom[playerId] === rawRoomId) {
           this.playerToSocket[playerId].emit("modMessage", message);
-          this.modMessages[room] = message;
+          this.modMessages[rawRoomId] = message;
         }
       });
     });
+  }
+  getRoomInfo(rawRoomId) {
+    if (!this.playerInfo[rawRoomId])
+      return 0;
+    try {
+      const playerList = Object.keys(this.playerInfo[rawRoomId]);
+      return playerList.length;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  _makeNotFoundError() {
+    return {
+      result: {
+        is_success: false,
+        err_message: "NOT EXIST",
+      }
+    }
   }
 }
+
+// rawRoomId = room_url\room_name
