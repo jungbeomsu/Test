@@ -1,5 +1,4 @@
-import React, { useEffect, useState, PropTypes} from 'react';
-import ReactDOM from 'react-dom';
+import React, {useEffect} from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import axios from 'axios';
 
@@ -14,14 +13,14 @@ import { amplitudeInstance } from './amplitude';
 import { makeId, getSubDomain } from './utils';
 import { readCookie, createCookie } from './cookies';
 import CreatePrivate from './components/CreatePrivate.jsx';
-import PrivateRoom from './components/PrivateRoom.jsx';
 import Homepage from './components/Homepage.jsx';
 import Help from './components/Help.jsx';
 import EmailAuth from './components/EmailAuth.jsx';
 import CreateProfile from './components/CreateProfile.jsx';
 import Tutorial from './components/Tutorial.jsx';
 import Dashboard from "./components/Dashboard";
-import Setting from "./components/Setting";
+import CreateSpace from "./components/CreateSpace";
+import MainScreen from "./components/MainScreen";
 
 // Add user cookie
 let userStorage = localPreferences.get('user');
@@ -63,15 +62,14 @@ let App = () => {
         <Route path="/help" exact component={Help} />
         <Route path="/private" exact component={CreatePrivate} />
         <Route path="/auth" component={EmailAuth} />
-        <Route path="/:room/:name" component={PrivateRoom} />
+        <Route path="/:room/:name" component={MainScreen}/>
         <Route path="/createProfile" exact component={CreateProfile} />
-        <Route path="/tutorial" exact component={Tutorial} />} />
-        <Route path="/dashboard" exact component={Dashboard} />} />
-        <Route path="/setting" exact component={Setting} />} />
+        <Route path="/tutorial" exact component={Tutorial} />
+        <Route path="/dashboard" exact component={Dashboard} />
+        <Route path="/space" exact component={CreateSpace} />
       </Switch>
     </BrowserRouter>
   );
 }
 
-// ReactDOM.render(<App />, document.getElementById('root'));
 export default App;
