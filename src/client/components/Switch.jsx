@@ -1,7 +1,7 @@
 import React from 'react';
 import './Switch.css';
 
-const Switch = ({ isOn, handleToggle }) => {
+const Switch = ({ isOn, handleToggle, color }) => {
   return (
     <>
       <input
@@ -12,7 +12,7 @@ const Switch = ({ isOn, handleToggle }) => {
         type="checkbox"
       />
       <label
-        style={{ background: isOn && '#5E1CAF' }}
+        style={{background: isOn && color}}
         className="react-switch-label"
         htmlFor={`react-switch-new`}
       >

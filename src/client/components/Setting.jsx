@@ -1,14 +1,54 @@
 import React, {useState, useEffect} from 'react';
 import {audio, camera, cloud, mediaSettingImageM, speaker, town} from "../resources/images";
 import {useSelector} from "react-redux";
-import {useHistory} from "react-router-dom";
+import {useHistory, useParams} from "react-router-dom";
 import "./Setting.css";
+import axios from "axios";
+import {Config} from "../constants";
+import {amplitudeAnonInstance} from "../amplitude";
 
-export default function Setting(props) {
+export default function Setting({setIsSetting}) {
+  const roomInfo = useSelector(({roomInfo}) => roomInfo);
   const history = useHistory();
+  const { room, name } = useParams();
 
-  const goToPrivate = () => {
-    history.push({pathname: "/private"})
+  const goToMainScreen = () => {
+    // 우리 서버에 보낼 데이터
+    // const data = {
+    // name : "test room 이름13",
+    // purpose_id : 1,
+    // preset_id : 301, <- mapId
+    // has_password : true,
+    // password : "tenuto",
+    // creator_id: 3 <- 방 만든 사람 Id
+    // }
+
+    let roomName = room + "\\" + name;
+
+    const req = {
+      map: roomInfo.presetId,
+      modPassword: "",
+      name: roomName,
+      password: roomInfo.password,
+    }
+
+    axios.post(Config.apiServerPrefix + '/api/createRoom', req)
+      .then((response) => {
+        console.log('responded with ', response.status, ' ', response.statusText);
+        if (response.status === 201) {
+          amplitudeAnonInstance.logEvent('Create Private', {
+            'room': roomName,
+            'hasPassword': (roomInfo.password !== ""),
+            'map': roomInfo.presetId
+          });
+          amplitudeAnonInstance.setUserId(null);
+          amplitudeAnonInstance.regenerateDeviceId();
+
+          setIsSetting(true);
+
+          history.push({pathname: `/${room}/${name}`})
+        }
+      })
   }
 
   return (
@@ -64,9 +104,8 @@ export default function Setting(props) {
             </div>
           </div>
         </div>
-
         <div
-          onClick={goToPrivate}
+          onClick={goToMainScreen}
           style={{
             height: "36px",
             width: "100%",

@@ -18,7 +18,7 @@ export const mediaSettingImageM = <img style={{width: "450px", height: "290px"}}
 export const camera = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/camOn/bold.png").default}/>
 export const audio = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/micOn/bold.png").default}/>
 export const speaker = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/speaker/bold.png").default}/>
-export const googleIcon = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/Google.png").default}/>
+export const googleIcon = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/google_icon.png").default}/>
 export const copy = <img style={{width: "16px", height: "16px"}} src={require("../images/v1/copy.png").default}/>
 export const exitIconB = <img style={{width: "16px", height: "16px"}} src={require("../images/v1/exit_black.png").default}/>
 export const exitIconW = <img style={{width: "16px", height: "16px"}} src={require("../images/v1/exit_white.png").default}/>
@@ -32,8 +32,10 @@ export const videoOff = <img style={{width: "12px", height: "12px"}} src={requir
 export const fullScreen = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/full.png").default}/>
 export const carouselLeft = <img style={{width: "32px", height: "32px"}} src={require("../images/v1/carouselLeft.png").default}/>
 export const carouselRight = <img style={{width: "32px", height: "32px"}} src={require("../images/v1/carouselRight.png").default}/>
-export const cloud = <img style={{}} src={require("../images/v1/cloud.png").default}/>
-export const town = <img style={{}} src={require("../images/v1/town.png").default}/>
+export const cloud = <img src={require("../images/v1/cloud.png").default}/>
+export const town = <img src={require("../images/v1/town.png").default}/>
 export const loginBackground = require("../images/v1/login_background.png").default
-export const kakaoIcon = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/Kakao.png").default}/>
-export const FacebookIcon = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/Facebook.png").default}/>
+export const kakaoIcon = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/kakao_icon.png").default}/>
+export const facebookIcon = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/facebook_icon.png").default}/>
+export const leftArrow = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/left_arrow.png").default}/>
+export const createdRoomImage = require("../images/v1/createdRoomImage.png").default
