@@ -1,6 +1,5 @@
 import socketIO from 'socket.io';
 import {Lib} from 'lance-gg';
-// import TownServerEngine from "./TownServerEngine";
 import TownServerEngine from "./TownServerEngine";
 import http from "http";
 import fs from "fs";
@@ -134,7 +133,12 @@ export function setUpGameApiRouter(serverEngine) {
     if(!rawRoomId) return res.status(400).send();
     logger.http(''+JSON.stringify(rawRoomId));
     const ret = serverEngine.getRoomInfo(rawRoomId);
-    res.status(200).send(''+ret);
+    res.json({
+      data: `${ret}`,
+      result: {
+        is_success: true,
+      }
+    })
   })
 
   return router;

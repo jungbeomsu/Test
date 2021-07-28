@@ -19,7 +19,16 @@ export default class RoomService {
     try {
       const room = await this.getRoomWithUser(rawRoomId);
       if (!room || room.isBannedID(userId.toString()) || room.isClosed() || !room.map) {
-        logger.debug('Room Closed');
+        if(!room){
+          logger.debug('Room is not exist');
+        } else if(room.isBannedID(userId.toString())){
+          logger.debug('Room banned you');
+        } else if(room.isClosed()){
+          logger.debug('Room Closed');
+        } else {
+          logger.debug('Room map not exist');
+        }
+        logger.debug('Room Reject you');
         return false;
       }
       return room;
@@ -28,7 +37,7 @@ export default class RoomService {
       return false;
     }
   }
-  
+
   async getRoomWithAdmin(rawRoomId, userId) {
     const room = await this.roomRepository.getRoom(rawRoomId);
     if (!room.isAdmin(userId)) {

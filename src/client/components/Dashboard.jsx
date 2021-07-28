@@ -17,6 +17,7 @@ export default function Dashboard(props) {
   const [nickname, setNickname] = useState(undefined);
   const [memberList, setMemberList] = useState({});
   const [roomList, setRoomList] = useState([]);
+  const [targetRoomUrl, setTargetRoomUrl] = useState('');
   const history = useHistory();
 
   const location = useLocation();
@@ -25,17 +26,6 @@ export default function Dashboard(props) {
   let [randomId, _] = useState(makeId(16));
 
   useEffect(() => {
-
-    // TODO: 실시간 멤버수 게임서버 API 호출해야함
-
-    // axios.post(gameServerAPIURL() + 'roomInfo', {
-    //   room: getRoomFromPath(),
-    // }).then((res) => {
-    //   // res === 3;
-    // }).catch(() => {
-    //   // tfaile
-    // })
-
     const tokenInfo = jwt_decode(localStorage.getItem("@access_token"));
     const user_id = tokenInfo.UserId;
     const req = {
@@ -70,13 +60,17 @@ export default function Dashboard(props) {
     })
   }, [roomList])
 
-
   const goToCreateSpace = () => {
     history.push({pathname: "/space"})
   }
 
   const goToMainScreen = () => {
-    history.push({pathname: `/${temp[0]}/${temp[1]}`})
+    if(targetRoomUrl!== ''){
+        history.push({pathname: `/room/${targetRoomUrl}`})
+    }
+    else{
+      alert('targetRoomUrl is empty'); //TODO: 제외하기
+    }
   }
 
   return (
@@ -132,7 +126,9 @@ export default function Dashboard(props) {
             {roomList.length > 0 && roomList.map((room, idx) => {
 
               return (
-                <div key={idx}>
+                <div key={idx} onClick={() => {
+                  setTargetRoomUrl(room.room_url);
+                }}>
                   <div style={{marginTop: "40px", color: "#C7C7C7", fontSize: "12px", marginBottom: "8px", padding: "0 24px"}}>
                     참여 중
                     {memberList[room.room_url]}

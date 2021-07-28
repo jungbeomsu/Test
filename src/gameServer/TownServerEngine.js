@@ -88,7 +88,7 @@ export default class TownServerEngine extends ServerEngine {
     socket.on('roomId', async (data) => {
       let rawRoomId = data.roomId;
       let password = data.password;
-      let userId = data.userId || 1;//TODO: client에서 보내줘야함.
+      let userId = data.userId || 1;
       try {
         const room = await this.RoomService.canJoinToRoom(rawRoomId, userId);
         if (!room) {

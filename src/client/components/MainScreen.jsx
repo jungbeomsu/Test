@@ -9,7 +9,7 @@ import Setting from "./Setting";
 export default function MainScreen() {
   const [hasPassword, setHasPassword] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
-  const [password, setPassword] = useState();
+  const [password, setPassword] = useState('');
   const [hasLinks, setHasLinks] = useState(false);
   const [url1, setURL1] = useState();
   const [url2, setURL2] = useState();
@@ -17,60 +17,16 @@ export default function MainScreen() {
   const [name2, setName2] = useState();
   const [isSetting, setIsSetting] = useState(false);
 
-  useEffect(() => {
-    axios.get(Config.apiServerPrefix + '/api/hasPassword', {
-      params: { roomId: getRoomFromPath() }
-    })
-      .then(response => {
-        console.log('responded with ', response.status, ' ', response.data);
-        if (response.status === 200 && response.data) {
-          setHasPassword(true);
-        } else {
-          setHasPassword(false);
-        }
-      });
-  }, []);
-
-  useEffect(() => {
-    return auth.onAuthStateChanged(user => {
-      if(user) {
-        user.getIdToken(true).then(token => {
-          return axios.get(Config.apiServerPrefix + '/api/hasAccess', {
-            params: {
-              roomId: getRoomFromPath(),
-              authToken: token,
-            }
-          });
-        })
-          .then(response => {
-            console.log("hasaccess responded with ", response.status, response.data);
-            if (response.status === 200 & response.data) {
-              setHasAccess(true);
-            } else {
-              setHasAccess(false);
-            }
-          })
-      }
-    })
-  }, []);
-
   function startGame(password) {
     if (password) {
       setPassword(password);
     }
-    amplitudeAnonInstance.logEvent("Enter Private", {
-      "room": getRoomFromPath()
-    });
-    amplitudeAnonInstance.setUserId(null);
-    amplitudeAnonInstance.regenerateDeviceId();
-    amplitudeInstance.logEvent("Enter Private Identified", {});
   }
 
   useEffect(() => {
-    if (!hasPassword || hasAccess) {
+    // if (!hasPassword || hasAccess) {
       startGame();
-    }
-
+    // }
   }, []);
 
   return (

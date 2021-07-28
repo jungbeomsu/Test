@@ -13,6 +13,7 @@ import EventProvider from '../common/EventProvider';
 
 import deepEqual from 'fast-deep-equal';
 import { Key } from 'ts-keycode-enum';
+import jwt_decode from "jwt-decode";
 
 export default class TownClientEngine extends ClientEngine {
   constructor(gameEngine, inputOptions, renderer) {
@@ -70,7 +71,10 @@ export default class TownClientEngine extends ClientEngine {
 
   connect() {
     return super.connect().then(() => {
-      let data = { roomId: this.roomId };
+      const tokenInfo = jwt_decode(localStorage.getItem("@access_token"));
+      const user_id = tokenInfo.UserId;
+
+      let data = { roomId: this.roomId, userId: user_id.toString()};
       if (this.password) {
         data["password"] = this.password;
       }

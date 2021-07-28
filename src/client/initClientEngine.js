@@ -20,16 +20,17 @@ export default async function initClientEngine() {
       bendingIncrements: 11,
     },
   };
+  // alert(`url: ${getRoomFromPath()}`);
+  // let gameServerPromise = axios.post(
+  //   Config.apiServerPrefix + '/api/getGameServer',
+  //   {
+  //     room: getRoomFromPath(),
+  //   },
+  // );
 
-  let gameServerPromise = axios.post(
-    Config.apiServerPrefix + '/api/getGameServer',
-    {
-      room: getRoomFromPath(),
-    },
-  );
-
-  let response = await gameServerPromise;
-
+  // let response = await gameServerPromise;
+  let response = {status: 200, data: 'http://localhost:4000'}; //
+  alert(`initClientEngine 시작됨.`);
   if (response) {
     if (response.status !== 200) {
       console.error('Could not get game server URL!');

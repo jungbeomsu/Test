@@ -34,24 +34,25 @@ export function getWhichPublic() {
 
 export function getRoomFromPath() {
   let temp = decodeURI(window.location.pathname).split("/");
-  if (temp.length >= 3) {
-    let toReturn = temp.slice(1).join("\\");
-    if (/^(pub\\.*)$/.test(toReturn)) {
-      return toReturn + getWhichPublic();
-    }
-    // private room
-    return toReturn;
-  }
+  return temp[temp.length - 1];
+  // if (temp.length >= 2) {
+  //   let toReturn = temp.slice(2).join("\\");
+  //   if (/^(pub\\.*)$/.test(toReturn)) {
+  //     return toReturn + getWhichPublic();
+  //   }
+  //   // private room
+  //   return toReturn;
+  // }
   // homepage room
-  if (getSubDomain()) {
-    return "pub\\" + getSubDomain() + getWhichPublic();
-  }
-
-  if (isProd()) {
-    return "public" + getWhichPublic();
-  } else {
-    return "publicdev" + getWhichPublic();
-  }
+  // if (getSubDomain()) {
+  //   return "pub\\" + getSubDomain() + getWhichPublic();
+  // }
+  //
+  // if (isProd()) {
+  //   return "public" + getWhichPublic();
+  // } else {
+  //   return "publicdev" + getWhichPublic();
+  // }
 }
 
 export function getRoomNameFromPath() {

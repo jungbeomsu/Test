@@ -193,7 +193,7 @@ export default function CreateSpace() {
       password: password,
       has_password: hasPassword,
       purpose_id: purposeId,
-      room_preseet_id: presetId
+      room_preset_id: presetId
     };
 
     GetServerDataWithToken(roomData, "/v1/room/create", (res) => {
