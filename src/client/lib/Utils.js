@@ -1,6 +1,15 @@
+import moment from "moment";
+
 export const Config = {
-  apiDomain: "http://dev-centimeter-api.tenuto.co.kr:24242"
+  apiDomain: "http://dev-centimeter-api.tenuto.co.kr:24242",
+  myUserId: undefined,
 };
+
+export const Cache = {
+  accessToken: null,
+  expiresAt: null,
+  refreshToken: null,
+}
 
 export const RtToken = {
 

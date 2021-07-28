@@ -3,15 +3,20 @@ import {createSlice} from '@reduxjs/toolkit';
 const accountSlice = createSlice({
   name: 'account',
   initialState: {
-    nickname: null,
+    accountId: null,
+    accountType: null,
     characterId: null,
+    userId: null,
+    nickname: null,
   },
   reducers: {
     setAccount(state, action) {
-      const {nickname, characterId} = action.payload
-      // return {...state, nickname:nickname, characterId:characterId}
-      state.nickname = nickname;
+      const {accountId, accountType, characterId, userId, nickname} = action.payload
+      state.accountId = accountId;
+      state.accountType = accountType;
       state.characterId = characterId;
+      state.userId = userId;
+      state.nickname = nickname;
     }
   }
 })
