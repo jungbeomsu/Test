@@ -6,10 +6,12 @@ import {updateUserData} from '../userData.js';
 import {loginBackground, kakaoIcon, googleIcon, facebookIcon} from "../resources/images";
 import './Homepage.css';
 import Modal from "react-modal";
-import getServerData from "../api/getServerData";
+import GetServerData from "../api/GetServerData";
 
 import {RtToken} from "../lib/Utils";
 import {useHistory} from "react-router-dom";
+import {Config} from "../lib/Utils";
+import jwt_decode from "jwt-decode";
 
 const Twitter = '/images/site/twitter.png';
 const {Kakao} = window;
@@ -286,20 +288,23 @@ export default function Homepage() {
     Kakao.Auth.login({
       success: function (authObj) {
         console.log('access_token, refresh_token : ', authObj.access_token, authObj.refresh_token);
-        localStorage.setItem('access_token', authObj.access_token);
-        localStorage.setItem('refresh_token', authObj.refresh_token);
 
-        // TODO: 카카오 서버 API 붙이기
-        // const req = {
-        //   account_type: "KAKAO",
-        //   account_token: authObj.access_token
-        // };
+        const req = {
+          account_type: "KAKAO",
+          account_token: authObj.access_token
+        };
 
-        // getServerData(req, '/v1/user/login', (res) => {
-        history.push({pathname: '/createProfile'});
-        // }, (e) => {
-        //   console.log("error:" + JSON.stringify(e))
-        // })
+        GetServerData(req, '/v1/user/login', (res) => {
+          RtToken.save(res.access_token, res.expires_at, res.refresh_token).then(() => {
+            const tokenInfo = jwt_decode(res.access_token);
+            console.log("TOKEN_INFO_LOGIN", tokenInfo);
+            Config.myUserId = tokenInfo.UserId;
+            history.push({pathname: '/createProfile'});
+          });
+
+        }, (e) => {
+          console.log("error:" + JSON.stringify(e))
+        })
 
       },
       fail: function (err) {

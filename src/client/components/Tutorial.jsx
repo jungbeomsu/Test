@@ -2,18 +2,33 @@ import React, {useState, useEffect} from 'react';
 import {cloud, town} from "../resources/images";
 import {useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
+import GetServerDataWithToken from "../api/GetServerDataWithToken";
+import jwt_decode from "jwt-decode";
 
 export default function Tutorial(props) {
   const [nickname, setNickname] = useState(undefined);
-  // const [characterId, setCharacterId] = useState(undefined);
+  const [characterId, setCharacterId] = useState(undefined);
   // const [nicknameChange, setNicknameChange] = useState(false);
 
   const accountData = useSelector(({account}) => account);
+  const {userId} = accountData;
   const history = useHistory();
 
   useEffect(() => {
-    setNickname(accountData.nickname);
-    // setCharacterId(accountData.characterId);
+
+    const tokenInfo = jwt_decode(localStorage.getItem("@access_token"));
+    const user_id = tokenInfo.UserId;
+    const req = {
+      user_id,
+    }
+
+    GetServerDataWithToken(req, "/v1/user/get", (res) => {
+      setNickname(res.nickname);
+      setCharacterId(res.character_id);
+
+    }, (e) => {
+      console.log("error:" + JSON.stringify(error))
+    })
 
   }, [])
 

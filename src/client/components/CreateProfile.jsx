@@ -3,8 +3,8 @@ import GameChangeCharacter from "./GameChangeCharacter";
 import {cloud, town} from "../resources/images";
 import {useHistory} from "react-router-dom";
 import {useDispatch} from "react-redux";
-// import {setUserData} from "../redux/actionFunction";
 import {setAccount} from "../redux/features/account/accountSlice";
+import GetServerDataWithToken from "../api/GetServerDataWithToken";
 
 export default function CreateProfile() {
   const [nickname, setNickname] = useState("내 이름은 지호에요");
@@ -15,16 +15,25 @@ export default function CreateProfile() {
   let currentMap = 301;
 
   const goToTutorial = () => {
-    alert(`이름 : ${nickname}\n캐릭터번호 : ${characterId} \n프로필이 저장되었습니다!`)
-    history.push({pathname: "/tutorial"})
-
-    const accountData = {
+    const req = {
       nickname,
-      characterId,
+      character_id: characterId,
     }
 
-    dispatch(setAccount(accountData))
+    GetServerDataWithToken(req, '/v1/user/update', (res) => {
 
+      const accountData = {
+        accountId: res.account_id,
+        accountType: res.account_type,
+        characterId: res.character_id,
+        userId: res.id,
+        nickname: res.nickname,
+      }
+
+      dispatch(setAccount(accountData))
+      history.push({pathname: "/tutorial"})
+
+    }, (e) => {console.log("error:" + JSON.stringify(error))});
   }
 
   const inputRef = useRef();
