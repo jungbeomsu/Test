@@ -11,6 +11,11 @@ import {localPreferences} from '../LocalPreferences.js';
 import {townClient} from "./webrtcsdk/townClient";
 import {LocalStream} from './webrtcsdk/stream';
 
+import Slider from "react-slick";
+// Import css files
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
 import {carouselLeft, carouselRight} from "../resources/images";
 
 import './GameVideosContainer.css';
@@ -30,6 +35,7 @@ export default function GameVideosContainer(props) {
   const [ownStreamMap, setOwnStreamMap] = useState({});
   const [otherVideoEnabled, setOtherVideoEnabled] = useState({});
   const [otherAudioEnabled, setOtherAudioEnabled] = useState({});
+  const sliderRef = useRef();
   const [maxVideos, setMaxVideos] = useState(MAX_VIDEOS_DEFAULT);
   // const [isScreensharing, setIsScreensharing] = useState(false);
 
@@ -268,9 +274,8 @@ export default function GameVideosContainer(props) {
       distance = 0;
     }
     console.log('getGameVideo: ', playerId);
-    return streamMap[playerId] ? (
-      <React.Fragment key={playerId}>
-        <GameVideo
+    return <div key={playerId}>{
+      streamMap[playerId] ? <GameVideo
           key={playerId}
           id={playerId}
           playerInfo={props.playerInfoMap[playerId]}
@@ -286,6 +291,11 @@ export default function GameVideosContainer(props) {
           myScreenBig={myScreenBig}
           setMyScreenBig={setMyScreenBig}
         />
+        : <div>Hello World</div>
+    }</div>
+  }
+
+  /*      <div  >
         {
           playerId in screenStreamMap ?
             <GameScreenVideo
@@ -297,9 +307,9 @@ export default function GameVideosContainer(props) {
             :
             <></>
         }
-      </React.Fragment>
-    ) : (<div key={playerId}>Hello World</div>);
-  }
+      </div>
+
+  * */
 
   let errorComponent = (
     <div style={{color: "red", marginTop: "10px"}}>
@@ -310,20 +320,29 @@ export default function GameVideosContainer(props) {
     </div>
   );
 
-  let otherVideoComponents = null;
-  otherVideoComponents = Object.keys(props.playerVideoMap["playerToDist"])
-    .filter(playerId => {
-      return (playerId !== props.myPlayerId + "") && (playerId !== props.playerVideoMap["announcerPlayer"] + "")
-    })
-    .map(playerId => getGameVideo(playerId));
+  let settings = {
+    dots: false,
+    infinite: false,
+    variableWidth: false,
+    slidesToShow: 2,
+    slidesToScroll: 1,
+    touchMove: true,
+  };
 
   let videoComponents = (
     <div style={{display: "flex"}}>
+      {/*{otherVideoComponents.length > 0 && <button onClick={() => {console.log("CLICKED"); sliderRef.current.slickNext()}}>{"NEXT"}</button>}*/}
       {props.playerVideoMap["announcerPlayer"] && (props.playerVideoMap["announcerPlayer"] !== props.myPlayerId) ?
         getGameVideo(props.playerVideoMap["announcerPlayer"])
         : null}
-
-      {otherVideoComponents}
+      <Slider {...settings} ref={sliderRef}>
+        {Object.keys(props.playerVideoMap["playerToDist"])
+          .filter(playerId => {
+            return (playerId !== props.myPlayerId + "") && (playerId !== props.playerVideoMap["announcerPlayer"] + "")
+          })
+          .map(playerId => getGameVideo(playerId))}
+      </Slider>
+      {/*{otherVideoComponents.length > 0 && <button onClick={() => {console.log("CLICKED"); sliderRef.current.slickPrev()}}>{"PREV"}</button>}*/}
     </div>
   )
 
@@ -340,20 +359,22 @@ export default function GameVideosContainer(props) {
       <p>Try lowering the max connections.</p>
     </div>
   )
-
   return (
     <>
-      <div id="videos" className="videos-container mobileHide">
+      {
+        <div className={"videos-container mobileHide"}>
+            <Slider {...settings} ref={sliderRef}>
+              {Object.keys(props.playerVideoMap["playerToDist"])
+                .filter(playerId => {
+                  return (playerId !== props.myPlayerId + "") && (playerId !== props.playerVideoMap["announcerPlayer"] + "")
+                })
+                .map(playerId => getGameVideo(playerId))}
+            </Slider>
+          <></>
+        </div>
+      }
 
-        {isError ? errorComponent :
-          <div style={{display: "flex", alignItems: "center"}}>
-            {otherVideoComponents.length > 0 && carouselLeft}
-            {videoComponents}
-            {otherVideoComponents.length > 0 && carouselRight}
-          </div>
-        }
-
-      </div>
+      {/*</div>*/}
       <GameSelfVideo
         myPlayer={props.myPlayerId}
         stream={ownStreamMap[props.myPlayerId]}

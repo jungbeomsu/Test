@@ -29,10 +29,10 @@
 }
 
 #videos {
-  position: absolute;
-  top: 50px;
-  left: 50%;
-  transform: translateX(-50%);
+  /*position: absolute;*/
+  /*top: 50px;*/
+  /*left: 50%;*/
+  /*transform: translateX(-50%);*/
 }
 
 .self-video-wrapper-big {

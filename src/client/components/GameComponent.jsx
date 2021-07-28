@@ -448,14 +448,14 @@ export default function GameComponent(props) {
       :
         <></>
       }
-      <div id="videoContainer"
-           // style={{
-           //   width: "1000px",
-           //   overflow: "hidden",
-           // }}
-      >
+      {/*<div id="videoContainer"*/}
+      {/*     style={{*/}
+      {/*       width: "1000px",*/}
+      {/*       overflow: "hidden",*/}
+      {/*     }}*/}
+      {/*>*/}
         {videoContainer}
-      </div>
+      {/*</div>/!**!/*/}
       {/*{!isError &&*/}
 
       <div className="mobileShow" style={{ width: "250px", fontSize: "18px", textAlign: "center" }}>

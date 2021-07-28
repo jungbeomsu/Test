@@ -95,21 +95,20 @@ export default function GameVideo (props) {
     <div
       style={{
         margin: "0 8px",
+        width: '100%',
         borderRadius: "20px",
       }}
       onMouseEnter={() => setShowMenu(true)}
       onMouseLeave={() => setShowMenu(false)}>
-      <div style={{position: "relative"}}>
-        <video id={"video-" + props.id} style={{
-
-        }}/>
+      <div style={{position: "relative", width: '100%'}}>
+        <video id={"video-" + props.id} style={{width: '150px'}}/>
         { showMenu ? videoMenu : null }
         <div style={{
           height: "23px",
           padding: "4px 6px",
           borderRadius: "12px",
           backgroundColor: "rgba(0,0,0,0.6)",
-          position: "absolute",
+          position: "relative",
           bottom: 10,
           right: 10,
           display: "flex",
