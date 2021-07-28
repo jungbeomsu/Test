@@ -17,10 +17,13 @@ const accountSlice = createSlice({
       state.characterId = characterId;
       state.userId = userId;
       state.nickname = nickname;
+    },
+    setUserId(state, action) {
+      state.userId = action.payload;
     }
   }
 })
 
-export const {setAccount} = accountSlice.actions
+export const {setAccount, setUserId} = accountSlice.actions
 
 export default accountSlice.reducer
