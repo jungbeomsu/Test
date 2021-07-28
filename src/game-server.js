@@ -1,15 +1,9 @@
-import express from 'express';
-import socketIO from 'socket.io';
-import cors from 'cors';
-import bodyParser from 'body-parser';
+import gameServer from './gameServer';
 
-import https from 'https';
-import http from 'http';
-import fs from 'fs';
-import { Lib } from 'lance-gg';
-import Game from './common/Game';
-import TownServerEngine from './server/TownServerEngine';
+const {PORT} = process.env;
+const port = PORT || 4000;
 
+<<<<<<< HEAD
 export default function setupGameServer(server, httpServer) {
   // Game Instances
   let io = socketIO(httpServer);
@@ -170,3 +164,8 @@ if (require.main === module) {
 //   // server.options('*', cors());
 //   setupGameServer(server, httpsServer);
 // }
+=======
+gameServer.listen(port, () => {
+  console.log('[GameServer] Listening');
+});
+>>>>>>> 21513f89a8b3e4c895c227da5c41461a793626e3
