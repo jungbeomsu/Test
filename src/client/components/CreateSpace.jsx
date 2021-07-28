@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import "./Dashboard.css";
 import {leftArrow} from "../resources/images";
 import Switch from "./Switch";
@@ -6,23 +6,135 @@ import {useHistory} from "react-router-dom";
 import {makeId} from "../utils";
 import {useDispatch} from "react-redux";
 import {setRoomInfo} from "../redux/features/room/roomInfoSlice";
+import GetServerDataWithToken from "../api/GetServerDataWithToken";
+import axios from "axios";
+import {Config} from "../constants";
+import {amplitudeAnonInstance} from "../amplitude";
 
-const roomList =
+const rawRoomList = [
   {
-    office: [
-      {id: 1, name: "스타트업 오피스", image: require("../images/v1/space_image.png").default, desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.", limit: "10인 미만"},
-      {id: 2, name: "소형 모던 오피스", image: require("../images/v1/space_image.png").default, desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.", limit: "20인 미만"},
-      {id: 3, name: "중형 모던 오피스", image: require("../images/v1/space_image.png").default, desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.", limit: "20인 이상"},
-    ],
-    cafe: [
-      {id: 1, name: "센티미터 카페", image: require("../images/v1/space_image.png").default, desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever", limit: "20인 미만"},
-      {id: 2, name: "루프탑 파티", image: require("../images/v1/space_image.png").default, desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever", limit: "20인 미만"},
-    ],
-    restaurant: [
-      {id: 1, name: "센티미터 카페", image: require("../images/v1/space_image.png").default, desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever", limit: "20인 미만"},
-      {id: 2, name: "루프탑 파티", image: require("../images/v1/space_image.png").default, desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever", limit: "20인 미만"},
+    "category_id": 10,
+    "category_name": "오피스",
+    "rooms": [
+      {
+        "description": "테누토 사무실 맵입니다",
+        "id": 1,
+        "max_user_limit": 99,
+        "name": "tenuto맵",
+        "resource": "tenuto",
+        "thumbnail_image": "https://s3.ap-northeast-2.amazonaws.com/centimeter.dev/room_preset/thumb_medium_office.png"
+      }
+    ]
+  },
+  {
+    "category_id": 20,
+    "category_name": "카페, 정원",
+    "rooms": [
+      {
+        "description": "테누토 사무실 면접용 맵입니다",
+        "id": 2,
+        "max_user_limit": 99,
+        "name": "tenuto면접장",
+        "resource": "tenuto_interview",
+        "thumbnail_image": "https://s3.ap-northeast-2.amazonaws.com/centimeter.dev/room_preset/thumb_medium_office.png"
+      },
+      {
+        "description": "루프탑파티 설명",
+        "id": 6,
+        "max_user_limit": 99,
+        "name": "루프탑파티",
+        "resource": "rooftop_party",
+        "thumbnail_image": "https://s3.ap-northeast-2.amazonaws.com/centimeter.dev/room_preset/thumb_cafe_1.png"
+      },
+      {
+        "description": "센티미터카페 설명",
+        "id": 7,
+        "max_user_limit": 99,
+        "name": "센티미터카페",
+        "resource": "centimeter_cafe",
+        "thumbnail_image": "https://s3.ap-northeast-2.amazonaws.com/centimeter.dev/room_preset/thumb_cafe_2.png"
+      }
+    ]
+  },
+  {
+    "category_id": 30,
+    "category_name": "단체 공간",
+    "rooms": [
+      {
+        "description": "스타트업오피스 설명",
+        "id": 3,
+        "max_user_limit": 99,
+        "name": "스타트업오피스",
+        "resource": "startup_office",
+        "thumbnail_image": "https://s3.ap-northeast-2.amazonaws.com/centimeter.dev/room_preset/thumb_startup_office.png"
+      },
+      {
+        "description": "소형모던 설명",
+        "id": 4,
+        "max_user_limit": 99,
+        "name": "소형모던오피스",
+        "resource": "small_office",
+        "thumbnail_image": "https://s3.ap-northeast-2.amazonaws.com/centimeter.dev/room_preset/thumb_small_office.png"
+      },
+      {
+        "description": "중형모던오피스 설명",
+        "id": 5,
+        "max_user_limit": 99,
+        "name": "중형모던오피스",
+        "resource": "medium_office",
+        "thumbnail_image": "https://s3.ap-northeast-2.amazonaws.com/centimeter.dev/room_preset/thumb_medium_office.png"
+      }
     ]
   }
+]
+
+// const roomList = [
+//   {
+//     category: "office",
+//     rooms: [
+//       {
+//         description: "테누토 사무실1",
+//         id: 1,
+//         max_user_limit: 99,
+//         name: "테누토 맵",
+//         url: "외부 이미지 url",
+//       },
+//       {
+//         description: "테누토 사무실2",
+//         id: 2,
+//         max_user_limit: 99,
+//         name: "테누토 맵",
+//         url: "외부 이미지 url",
+//       },
+//       {
+//         description: "테누토 사무실3",
+//         id: 3,
+//         max_user_limit: 99,
+//         name: "테누토 맵",
+//         url: "외부 이미지 url",
+//       },
+//     ]
+//   },
+//   {
+//     category: "cafe",
+//     rooms: [
+//       {
+//         description: "테누토 카페",
+//         id: 4,
+//         max_user_limit: 99,
+//         name: "테누토 맵",
+//         url: "외부 이미지 url",
+//       },
+//       {
+//         description: "테누토 카페",
+//         id: 5,
+//         max_user_limit: 99,
+//         name: "테누토 맵",
+//         url: "외부 이미지 url",
+//       }
+//     ]
+//   }
+// ]
 
 export default function CreateSpace() {
   const [isMenu, setIsMenu] = useState(false);
@@ -30,6 +142,7 @@ export default function CreateSpace() {
   const [switchValue, setSwitchValue] = useState(false);
   const [hasPassword, setHasPassword] = useState(false);
   const [presetId, setPresetId] = useState(undefined);
+  const [roomList, setRoomList] = useState([]);
 
   const [inputs, setInputs] = useState({
     roomname: undefined,
@@ -38,15 +151,25 @@ export default function CreateSpace() {
   })
 
   let [randomId, _] = useState(makeId(16));
-
   const {roomname, password, purposeId} = inputs;
-
   const history = useHistory();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    GetServerDataWithToken(null, '/v1/setting/room_preset/get', (res) => {
+      console.log('res room_preset ~~ ', res.room_preset_list);
+      setRoomList(res.room_preset_list);
+
+    }, (e) => {
+      console.log("error:" + JSON.stringify(error))
+    })
+  }, [])
 
   const goToHome = () => {
     history.push({pathname: "/dashboard"})
   }
+
+  console.log('roomList /////// ', roomList);
 
   const onChange = (e) => {
     const {name, value} = e.target;
@@ -64,22 +187,69 @@ export default function CreateSpace() {
 
   const createNewRoom = () => {
     alert(`공간 이름 : ${roomname}\n비밀번호 : ${password} \n개설 목적: ${purposeId}\n공간 정보가 저장되었습니다!`);
+
     const roomData = {
-      roomname,
-      password: "",
-      presetId,
+      name: roomname,
+      password: password,
+      has_password: hasPassword,
+      purpose_id: purposeId,
+      room_preseet_id: presetId
     };
 
-    console.log(roomData);
-    dispatch(setRoomInfo(roomData));
+    GetServerDataWithToken(roomData, "/v1/room/create", (res) => {
 
-    history.push({pathname: "/dashboard", data: inputs})
+    }, (e) => {
+      console.log("error:" + JSON.stringify(error))
+    })
+
+    history.push({pathname: "/dashboard"})
   }
 
+  // const createNewRoom = () => {
+    // TODO: 우리 서버에 보낼 데이터
+    // const data = {
+    // name : "test room 이름13",
+    // purpose_id : 1,
+    // preset_id : 301, <- mapId
+    // has_password : true,
+    // password : "tenuto",
+    // creator_id: 3 <- 방 만든 사람 Id
+    // }
+
+    // let roomName = randomId + "\\" + roomname;
+
+    // TODO: 이걸로 바꿔야함
+    // let roomName = "room" + "\\" + room;
+
+    //   const req = {
+    //     map: presetId,
+    //     modPassword: "",
+    //     name: roomName,
+    //     password: password,
+    //   }
+    //
+    //   axios.post(Config.apiServerPrefix + '/api/createRoom', req)
+    //     .then((response) => {
+    //       console.log('responded with ', response.status, ' ', response.statusText);
+    //       if (response.status === 201) {
+    //         amplitudeAnonInstance.logEvent('Create Private', {
+    //           'room': roomName,
+    //           'hasPassword': (password !== ""),
+    //           'map': presetId
+    //         });
+    //         amplitudeAnonInstance.setUserId(null);
+    //         amplitudeAnonInstance.regenerateDeviceId();
+    //
+    //         // setIsSetting(true);
+    //
+    //         history.push({pathname: "/dashboard", url: `/${randomId}/${roomname}`})
+    //       }
+    //     })
+    // }
 
   return (
     <div style={{display: "flex", justifyContent: isMenu ? "space-between" : "center", alignItems: "center", flexDirection: isMenu ? null : "column", backgroundColor: "white", width: "100vw", height: "100vh", overflow: "hidden"}}>
-      <div style={{width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center"}}>
+      <div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
         <div style={{width: "1096px", height: "1374px", display: "flex", flexDirection: "column", justifyContent: "center"}}>
           <div
             onClick={goToHome}
@@ -97,9 +267,13 @@ export default function CreateSpace() {
             </div>
           </div>
 
-          <div style={{overflow: "scroll", marginTop: "114px"}}>
-            <OfficeMap setIsMenu={setIsMenu} setMenuTitle={setMenuTitle} setPresetId={setPresetId} data={roomList.office}/>
-            <CafeMap setIsMenu={setIsMenu} setMenuTitle={setMenuTitle} setPresetId={setPresetId} data={roomList.cafe}/>
+          <div style={{marginTop: "114px", overflow: "scroll"}}>
+            {roomList.map((roomCategory) => {
+              return (
+                <Space roomCategory={roomCategory} setIsMenu={setIsMenu} setMenuTitle={setMenuTitle} setPresetId={setPresetId}/>
+              )
+            })}
+
           </div>
         </div>
       </div>
@@ -181,96 +355,109 @@ export default function CreateSpace() {
               style={{backgroundColor: "#27D96E", height: "52px", width: "362px", borderRadius: "8px", display: "flex", justifyContent: "center", alignItems: "center", color: "white", fontSize: "16px", marginBottom: "32px"}}>
               새 공간 만들기 +
             </div>
-
           </div>
         </div>
       }
-
-    </div>
-
-  )
-}
-
-function OfficeMap({setIsMenu, setMenuTitle, setPresetId, data}) {
-  const [hover, setHover] = useState(false);
-  const [focus, setFocus] = useState(false);
-  const [mapId, setMapId] = useState(undefined);
-
-  return (
-    <div>
-      <div style={{color: "#1C1C1E", fontSize: "20px", fontWeight: "bold"}}>
-        오피스 <span style={{color: "#AEAEAE"}}>{data.length}</span>
-      </div>
-
-      <div style={{display: "flex", marginTop: "24px"}}>
-
-        {data.length > 0 && data.map((item) => {
-          return (
-            <div
-              key={item.id}
-              onMouseLeave={() => {
-                setMapId(undefined)
-                setHover(false)
-                setFocus(false)
-              }}
-              onMouseEnter={() => {
-                setMapId(item.id)
-                setHover(true)
-              }}
-              onClick={() => {
-                setMapId(item.id)
-                setFocus(true)
-                setHover(!hover)
-                setIsMenu(true)
-                setMenuTitle(item.name)
-                setPresetId(301)
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  marginRight: "20px",
-                  backgroundColor: "white",
-                  borderRadius: "20px",
-                  width: "352px",
-                  height: "359px",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  boxShadow: hover ? mapId === item.id ? "0px 4px 24px rgba(0, 0, 0, 0.1)" : null : null,
-                  border: hover ? null : focus && mapId === item.id ? "2px solid #501C90" : null,
-                }}
-              >
-                <div style={{position: "relative"}}>
-                  <img style={{width: "336px", height: "220px", padding: "8px"}} src={item.image}/>
-                  <div style={{width: "80px", height: "24px", backgroundColor: "#5E1CAF", color: "white", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px", position: "absolute", right: "20px", bottom: "20px", fontSize: "14px"}}>{item.limit}</div>
-                </div>
-                <div style={{padding: "32px 20px"}}>
-                  <div style={{fontSize: "20px", fontWeight: "bold", color: "#3A3A3C"}}>{item.name}</div>
-                  <div style={{fontSize: "14px", color: "#636363", marginTop: "6px", lineHeight: "20px", width: "312px", marginBottom: "32px"}}>{item.desc}</div>
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </div>
     </div>
   )
 }
 
-function CafeMap({setIsMenu, setMenuTitle, setPresetId, data}) {
+// function Space({setIsMenu, setMenuTitle, setPresetId, roomList}) {
+//   const [hover, setHover] = useState(false);
+//   const [focus, setFocus] = useState(false);
+//   const [mapId, setMapId] = useState(undefined);
+//
+//   return (
+//     <div style={{display: "flex"}}>
+//       {roomList?.map((item) => {
+//         return (
+//           <div key={item.id}>
+//             <div style={{color: "#1C1C1E", fontSize: "20px", fontWeight: "bold"}}>
+//               {item.category_description} <span style={{color: "#AEAEAE"}}>{item.length}</span>
+//             </div>
+//             <div style={{display: "flex", marginTop: "24px"}}>
+//               <div
+//                 onMouseLeave={() => {
+//                   setMapId(undefined)
+//                   setHover(false)
+//                   setFocus(false)
+//                 }}
+//                 onMouseEnter={() => {
+//                   setMapId(item.id)
+//                   setHover(true)
+//                 }}
+//                 onClick={() => {
+//                   setMapId(item.id)
+//                   setFocus(true)
+//                   setHover(!hover)
+//                   setIsMenu(true)
+//                   setMenuTitle(item.name)
+//                   setPresetId(301)
+//                 }}
+//               >
+//                 <div
+//                   style={{
+//                     display: "flex",
+//                     marginRight: "20px",
+//                     backgroundColor: "white",
+//                     borderRadius: "20px",
+//                     width: "352px",
+//                     height: "359px",
+//                     flexDirection: "column",
+//                     alignItems: "center",
+//                     boxShadow: hover ? mapId === item.id ? "0px 4px 24px rgba(0, 0, 0, 0.1)" : null : null,
+//                     border: hover ? null : focus && mapId === item.id ? "2px solid #501C90" : null,
+//                   }}
+//                 >
+//                   <div style={{position: "relative"}}>
+//                     <img style={{width: "336px", height: "220px", padding: "8px"}} src={item.image}/>
+//                     <div style={{width: "80px", height: "24px", backgroundColor: "#5E1CAF", color: "white", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px", position: "absolute", right: "20px", bottom: "20px", fontSize: "14px"}}>{item.max_user_limit}</div>
+//                   </div>
+//                   <div style={{padding: "32px 20px"}}>
+//                     {/*<div style={{fontSize: "20px", fontWeight: "bold", color: "#3A3A3C"}}>{item.name}</div>*/}
+//                     <div style={{fontSize: "14px", color: "#636363", marginTop: "6px", lineHeight: "20px", width: "312px", marginBottom: "32px"}}>{item.description}</div>
+//                   </div>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//         )
+//       })}
+//
+//     </div>
+//   )
+// }
+
+/*
+* roomCategory:
+* -
+* {
+*   category_name: "오피스",
+*   category_id: 1,
+*   rooms: [
+*     {},
+*     {},
+*     {},
+  // ]
+*/
+
+function Space({setIsMenu, setMenuTitle, setPresetId, roomCategory}) {
   const [hover, setHover] = useState(false);
   const [focus, setFocus] = useState(false);
   const [mapId, setMapId] = useState(undefined);
 
+  console.log('roomCategory', roomCategory);
+
   return (
+
     <div style={{marginTop: "81px"}}>
       <div style={{color: "#1C1C1E", fontSize: "20px", fontWeight: "bold"}}>
-        카페, 정원 <span style={{color: "#AEAEAE"}}>{data.length}</span>
+        {roomCategory.category_name} <span style={{color: "#AEAEAE"}}>{roomCategory.rooms.length}</span>
       </div>
 
       <div style={{display: "flex", marginTop: "24px"}}>
 
-        {data.length > 0 && data.map((item => {
+        {roomCategory.rooms.map((item => {
           return (
             <div
               key={item.id}
@@ -307,12 +494,12 @@ function CafeMap({setIsMenu, setMenuTitle, setPresetId, data}) {
                 }}
               >
                 <div style={{position: "relative"}}>
-                  <img style={{width: "336px", height: "220px", padding: "8px"}} src={item.image}/>
-                  <div style={{width: "80px", height: "24px", backgroundColor: "#5E1CAF", color: "white", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px", position: "absolute", right: "20px", bottom: "20px", fontSize: "14px"}}>{item.limit}</div>
+                  <img style={{width: "336px", height: "220px", padding: "8px"}} src={item.thumbnail_image}/>
+                  <div style={{width: "80px", height: "24px", backgroundColor: "#5E1CAF", color: "white", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px", position: "absolute", right: "20px", bottom: "20px", fontSize: "14px"}}>최대 {item.max_user_limit}인</div>
                 </div>
                 <div style={{padding: "32px 20px"}}>
                   <div style={{fontSize: "20px", fontWeight: "bold", color: "#3A3A3C"}}>{item.name}</div>
-                  <div style={{fontSize: "14px", color: "#636363", marginTop: "6px", lineHeight: "20px", width: "312px", marginBottom: "32px"}}>{item.desc}</div>
+                  <div style={{fontSize: "14px", color: "#636363", marginTop: "6px", lineHeight: "20px", width: "312px", marginBottom: "32px"}}>{item.description}</div>
                 </div>
               </div>
             </div>
@@ -322,3 +509,70 @@ function CafeMap({setIsMenu, setMenuTitle, setPresetId, data}) {
     </div>
   )
 }
+
+
+// function CafeMap({setIsMenu, setMenuTitle, setPresetId, data}) {
+//   const [hover, setHover] = useState(false);
+//   const [focus, setFocus] = useState(false);
+//   const [mapId, setMapId] = useState(undefined);
+//
+//   return (
+//     <div style={{marginTop: "81px"}}>
+//       <div style={{color: "#1C1C1E", fontSize: "20px", fontWeight: "bold"}}>
+//         카페, 정원 <span style={{color: "#AEAEAE"}}>{data.length}</span>
+//       </div>
+//
+//       <div style={{display: "flex", marginTop: "24px"}}>
+//
+//         {data.length > 0 && data.map((item => {
+//           return (
+//             <div
+//               key={item.id}
+//               onMouseLeave={() => {
+//                 setMapId(undefined)
+//                 setFocus(false)
+//                 setHover(false)
+//               }}
+//               onMouseEnter={() => {
+//                 setMapId(item.id)
+//                 setHover(true)
+//               }}
+//               onClick={() => {
+//                 setMapId(item.id)
+//                 setFocus(true)
+//                 setHover(!hover)
+//                 setIsMenu(true)
+//                 setMenuTitle(item.name)
+//                 setPresetId(301)
+//               }}
+//             >
+//               <div
+//                 style={{
+//                   display: "flex",
+//                   marginRight: "20px",
+//                   backgroundColor: "white",
+//                   borderRadius: "20px",
+//                   width: "352px",
+//                   height: "359px",
+//                   flexDirection: "column",
+//                   alignItems: "center",
+//                   boxShadow: hover ? mapId === item.id ? "0px 4px 24px rgba(0, 0, 0, 0.1)" : null : null,
+//                   border: hover ? null : focus ? mapId === item.id ? "2px solid #501C90" : null : null
+//                 }}
+//               >
+//                 <div style={{position: "relative"}}>
+//                   <img style={{width: "336px", height: "220px", padding: "8px"}} src={item.image}/>
+//                   <div style={{width: "80px", height: "24px", backgroundColor: "#5E1CAF", color: "white", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px", position: "absolute", right: "20px", bottom: "20px", fontSize: "14px"}}>{item.limit}</div>
+//                 </div>
+//                 <div style={{padding: "32px 20px"}}>
+//                   <div style={{fontSize: "20px", fontWeight: "bold", color: "#3A3A3C"}}>{item.name}</div>
+//                   <div style={{fontSize: "14px", color: "#636363", marginTop: "6px", lineHeight: "20px", width: "312px", marginBottom: "32px"}}>{item.desc}</div>
+//                 </div>
+//               </div>
+//             </div>
+//           )
+//         }))}
+//       </div>
+//     </div>
+//   )
+// }

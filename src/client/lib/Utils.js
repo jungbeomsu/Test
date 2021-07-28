@@ -2,6 +2,7 @@ import moment from "moment";
 
 export const Config = {
   apiDomain: "http://dev-centimeter-api.tenuto.co.kr:24242",
+  gameServerDomain: "http://localhost:4000", //TODO: 로컬에서만 동작. dev에선 http://dev-town-game.tenuto.co.kr
   myUserId: undefined,
 };
 

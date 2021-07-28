@@ -39,7 +39,9 @@ export default function GameComponent(props) {
   const [sizeLimit, setSizeLimit] = useState(null);
   const [modResult, setModResult] = useState({});
   const [currentMap, setCurrentMap] = useState(null);
+
   const [characterId, setCharacterId] = useState(null);
+
   const [chatMessages, setChatMessages] = useState([]);
   const [videoThreshold, setVideoThreshold] = useState(VIDEO_THRESHOLD);
   const [hasScreenshare, setHasScreenshare] = useState(false);
@@ -267,6 +269,8 @@ export default function GameComponent(props) {
     if (gameServerURL.hostname === "localhost") {
       protocol = "http:"
     }
+
+    console.log('????????????? 갖다박아 !', protocol + gameServerURL.href.substr(gameServerURL.protocol.length));
     return protocol + gameServerURL.href.substr(gameServerURL.protocol.length)
   }
 
@@ -355,6 +359,17 @@ export default function GameComponent(props) {
       setModResult({success: true});
     }).catch(() => {
       setModResult({failure: true});
+    })
+  }
+
+
+  function askHowMany() {
+    axios.post(gameServerAPIURL() + 'roomInfo', {
+      room: getRoomFromPath(),
+    }).then((res) => {
+      alert(res);
+    }).catch((e) => {
+      console.error(e)
     })
   }
 

@@ -62,6 +62,7 @@ let App = () => {
         <Route path="/help" exact component={Help} />
         <Route path="/private" exact component={CreatePrivate} />
         <Route path="/auth" component={EmailAuth} />
+        {/*<Route path="/room/:room" component={MainScreen}/>*/}
         <Route path="/:room/:name" component={MainScreen}/>
         <Route path="/createProfile" exact component={CreateProfile} />
         <Route path="/tutorial" exact component={Tutorial} />

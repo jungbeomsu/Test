@@ -6,37 +6,77 @@ import {
   settingIconG,
   createdRoomImage,
 } from "../resources/images";
-import {useSelector} from "react-redux";
 import "./Dashboard.css";
-import {useHistory} from "react-router-dom";
-import {makeId} from "../utils";
+import {useHistory, useLocation} from "react-router-dom";
+import {getRoomFromPath, makeId} from "../utils";
+import GetServerDataWithToken from "../api/GetServerDataWithToken";
+import jwt_decode from "jwt-decode";
+import GetGameServerDataWithToken from "../api/GetGameServerDataWithToken";
 
 export default function Dashboard(props) {
   const [nickname, setNickname] = useState(undefined);
-  const [memberList, setMemberList] = useState([]);
+  const [memberList, setMemberList] = useState({});
   const [roomList, setRoomList] = useState([]);
-
   const history = useHistory();
-  const accountData = useSelector(({account}) => account);
-  const roomInfoData = useSelector(({roomInfo}) => roomInfo);
+
+  const location = useLocation();
+  const temp = location.url ? location.url.slice(1,).split("/") : null;
 
   let [randomId, _] = useState(makeId(16));
 
   useEffect(() => {
-    setNickname(accountData.nickname);
 
-    if (roomInfoData.roomname !== null) {
-      setRoomList([...roomList, roomInfoData])
+    // TODO: 실시간 멤버수 게임서버 API 호출해야함
+
+    // axios.post(gameServerAPIURL() + 'roomInfo', {
+    //   room: getRoomFromPath(),
+    // }).then((res) => {
+    //   // res === 3;
+    // }).catch(() => {
+    //   // tfaile
+    // })
+
+    const tokenInfo = jwt_decode(localStorage.getItem("@access_token"));
+    const user_id = tokenInfo.UserId;
+    const req = {
+      user_id,
     }
 
+    GetServerDataWithToken(req, "/v1/user/get", (res) => {
+      setNickname(res.nickname);
+
+    }, (error) => {
+      console.log("error:" + JSON.stringify(error))
+    });
+
+    GetServerDataWithToken(null, "/v1/room/list/get", (res) => {
+      setRoomList(res.room_list);
+    }, (error) => {console.log("error:" + JSON.stringify(error))
+    })
+
   }, [])
+
+  useEffect(()=>{
+    roomList.forEach(r => {
+      GetGameServerDataWithToken({room: r.room_url}, "/roomInfo", (res) => {
+        console.log(`실시간 멤버수: ${r.room_url}:  ${res.data}`);
+        // setMemberList(prev => Object.assign(prev, {[r.room_url.toString()] : res.data}));
+        setMemberList((prevMemberList) => {
+          let newMemberList = Object.assign({}, prevMemberList);
+          newMemberList[r.room_url] = res.data;
+          return newMemberList;
+        });
+      }, (console.error));
+    })
+  }, [roomList])
+
 
   const goToCreateSpace = () => {
     history.push({pathname: "/space"})
   }
 
   const goToMainScreen = () => {
-    history.push({pathname: `/${randomId}/${roomInfoData.roomname}`, url: `/${randomId}/${roomInfoData.roomname}`})
+    history.push({pathname: `/${temp[0]}/${temp[1]}`})
   }
 
   return (
@@ -94,7 +134,8 @@ export default function Dashboard(props) {
               return (
                 <div key={idx}>
                   <div style={{marginTop: "40px", color: "#C7C7C7", fontSize: "12px", marginBottom: "8px", padding: "0 24px"}}>
-                    참여 중 {memberList.length}
+                    참여 중
+                    {memberList[room.room_url]}
                   </div>
                   <div style={{padding: "0 12px"}}>
                     <div style={{display: "flex", alignItems: "center", backgroundColor: "rgba(0, 0, 0, 0.2)", height: "52px", borderRadius: "16px", width: "100%", color: "#F0F0F0", padding: "14px 12px"}}>
@@ -102,10 +143,10 @@ export default function Dashboard(props) {
                         <div style={{marginRight: "4px", display: "flex", alignItems: "center"}}>
                           {memberIcon}
                         </div>
-                        {memberList.length}
+                        {memberList[room.room_url]}
                       </div>
                       <div>
-                        {room.roomname}
+                        {room.name}
                       </div>
                     </div>
                   </div>

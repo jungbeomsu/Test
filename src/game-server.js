@@ -79,7 +79,12 @@ export default function setupGameServer(server, httpServer) {
   server.post('/roomInfo', (req, res) => {
     const {room} = req.body;
     console.log(room);
-    res.status(200).send(`${3}`)
+    res.json({
+      data: `${3}`,
+      result: {
+        is_success: true,
+      }
+    });
   })
 }
 
