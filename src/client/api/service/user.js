@@ -35,14 +35,22 @@ export const user = {
       "nickname": nickname,
       "character_id": characterId
     }
-    let data = await process(path, req);
+    let data = await processAuth(path, req);
+
     if (!data.result.is_success) {
       return false;
     }
-    return true;
+
+    return {
+      accountId: data.account_id,
+      accountType: data.account_type,
+      userId: data.id,
+      nickname: data.nickname,
+      characterId: data.character_id
+    };
   },
 
-  getProfile: async (userId,) => {
+  getProfile: async (userId) => {
     let path = '/v1/user/get';
     let req = {
       "user_id": userId

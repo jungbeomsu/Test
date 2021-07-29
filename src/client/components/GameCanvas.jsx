@@ -1,9 +1,10 @@
-import React, {useState} from 'react';
+import React, { useState} from 'react';
 import './GameCanvas.css';
 import Chatting from "./Chatting.jsx";
 import InviteModal from "./InviteModal.jsx";
 import SettingModal from "./SettingModal.jsx";
 import {profileIconM, settingIcon, inviteIcon} from "../resources/images";
+import {useSelector} from "react-redux";
 
 export default function GameCanvas () {
   const [modalIsOpen, setIsOpen] = useState({
@@ -12,6 +13,8 @@ export default function GameCanvas () {
   })
 
   const [settingIndex, setSettingIndex] = useState(1);
+
+  const accountData = useSelector(({account}) => account)
 
   function openModal(type) {
     switch(type) {
@@ -33,6 +36,8 @@ export default function GameCanvas () {
     }
   }
 
+
+
   return (
     <div style={{position: "relative", width: "100vw", height: "100vh"}} className="game-container">
       <Chatting />
@@ -50,7 +55,7 @@ export default function GameCanvas () {
                 openModal("setting")
               }}
               style={{lineHeight: "15px"}}>
-              내 닉네임
+              {accountData.nickname}
               <div style={{color: "#C7C7C7", fontSize: "10px"}}>개인 설정 ></div>
             </div>
           </div>

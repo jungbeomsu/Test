@@ -47,7 +47,7 @@ export default function Dashboard(props) {
 
   const goToMainScreen = () => {
     if(targetRoomUrl!== ''){
-        history.push({pathname: `/room/${targetRoomUrl}`})
+      history.push({pathname: `/room/${targetRoomUrl}`})
     }
     else{
       alert('targetRoomUrl is empty'); //TODO: 제외하기

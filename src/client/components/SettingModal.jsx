@@ -1,5 +1,5 @@
 import Modal from "react-modal";
-import React, {useState, useRef} from "react";
+import React, {useState, useRef, useReducer, useEffect} from "react";
 import GameChangeCharacter from "./GameChangeCharacter";
 import Switch from "./Switch";
 import Popup from "./Popup.jsx";
@@ -19,6 +19,10 @@ import {
   checkButton,
   unCheckButton,
 } from "../resources/images";
+import {useDispatch, useSelector} from "react-redux";
+import {room} from "../api/service/room";
+import {user} from "../api/service/user";
+import {setProfile} from "../redux/features/account/accountSlice";
 
 // 공간설정
 const sampleArr = [
@@ -45,6 +49,29 @@ const setIndexArr = [
   {id: 5, name: "보안 설정"},
 ]
 
+function reducer(state, action) {
+  switch (action.type) {
+    case 'CHANGE_PROFILE':
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          ...action.payload
+        }
+      }
+    case 'CHANGE_PROFILE_VALUE':
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          nickname: action.payload.nickname
+        }
+      }
+    default:
+      throw new Error('Error action type is not undefined')
+  }
+}
+
 export default function SettingModal({modalIsOpen, closeModal, settingIndex, setSettingIndex}) {
   const [settingType, setSettingType] = useState("프로필 설정");
   const [switchValue, setSwitchValue] = useState(false);
@@ -62,6 +89,7 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
     two: undefined,
   });
 
+
   const [events, setEvents] = useState({
     one: () => {console.log('one button alert triggered')},
     two: () => {console.log('two button alert triggered')},
@@ -73,7 +101,30 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
     password: sampleData.password,
   })
 
-  const {nickname, roomname, password} = inputs;
+  const {account, roomInfo} = useSelector(({account, roomInfo}) => ({
+    account,
+    roomInfo
+  }))
+
+  const accountDispatch = useDispatch()
+
+  const [state, dispatch] = useReducer(reducer, {
+    profile: {
+      nickname: account.nickname,
+      characterId: account.characterId,
+      isChanging: false
+    },
+    room: {
+      name: roomInfo.name || null
+    }
+
+  })
+
+  const {profile: {nickname, isChanging, characterId}, room: {name}} = state
+
+  useEffect(() => {
+
+  }, [])
 
   const [inputChanges, setInputChanges] = useState({
     nicknameChange: false,
@@ -83,19 +134,9 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
 
   const {nicknameChange, roomnameChange, passwordChange} = inputChanges;
 
-  const onChange = (e) => {
-    const {name, value} = e.target;
-    setInputs({
-      ...inputs,
-      [name]: value,
-    })
-  }
-
   // 게임 캐릭터 설정
-  const [characterId, setCharacterId] = useState(211);
-  let currentMap = 301;
 
-  console.log('characterId ~~~', characterId);
+  let currentMap = 301;
 
   const renderSetting = (settingIndex) => {
     switch (settingIndex) {
@@ -108,7 +149,11 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
               </div>
               변경된 프로필은 당신의 다른 모든 공간에 동일하게 적용됩니다.
             </div>
-            <div style={{display: "flex", marginTop: "32px", alignItems: "center", justifyContent: "space-between", width: "100%"}}>
+            <div style={
+
+
+
+              {display: "flex", marginTop: "32px", alignItems: "center", justifyContent: "space-between", width: "100%"}}>
               <div style={{display: "flex", color: "#1C1C1E", width: "50px"}}>
                 닉네임
               </div>
@@ -116,24 +161,24 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
                 <input
                   ref={inputRef}
                   name="nickname"
-                  onChange={onChange}
                   value={nickname}
-                  disabled={!nicknameChange}
+                  onChange={(e) => dispatch({type: 'CHANGE_PROFILE_VALUE', payload: {nickname: e.target.value}})}
+                  disabled={!isChanging}
                   style={{
-                    border: nicknameChange ? "1px solid #5E1CAF" : "none",
+                    border: isChanging ? "1px solid #5E1CAF" : "none",
                     outline: "none",
                     width: "448px",
                     height: "30px",
-                    backgroundColor: nicknameChange ? "white" : "#F0F0F0",
+                    backgroundColor: isChanging ? "white" : "#F0F0F0",
                     borderRadius: "4px",
                     padding: "4px 16px",
-                    color: nicknameChange ? "#1C1C1E" : "#AEAEAE",
+                    color: isChanging ? "#1C1C1E" : "#AEAEAE",
                   }}
                   placeholder={"내 현재 닉네임이 들어갑니다. "}
                 />
                 <div
                   onClick={() => {
-                    setInputChanges({...inputChanges, nicknameChange: !nicknameChange})
+                    dispatch({type: 'CHANGE_PROFILE', payload: { isChanging: !isChanging }})
                     inputRef.current.focus();
                   }}
                   style={{
@@ -145,7 +190,7 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
                     textDecoration:  "underline"
                   }}
                 >
-                  {nicknameChange ? "저장" : "닉네임 변경"}
+                  {isChanging ? "저장" : "닉네임 변경"}
                 </div>
               </div>
 
@@ -159,7 +204,7 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
                 <div style={{overflow: "scroll"}}>
                   {/* 게임 캐릭터 공간 */}
                   <GameChangeCharacter
-                    setCharacterId={setCharacterId}
+                    dispatch={dispatch}
                     characterId={characterId}
                     currentMap={currentMap}
                   />
@@ -168,6 +213,11 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
             </div>
             <div
               onClick={() => {
+
+                user.updateProfile(nickname, characterId).then(({nickname, characterId}) => {
+                  accountDispatch(setProfile({...account, nickname, characterId}))
+                })
+
                 setMessages({one: "변경 되었습니다"});
                 setOneBtnPopup(true);
                 setEvents({...events, one: () => {
@@ -318,8 +368,7 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
                 <input
                   ref={inputRef}
                   name="roomname"
-                  onChange={onChange}
-                  value={roomname}
+                  value={name}
                   disabled={!roomnameChange}
                   style={{
                     border: roomnameChange ? "1px solid #5E1CAF" : "none",
@@ -495,7 +544,6 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
                   <input
                     ref={inputRef}
                     name="password"
-                    onChange={onChange}
                     value={password}
                     disabled={!passwordChange}
                     style={{

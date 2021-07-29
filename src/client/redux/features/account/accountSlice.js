@@ -19,6 +19,7 @@ const accountSlice = createSlice({
       state.nickname = nickname;
     },
     setUserId(state, action) {
+
       state.userId = action.payload;
     }
   }
