@@ -5,11 +5,7 @@ import Switch from "./Switch";
 import {useHistory} from "react-router-dom";
 import {makeId} from "../utils";
 import {useDispatch} from "react-redux";
-import {setRoomInfo} from "../redux/features/room/roomInfoSlice";
 import GetServerDataWithToken from "../api/GetServerDataWithToken";
-import axios from "axios";
-import {Config} from "../constants";
-import {amplitudeAnonInstance} from "../amplitude";
 
 export default function CreateSpace() {
   const [isMenu, setIsMenu] = useState(false);
@@ -18,6 +14,7 @@ export default function CreateSpace() {
   const [hasPassword, setHasPassword] = useState(false);
   const [presetId, setPresetId] = useState(undefined);
   const [roomList, setRoomList] = useState([]);
+
 
   const [inputs, setInputs] = useState({
     roomname: undefined,
@@ -65,7 +62,7 @@ export default function CreateSpace() {
       password: password,
       has_password: hasPassword,
       purpose_id: purposeId,
-      room_preset_id: presetId
+      preset_id: presetId,
     };
 
     GetServerDataWithToken(roomData, "/v1/room/create", (res) => {
