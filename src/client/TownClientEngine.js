@@ -158,27 +158,9 @@ export default class TownClientEngine extends ClientEngine {
     this.socket.emit("playerInfo", info);
   }
 
-  sendVideoMetric(playerId, time, isStart) {
-    // time is milliseconds since epoch
-    // isStart is if it's the start of a call, or end of call
-    this.socket.emit("videoMetric", {
-      "userId": localPreferences.get("user")["id"],
-      "playerId": playerId,
-      "time": time,
-      "isStart": isStart,
-      "isProd": isProd()
-    });
-  }
+  sendVideoMetric(playerId, time, isStart) {}
 
-  sendOnVideoMetric(time, isStart) {
-    // If the player was on video with anyone
-    this.socket.emit("onVideoMetric", {
-      "userId": localPreferences.get("user")["id"],
-      "time": time,
-      "isStart": isStart,
-      "isProd": isProd()
-    });
-  }
+  sendOnVideoMetric(time, isStart) {}
 
   ///////////////////////////////////////////////////////
   //                                                   //
