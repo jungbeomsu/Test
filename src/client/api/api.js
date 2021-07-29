@@ -95,11 +95,18 @@ const api = {
       "nickname": nickname,
       "character_id": characterId
     }
-    let data = await process(path, req);
+    let data = await processAuth(path, req);
     if (!data.result.is_success) {
-      return false;
+      return null;
     }
-    return true;
+    return {
+      accountId: data.account_id,
+      accountType: data.account_type,
+      emailAddress: data.email_address,
+      userId: data.id,
+      nickname: data.nickname,
+      characterId: data.character_id
+    };
   },
 
   getProfile: async (userId,) => {
@@ -173,7 +180,7 @@ const api = {
   getRoomList: async () => {
 
     let path = '/v1/room/list/get';
-    let data = await process(path);
+    let data = await processAuth(path);
     if (!data.result.is_success) {
       return null;
     }
@@ -184,9 +191,9 @@ const api = {
           creatorId: room.creator_id,
           description: room.description,
           hasPassword: room.has_password,
-          id: room.id,
-          name: room.name,
-          purposeId: room.purposeId,
+          roomId: room.id,
+          roomName: room.name,
+          purposeId: room.purpose_id,
           roomUrl: room.room_url
         }
       })

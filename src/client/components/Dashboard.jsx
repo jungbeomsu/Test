@@ -1,55 +1,42 @@
 import React, {useEffect, useState} from 'react';
-import {
-  exitIconG,
-  memberIcon,
-  profileIconL,
-  settingIconG,
-  createdRoomImage,
-} from "../resources/images";
+import {createdRoomImage, errorIcon, exitIconG, memberIcon, profileIconL, settingIconG,} from "../resources/images";
 import "./Dashboard.css";
 import {useHistory, useLocation} from "react-router-dom";
-import {getRoomFromPath, makeId} from "../utils";
-import GetServerDataWithToken from "../api/GetServerDataWithToken";
-import jwt_decode from "jwt-decode";
+import {makeId} from "../utils";
 import GetGameServerDataWithToken from "../api/GetGameServerDataWithToken";
 import CentiToken from "../api/CentiToken";
+import api from "../api/api";
+import RoomList from "./RoomList";
+import './Dashboard.css';
 
 export default function Dashboard(props) {
   const [nickname, setNickname] = useState(undefined);
-  const [memberList, setMemberList] = useState({});
+  const [activeUsers, setActiveUsers] = useState({});
+  const [roomCount, setRoomCount] = useState(undefined);
   const [roomList, setRoomList] = useState([]);
   const [targetRoomUrl, setTargetRoomUrl] = useState('');
+  const [hover, setHover] = useState(false);
+
   const history = useHistory();
   const location = useLocation();
-
   let [randomId, _] = useState(makeId(16));
 
   useEffect(() => {
-    const user_id = CentiToken.getUserId();
-    const req = {
-      user_id,
-    }
-
-    GetServerDataWithToken(req, "/v1/user/get", (res) => {
-      setNickname(res.nickname);
-
-    }, (error) => {
-      console.log("error:" + JSON.stringify(error))
-    });
-
-    GetServerDataWithToken(null, "/v1/room/list/get", (res) => {
-      setRoomList(res.room_list);
-
-    }, (error) => {console.log("error:" + JSON.stringify(error))
+    const userId = CentiToken.getUserId();
+    api.getProfile(userId).then(res => {
+      setNickname(res.nickname)
+    })
+    api.getRoomList().then(res => {
+      setRoomCount(res.roomCount)
+      setRoomList(res.roomList)
     })
 
   }, [])
 
   useEffect(()=>{
-    let roomUrls = roomList.map(r => r.room_url);
+    let roomUrls = roomList.map(r => r.roomUrl);
     GetGameServerDataWithToken({rooms: roomUrls}, '/roomsInfo', (res) => {
-      console.log(res.data);
-      setMemberList(res.data);
+      setActiveUsers(res.data);
     })
 
   }, [roomList])
@@ -67,6 +54,14 @@ export default function Dashboard(props) {
     }
   }
 
+  const getRoomActiveUsers = (roomList) => {
+    const roomUrl = roomList.find(r => {
+      if (r.roomUrl === targetRoomUrl) return targetRoomUrl
+    })?.roomUrl
+
+    return activeUsers[roomUrl]
+  }
+
   return (
     <div style={{width: "100vw", height: "100vh", display: "flex"}}>
       <div style={{width: "304px", height: "100vh", backgroundColor: "#47335F"}}>
@@ -80,7 +75,6 @@ export default function Dashboard(props) {
                 <span style={{fontSize: "28px"}}>eter</span>
               </div>
             </div>
-
             <div style={{display: "flex", alignItems: "center", marginTop: "80px", padding: "0 24px"}}>
               <div style={{position: "relative", display: "inline-block", marginRight: "8px"}}>
                 {profileIconL}
@@ -98,7 +92,6 @@ export default function Dashboard(props) {
               </div>
               <div style={{color: "#F0F0F0"}}>{nickname}</div>
             </div>
-
             <div style={{padding: "0 24px"}}>
               <div style={{marginTop: "40px", color: "#C7C7C7", fontSize: "12px"}}>
                 개인 설정
@@ -117,40 +110,17 @@ export default function Dashboard(props) {
               </div>
             </div>
 
-            {roomList.length > 0 && roomList.map((room, idx) => {
+            <RoomList roomCount={roomCount} roomList={roomList} setTargetRoomUrl={setTargetRoomUrl} activeUsers={activeUsers} targetRoomUrl={targetRoomUrl}/>
 
-              return (
-                <div key={idx} onClick={() => {
-                  setTargetRoomUrl(room.room_url);
-                }}>
-                  <div style={{marginTop: "40px", color: "#C7C7C7", fontSize: "12px", marginBottom: "8px", padding: "0 24px"}}>
-                    참여 중
-                    {memberList[room.room_url]}
-                  </div>
-                  <div style={{padding: "0 12px"}}>
-                    <div style={{display: "flex", alignItems: "center", backgroundColor: "rgba(0, 0, 0, 0.2)", height: "52px", borderRadius: "16px", width: "100%", color: "#F0F0F0", padding: "14px 12px"}}>
-                      <div style={{marginRight: "16px", display: "flex", alignItems: "center"}}>
-                        <div style={{marginRight: "4px", display: "flex", alignItems: "center"}}>
-                          {memberIcon}
-                        </div>
-                        {memberList[room.room_url]}
-                      </div>
-                      <div>
-                        {room.name}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
           </div>
-
           <div style={{width: "100%", display: "flex", justifyContent: "center"}}>
             <div
+              onMouseOut={() => setHover(false)}
+              onMouseOver={() => setHover(true)}
               onClick={goToCreateSpace}
               style={{
-                color: "#F0F0F0",
-                border: "1px solid #F0F0F0",
+                color: hover ? "#3A3A3C" : "#F0F0F0",
+                border: hover ? "none" : "1px solid #F0F0F0",
                 borderRadius: "8px",
                 height: "46px",
                 display: "flex",
@@ -158,77 +128,113 @@ export default function Dashboard(props) {
                 alignItems: "center",
                 marginBottom: "32px",
                 padding: "0 24px",
-                width: "276px"
+                width: "276px",
+                backgroundColor: hover && "white"
               }}>
               새 공간 만들기 +
             </div>
           </div>
         </div>
       </div>
-
-        {roomList.length <= 0 ?
-          <div style={{backgroundColor: "black", height: "100vh", width: "100%", position: "relative"}}>
-            <div className="dashboard-modal">
-              <div>
-                <div style={{color: "#3A3A3C", fontSize: "28px", fontWeight: "bold", marginBottom: "8px"}}>아직 참여한 공간이 없습니다!</div>
-                <div style={{color: "#636363", fontSize: "16px", width: "100%", display: "flex", justifyContent: "center"}}>새 공간을 만들고 친구들을 초대해보세요!</div>
-              </div>
-
-              <div
-                onClick={goToCreateSpace}
-                style={{backgroundColor: "#27D96E", height: "46px", width: "400px", borderRadius: "8px", display: "flex", justifyContent: "center", alignItems: "center", color: "white", fontSize: "16px", marginTop: "52px"}}>
-                새 공간 만들기 +
-              </div>
-
+      {roomList.length <= 0 ?
+        <div style={{backgroundColor: "black", height: "100vh", width: "100%", position: "relative"}}>
+          <div className="dashboard-modal">
+            <div>
+              <div style={{color: "#3A3A3C", fontSize: "28px", fontWeight: "bold", marginBottom: "8px"}}>아직 참여한 공간이 없습니다!</div>
+              <div style={{color: "#636363", fontSize: "16px", width: "100%", display: "flex", justifyContent: "center"}}>새 공간을 만들고 친구들을 초대해보세요!</div>
+            </div>
+            <div
+              onClick={goToCreateSpace}
+              style={{backgroundColor: "#27D96E", height: "46px", width: "400px", borderRadius: "8px", display: "flex", justifyContent: "center", alignItems: "center", color: "white", fontSize: "16px", marginTop: "52px"}}>
+              새 공간 만들기 +
             </div>
           </div>
+        </div>
         :
-          <div style={{backgroundImage: `url(${createdRoomImage})`, height: "100%", width: "100%",  backgroundRepeat : "no-repeat", backgroundSize : "cover"}}>
-            <div style={{backgroundColor: "#47335F", width: "304px", height: "100vh", position: "absolute", right: 0}}>
-              <div style={{position: "absolute", top: "80px", left: "24px", color: "#C7C7C7", fontSize: "12px"}}>접속 중 0</div>
+        <div style={{backgroundImage: `url(${createdRoomImage})`, height: "100%", width: "100%",  backgroundRepeat : "no-repeat", backgroundSize : "cover"}}>
+          <div style={{backgroundColor: "#47335F", width: "304px", height: "100vh", position: "absolute", right: 0}}>
+            <div style={{}}>
+              <div style={{color: "#C7C7C7", fontSize: "12px", marginBottom: "8px", paddingTop: "80px", paddingLeft: "24px"}}>
+                접속 중 {getRoomActiveUsers(roomList)}
+              </div>
+              {
+                getRoomActiveUsers(roomList) ?
+                  <div style={{paddingLeft: "14px"}}>
+                    {Array(getRoomActiveUsers(roomList)).fill(0).map((item, idx) => {
+                      return (
 
-              <div style={{position: "absolute", bottom: 0, width: "100%"}}>
-                <div style={{width: "100%", display: "flex", justifyContent: "center"}}>
-                  <div
-                    // onClick={goToCreateSpace}
-                    style={{
-                      color: "#F0F0F0",
-                      border: "1px solid #F0F0F0",
-                      borderRadius: "8px",
-                      height: "46px",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      marginBottom: "32px",
-                      padding: "0 24px",
-                      width: "276px"
-                    }}>
-                    공간 설정
+                        <div style={{display: "flex", alignItems: "center", padding: "10px 12px"}}>
+                          <div style={{position: "relative", display: "inline-block", marginRight: "8px"}}>
+                            {profileIconL}
+                            <div style={{
+                              width: "12px",
+                              height: "12px",
+                              backgroundColor: "#00FF47",
+                              borderRadius: "50%",
+                              position: "absolute",
+                              bottom: 0,
+                              right: 0,
+                              border: "2px solid white"
+                            }}>
+                            </div>
+                          </div>
+                          <div style={{fontSize: "16px",color: "#F0F0F0"}}>접속자 {idx+1}</div>
+                        </div>
+                      )
+                    })}
                   </div>
+                  :
+
+                  <div class="no-user">
+                    <div style={{display: "flex", justifyContent: "center", marginBottom: "4px"}}>
+                      {errorIcon}
+                    </div>
+                    현재 참여중인 인원이 없습니다
+                  </div>
+              }
+            </div>
+            <div style={{position: "absolute", bottom: 0, width: "100%"}}>
+              <div style={{width: "100%", display: "flex", justifyContent: "center"}}>
+                <div
+                  // onClick={goToCreateSpace}
+                  style={{
+                    color: "#F0F0F0",
+                    border: "1px solid #F0F0F0",
+                    borderRadius: "8px",
+                    height: "46px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginBottom: "32px",
+                    padding: "0 24px",
+                    width: "276px"
+                  }}>
+                  공간 설정
                 </div>
+              </div>
 
-                <div style={{width: "100%", display: "flex", justifyContent: "center"}}>
-                  <div
-                    onClick={goToMainScreen}
-                    style={{
-                      color: "#F0F0F0",
-                      backgroundColor: "#27D96E",
-                      borderRadius: "8px",
-                      height: "46px",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      marginBottom: "32px",
-                      padding: "0 24px",
-                      width: "276px"
-                    }}>
-                    공간 입장
-                  </div>
+              <div style={{width: "100%", display: "flex", justifyContent: "center"}}>
+                <div
+                  onClick={goToMainScreen}
+                  style={{
+                    color: "#F0F0F0",
+                    backgroundColor: "#27D96E",
+                    borderRadius: "8px",
+                    height: "46px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginBottom: "32px",
+                    padding: "0 24px",
+                    width: "276px"
+                  }}>
+                  공간 입장
                 </div>
               </div>
             </div>
           </div>
-        }
+        </div>
+      }
     </div>
   )
 }
