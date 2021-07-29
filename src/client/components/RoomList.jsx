@@ -8,7 +8,7 @@ export default function RoomList({roomCount, roomList, setTargetRoomUrl, activeU
       <div style={{marginTop: "40px", color: "#C7C7C7", fontSize: "12px", marginBottom: "8px", padding: "0 24px"}}>
         참여중인 공간 {roomCount}
       </div>
-      <div style={{paddingBottom: "100px", overflow: "scroll", height: "800px"}}>
+      <div style={{overflow: "scroll", height: "800px"}}>
         {roomList.length > 0 && roomList.map((room, idx) => {
           return (
             <div
