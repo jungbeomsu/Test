@@ -12,6 +12,7 @@ import {getRoomFromPath, makeId} from "../utils";
 import GetServerDataWithToken from "../api/GetServerDataWithToken";
 import jwt_decode from "jwt-decode";
 import GetGameServerDataWithToken from "../api/GetGameServerDataWithToken";
+import CentiToken from "../api/CentiToken";
 
 export default function Dashboard(props) {
   const [nickname, setNickname] = useState(undefined);
@@ -19,15 +20,12 @@ export default function Dashboard(props) {
   const [roomList, setRoomList] = useState([]);
   const [targetRoomUrl, setTargetRoomUrl] = useState('');
   const history = useHistory();
-
   const location = useLocation();
-  const temp = location.url ? location.url.slice(1,).split("/") : null;
 
   let [randomId, _] = useState(makeId(16));
 
   useEffect(() => {
-    const tokenInfo = jwt_decode(localStorage.getItem("@access_token"));
-    const user_id = tokenInfo.UserId;
+    const user_id = CentiToken.getUserId();
     const req = {
       user_id,
     }
@@ -41,23 +39,19 @@ export default function Dashboard(props) {
 
     GetServerDataWithToken(null, "/v1/room/list/get", (res) => {
       setRoomList(res.room_list);
+
     }, (error) => {console.log("error:" + JSON.stringify(error))
     })
 
   }, [])
 
   useEffect(()=>{
-    roomList.forEach(r => {
-      GetGameServerDataWithToken({room: r.room_url}, "/roomInfo", (res) => {
-        console.log(`실시간 멤버수: ${r.room_url}:  ${res.data}`);
-        // setMemberList(prev => Object.assign(prev, {[r.room_url.toString()] : res.data}));
-        setMemberList((prevMemberList) => {
-          let newMemberList = Object.assign({}, prevMemberList);
-          newMemberList[r.room_url] = res.data;
-          return newMemberList;
-        });
-      }, (console.error));
+    let roomUrls = roomList.map(r => r.room_url);
+    GetGameServerDataWithToken({rooms: roomUrls}, '/roomsInfo', (res) => {
+      console.log(res.data);
+      setMemberList(res.data);
     })
+
   }, [roomList])
 
   const goToCreateSpace = () => {

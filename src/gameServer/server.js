@@ -141,5 +141,21 @@ export function setUpGameApiRouter(serverEngine) {
     })
   })
 
+  router.post('/roomsInfo', checkAuth, (req, res) => {
+    const rawRoomIds = req.body.rooms;
+    if(!rawRoomIds) return res.status(400).send();
+    logger.http(''+JSON.stringify(rawRoomIds));
+    const ret = rawRoomIds.reduce((acc, cur) => ({
+      ...acc,
+      [cur]: serverEngine.getRoomInfo(cur)
+    }), {});
+    res.json({
+      data: ret,
+      result: {
+        is_success: true,
+      }
+    })
+  })
+
   return router;
 }
