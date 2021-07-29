@@ -78,6 +78,7 @@
     "firebase-admin": "^8.10.0",
     "jsonwebtoken": "^8.5.1",
     "jwt-decode": "^3.1.2",
+    "js-cookie": "^3.0.0",
     "lance-gg": "^4.0.8",
     "mailgun-js": "^0.22.0",
     "mysql2": "^2.2.5",

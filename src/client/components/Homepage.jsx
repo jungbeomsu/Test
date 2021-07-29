@@ -12,6 +12,7 @@ import {RtToken} from "../lib/Utils";
 import {useHistory} from "react-router-dom";
 import {Config} from "../lib/Utils";
 import jwt_decode from "jwt-decode";
+import api from "../api/api";
 
 const Twitter = '/images/site/twitter.png';
 const {Kakao} = window;
@@ -305,6 +306,8 @@ export default function Homepage() {
         }, (e) => {
           console.log("error:" + JSON.stringify(e))
         })
+
+        api.login('KAKAO', authObj.access_token).then();
 
       },
       fail: function (err) {
