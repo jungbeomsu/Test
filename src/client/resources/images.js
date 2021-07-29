@@ -39,3 +39,4 @@ export const kakaoIcon = <img style={{width: "24px", height: "24px"}} src={requi
 export const facebookIcon = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/facebook_icon.png").default}/>
 export const leftArrow = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/left_arrow.png").default}/>
 export const createdRoomImage = require("../images/v1/createdRoomImage.png").default
+export const errorIcon = <img style={{width: "24px", height: "24px"}} src={require("../images/v1/error_outline.png").default}/>
