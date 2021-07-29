@@ -72,10 +72,10 @@ const api = {
     }
     let data = await process(path, req);
     if (!data.result.is_success) {
-      return false;
+      return null;
     }
     CentiToken.save(data.access_token, data.expires_at, data.refresh_token);
-    return true;
+    return data.user_id;
   },
 
   logout: async () => {
@@ -103,12 +103,11 @@ const api = {
   },
 
   getProfile: async (userId,) => {
-
     let path = '/v1/user/get';
     let req = {
       "user_id": userId
     }
-    let data = await process(path, req);
+    let data = await processAuth(path, req);
     if (!data.result.is_success) {
       return null;
     }
@@ -116,7 +115,7 @@ const api = {
       accountId: data.account_id,
       accountType: data.account_type,
       emailAddress: data.email_address,
-      id: data.id,
+      userId: data.id,
       nickname: data.nickname,
       characterId: data.character_id
     };

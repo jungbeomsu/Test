@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-
+import jwt_decode from "jwt-decode";
 const CentiToken = {
 
   save: (accessToken, expiresAt, refreshToken) => {
@@ -25,6 +25,17 @@ const CentiToken = {
 
     Cookies.remove('access_token');
     Cookies.remove('refresh_token');
+  },
+
+  getUserId: () => {
+
+    const accessToken = Cookies.get('access_token');
+    if (!accessToken) {
+      return null;
+    }
+
+    const tokenInfo = jwt_decode(accessToken);
+    return tokenInfo.UserId;
   }
 }
 

@@ -1,5 +1,6 @@
 import axios from 'axios';
-import {Config, RtToken} from '../lib/Utils';
+import {Config} from '../lib/Utils';
+import CentiToken from "./CentiToken";
 
 export default async function GetServerDataWithToken(
   data,
@@ -10,7 +11,7 @@ export default async function GetServerDataWithToken(
 ) {
   const refreshAccessToken = async () => {
 
-    const refreshToken = await RtToken.getRefreshToken();
+    const refreshToken = await CentiToken.getRefreshToken();
     const config = {
       method: 'POST',
       url: `${Config.apiDomain}/v1/user/access_token/refresh`,
@@ -22,7 +23,7 @@ export default async function GetServerDataWithToken(
 
       if (response.data.result.is_success) {
 
-        await RtToken.save(response.data.access_token, response.data.expires_at, response.data.refresh_token);
+        await CentiToken.save(response.data.access_token, response.data.expires_at, response.data.refresh_token);
         await GetServerDataWithToken(
           data,
           url,
@@ -31,12 +32,12 @@ export default async function GetServerDataWithToken(
           1,
         );
       } else {
-        await RtToken.remove();
+        await CentiToken.remove();
       }
     });
   }
 
-  const accessToken = await RtToken.getAccessToken();
+  const accessToken = await CentiToken.getAccessToken();
   if (accessToken) {
     const config = {
       method: 'POST',
@@ -58,7 +59,7 @@ export default async function GetServerDataWithToken(
         if (callCount === 0) {
           refreshAccessToken();
         } else {
-          RtToken.remove();
+          CentiToken.remove();
         }
       } else {
         processResultFailFunc(response.data);
@@ -69,6 +70,6 @@ export default async function GetServerDataWithToken(
   } else if (callCount === 0) {
     await refreshAccessToken();
   } else {
-    await RtToken.remove()
+    await CentiToken.remove()
   }
 }
