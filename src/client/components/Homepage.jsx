@@ -17,18 +17,18 @@ function LoginWithKakao({login}) {
     <div
       onClick={login}
       style={{
-      width: '324px',
-      height: '48px',
-      background: '#FFE812',
-      border: "none",
-      boxSizing: 'border-box',
-      borderRadius: '8px',
-      marginBottom: '12px',
-      cursor: 'pointer',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center'
-    }}>
+        width: '324px',
+        height: '48px',
+        background: '#FFE812',
+        border: "none",
+        boxSizing: 'border-box',
+        borderRadius: '8px',
+        marginBottom: '12px',
+        cursor: 'pointer',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}>
       <div style={{marginTop: "4px"}}>
         {kakaoIcon}
       </div>
@@ -175,6 +175,7 @@ export default function Homepage() {
   const login = () => {
     Kakao.Auth.login({
       success: async function (authObj) {
+        console.log('access_token: ', authObj.access_token, 'refresh_token: ', authObj.refresh_token);
         const userId = await api.login('KAKAO', authObj.access_token);
         dispatch(setUserId(userId));
         history.push({pathname: '/createProfile'});
@@ -200,9 +201,15 @@ export default function Homepage() {
   }
 
   return (
-    <div style={{ width: "100vw", height: "100vh"}}>
-      <div style={{backgroundImage: `url(${loginBackground})`, height: "100%",  backgroundRepeat : "no-repeat", backgroundSize : "cover"}}>
-        <div style={{display: "flex", justifyContent: "space-between", padding: "50px 50px 0 50px", alignItems: "center"}}>
+    <div style={{width: "100vw", height: "100vh"}}>
+      <div style={{
+        backgroundImage: `url(${loginBackground})`,
+        height: "100%",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover"
+      }}>
+        <div
+          style={{display: "flex", justifyContent: "space-between", padding: "50px 50px 0 50px", alignItems: "center"}}>
           <div style={{fontSize: "60px", fontWeight: "bold", color: "white"}}>센티미터</div>
           {
             userId ?
@@ -267,7 +274,8 @@ export default function Homepage() {
                 marginTop: "50px"
               }}>
                 <div style={{borderTop: "1px solid #E5E5E5", width: "100px"}}/>
-                <div style={{color: "#AEAEAE", fontSize: "14px", margin: "0 5px", fontWeight: "normal"}}>아래 소셜계정으로 로그인</div>
+                <div style={{color: "#AEAEAE", fontSize: "14px", margin: "0 5px", fontWeight: "normal"}}>아래 소셜계정으로 로그인
+                </div>
                 <div style={{borderTop: "1px solid #E5E5E5", width: "100px"}}/>
               </div>
               <div style={{marginTop: "25px", marginBottom: "40px"}}>
