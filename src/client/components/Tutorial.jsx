@@ -4,6 +4,7 @@ import {useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
 import GetServerDataWithToken from "../api/GetServerDataWithToken";
 import jwt_decode from "jwt-decode";
+import CentiToken from "../api/CentiToken";
 
 export default function Tutorial(props) {
   const [nickname, setNickname] = useState(undefined);
@@ -15,9 +16,7 @@ export default function Tutorial(props) {
   const history = useHistory();
 
   useEffect(() => {
-
-    const tokenInfo = jwt_decode(localStorage.getItem("@access_token"));
-    const user_id = tokenInfo.UserId;
+    const user_id = CentiToken.getUserId();
     const req = {
       user_id,
     }

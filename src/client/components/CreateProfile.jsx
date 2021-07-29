@@ -3,7 +3,7 @@ import GameChangeCharacter from "./GameChangeCharacter";
 import {cloud, town} from "../resources/images";
 import {useHistory} from "react-router-dom";
 import {useDispatch} from "react-redux";
-import {setAccount} from "../redux/features/account/accountSlice";
+import {setProfile} from "../redux/features/account/accountSlice";
 import GetServerDataWithToken from "../api/GetServerDataWithToken";
 
 export default function CreateProfile() {
@@ -22,7 +22,7 @@ export default function CreateProfile() {
 
     GetServerDataWithToken(req, '/v1/user/update', (res) => {
 
-      const accountData = {
+      const profileData = {
         accountId: res.account_id,
         accountType: res.account_type,
         characterId: res.character_id,
@@ -30,7 +30,7 @@ export default function CreateProfile() {
         nickname: res.nickname,
       }
 
-      dispatch(setAccount(accountData))
+      dispatch(setProfile(profileData))
       history.push({pathname: "/tutorial"})
 
     }, (e) => {console.log("error:" + JSON.stringify(error))});
