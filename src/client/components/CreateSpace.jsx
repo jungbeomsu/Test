@@ -1,11 +1,11 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import "./Dashboard.css";
 import {leftArrow} from "../resources/images";
 import Switch from "./Switch";
 import {useHistory} from "react-router-dom";
 import {makeId} from "../utils";
 import {useDispatch} from "react-redux";
-import GetServerDataWithToken from "../api/GetServerDataWithToken";
+import api from "../api/api";
 
 export default function CreateSpace() {
   const [isMenu, setIsMenu] = useState(false);
@@ -28,12 +28,7 @@ export default function CreateSpace() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    GetServerDataWithToken(null, '/v1/setting/room_preset/get', (res) => {
-      setRoomList(res.room_preset_list);
-
-    }, (e) => {
-      console.log("error:" + JSON.stringify(error))
-    })
+    api.roomPreset().then(res => setRoomList(res.roomPresetList));
   }, [])
 
   const goToHome = () => {
@@ -55,72 +50,72 @@ export default function CreateSpace() {
   }
 
   const createNewRoom = () => {
-    alert(`공간 이름 : ${roomname}\n비밀번호 : ${password} \n개설 목적: ${purposeId}\n공간 정보가 저장되었습니다!`);
-
-    const roomData = {
-      name: roomname,
-      password: password,
-      has_password: hasPassword,
-      purpose_id: purposeId,
-      preset_id: presetId,
-    };
-
-    GetServerDataWithToken(roomData, "/v1/room/create", (res) => {
-      history.push({pathname: "/dashboard"})
-
-    }, (e) => {
-      console.log("error:" + JSON.stringify(error))
-    })
-
-
+    api.createRoom(roomname, password, presetId, hasPassword, password)
+      .then(() => history.push({pathname: "/dashboard"}))
   }
 
   return (
-    <div style={{display: "flex", justifyContent: isMenu ? "space-between" : "center", alignItems: "center", flexDirection: isMenu ? null : "column", backgroundColor: "white", width: "100vw", height: "100vh", overflow: "hidden"}}>
-      <div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
-        <div style={{width: "1096px", height: "1374px", display: "flex", flexDirection: "column", justifyContent: "center"}}>
-          <div
-            onClick={goToHome}
-            style={{display: "flex", justifyContent: "flex-start", width: "100%", alignItems: "center"}}>
-            {leftArrow}
-            <div style={{color: "#AEAEAE", fontSize: "16px", marginLeft: "8px"}}>홈으로 돌아가기</div>
-          </div>
-
-          <div style={{marginTop: "24px"}}>
-            <div style={{fontSize: "24px", fontWeight: "bold", color: "#1C1C1E"}}>
-              당신만의 공간을 선택해주세요!
+    <div style={{
+      display: "flex",
+      justifyContent: isMenu ? "space-between" : "center",
+      flexDirection: isMenu ? null : "column",
+      backgroundColor: "white",
+    }}>
+      <div style={{display: "flex", justifyContent: "center", width: "100%"}}>
+        <div>
+          <div style={{width: "1000px", marginTop: "80px"}}>
+            <div
+              onClick={goToHome}
+              style={{display: "flex", justifyContent: "flex-start", alignItems: "center"}}>
+              {leftArrow}
+              <div style={{color: "#AEAEAE", fontSize: "16px", marginLeft: "8px"}}>홈으로 돌아가기</div>
             </div>
-            <div style={{fontSize: "14px", color: "#636363", marginTop: "4px"}}>
-              Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+
+            <div style={{marginTop: "24px"}}>
+              <div style={{fontSize: "24px", fontWeight: "bold", color: "#1C1C1E"}}>
+                당신만의 공간을 선택해주세요!
+              </div>
+              <div style={{fontSize: "14px", color: "#636363", marginTop: "4px", lineHeight: "23px", marginBottom: "100px"}}>
+                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the
+                industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and
+                scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap
+                into
+                electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the
+                release
+                of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software
+                like Aldus PageMaker including versions of Lorem Ipsum.
+              </div>
             </div>
           </div>
-
-          <div style={{marginTop: "114px", overflow: "scroll"}}>
+          <div style={{height: "800px", overflow: "scroll"}}>
             {roomList.map((roomCategory) => {
               return (
-                <Space roomCategory={roomCategory} setIsMenu={setIsMenu} setMenuTitle={setMenuTitle} setPresetId={setPresetId}/>
+                <Space roomCategory={roomCategory} setIsMenu={setIsMenu} setMenuTitle={setMenuTitle}
+                       setPresetId={setPresetId}/>
               )
             })}
-
           </div>
         </div>
       </div>
-
       {isMenu &&
         <div style={{width: "410px", height: "100vh", backgroundColor: "#47335F", padding: "0px 24px"}}>
           <div style={{display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%"}}>
             <div>
               <div style={{marginTop: "80px"}}>
                 <div style={{display: "flex", alignItems: "flex-end"}}>
-                  <div style={{fontSize: "28px", color: "white", fontWeight: "bold", marginRight: "4px"}}>{menuTitle}</div>
+                  <div
+                    style={{fontSize: "28px", color: "white", fontWeight: "bold", marginRight: "4px"}}>{menuTitle}</div>
                   <span style={{fontSize: "14px", color: "white", opacity: 0.8}}>선택됨</span>
                 </div>
-                <div style={{marginTop: "22px", color: "white", opacity: 0.8, fontSize: "14px"}}>Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit. Exercitation veniam consequat sunt nostrud amet.</div>
+                <div style={{marginTop: "22px", color: "white", opacity: 0.8, fontSize: "14px"}}>Amet minim mollit non
+                  deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit.
+                  Exercitation veniam consequat sunt nostrud amet.
+                </div>
               </div>
 
               <div style={{borderTop: "1px solid white", margin: "40px 0"}}/>
               <div style={{color: "white"}}>
-                <div >
+                <div>
                   <div style={{fontSize: "16px", alignItems: "flex-start", display: "flex"}}>
                     공간 이름
                     <div style={{fontSize: "16px"}}>*</div>
@@ -128,7 +123,16 @@ export default function CreateSpace() {
                   <input
                     name="roomname"
                     onChange={onChange}
-                    style={{width: "362px", height: "34px", borderRadius: "4px", border: "1px solid #C7C7C7", outline: "none", padding: "8px 16px", fontSize: "14px", marginTop: "8px"}}
+                    style={{
+                      width: "362px",
+                      height: "34px",
+                      borderRadius: "4px",
+                      border: "1px solid #C7C7C7",
+                      outline: "none",
+                      padding: "8px 16px",
+                      fontSize: "14px",
+                      marginTop: "8px"
+                    }}
                     placeholder={"이름을 입력해주세요."}
                   />
                 </div>
@@ -137,30 +141,47 @@ export default function CreateSpace() {
                     비밀번호 설정
                     <Switch
                       isOn={switchValue}
-                      handleToggle={() => {setSwitchValue(!switchValue)}}
+                      handleToggle={() => {
+                        setSwitchValue(!switchValue)
+                      }}
                       color={"#34C759"}
                     />
                   </div>
                   {switchValue &&
-                    <>
-                      <div style={{opacity: 0.8, fontSize: "12px", marginTop: "8px"}}>
-                        비밀번호 설정 시 비밀번호를 입력한 사용자들만 참여할 수 있습니다.
-                        설정하지 않으면 누구나 초대 링크만 있으면 공간에 참여할 수 있습니다.
-                      </div>
-                      <input
-                        name="password"
-                        onChange={onChange}
-                        style={{width: "362px", height: "34px", borderRadius: "4px", border: "1px solid #C7C7C7", outline: "none", padding: "8px 16px", fontSize: "14px", marginTop: "16px"}}
-                        placeholder={"비밀번호를 입력해주세요."}
-                      />
-                    </>
+                  <>
+                    <div style={{opacity: 0.8, fontSize: "12px", marginTop: "8px"}}>
+                      비밀번호 설정 시 비밀번호를 입력한 사용자들만 참여할 수 있습니다.
+                      설정하지 않으면 누구나 초대 링크만 있으면 공간에 참여할 수 있습니다.
+                    </div>
+                    <input
+                      name="password"
+                      onChange={onChange}
+                      style={{
+                        width: "362px",
+                        height: "34px",
+                        borderRadius: "4px",
+                        border: "1px solid #C7C7C7",
+                        outline: "none",
+                        padding: "8px 16px",
+                        fontSize: "14px",
+                        marginTop: "16px"
+                      }}
+                      placeholder={"비밀번호를 입력해주세요."}
+                    />
+                  </>
                   }
 
                 </div>
               </div>
 
               <div>
-                <div style={{fontSize: "16px", alignItems: "flex-start", display: "flex", color: "white", marginTop: "32px"}}>
+                <div style={{
+                  fontSize: "16px",
+                  alignItems: "flex-start",
+                  display: "flex",
+                  color: "white",
+                  marginTop: "32px"
+                }}>
                   개설 목적
                   <div style={{fontSize: "16px"}}>*</div>
                 </div>
@@ -180,7 +201,18 @@ export default function CreateSpace() {
 
             <div
               onClick={createNewRoom}
-              style={{backgroundColor: "#27D96E", height: "52px", width: "362px", borderRadius: "8px", display: "flex", justifyContent: "center", alignItems: "center", color: "white", fontSize: "16px", marginBottom: "32px"}}>
+              style={{
+                backgroundColor: "#27D96E",
+                height: "52px",
+                width: "362px",
+                borderRadius: "8px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                color: "white",
+                fontSize: "16px",
+                marginBottom: "32px"
+              }}>
               새 공간 만들기 +
             </div>
           </div>
@@ -197,9 +229,9 @@ function Space({setIsMenu, setMenuTitle, setPresetId, roomCategory}) {
 
   return (
 
-    <div style={{marginTop: "81px"}}>
+    <div style={{marginBottom: "81px"}}>
       <div style={{color: "#1C1C1E", fontSize: "20px", fontWeight: "bold"}}>
-        {roomCategory.category_name} <span style={{color: "#AEAEAE"}}>{roomCategory.rooms.length}</span>
+        {roomCategory.categoryName} <span style={{color: "#AEAEAE"}}>{roomCategory.rooms.length}</span>
       </div>
 
       <div style={{display: "flex", marginTop: "24px"}}>
@@ -214,15 +246,15 @@ function Space({setIsMenu, setMenuTitle, setPresetId, roomCategory}) {
                 setHover(false)
               }}
               onMouseEnter={() => {
-                setMapId(item.id)
+                setMapId(item.roomId)
                 setHover(true)
               }}
               onClick={() => {
-                setMapId(item.id)
+                setMapId(item.roomId)
                 setFocus(true)
                 setHover(!hover)
                 setIsMenu(true)
-                setMenuTitle(item.name)
+                setMenuTitle(item.roomName)
                 setPresetId(301)
               }}
             >
@@ -236,17 +268,38 @@ function Space({setIsMenu, setMenuTitle, setPresetId, roomCategory}) {
                   height: "359px",
                   flexDirection: "column",
                   alignItems: "center",
-                  boxShadow: hover ? mapId === item.id ? "0px 4px 24px rgba(0, 0, 0, 0.1)" : null : null,
-                  border: hover ? null : focus ? mapId === item.id ? "2px solid #501C90" : null : null
+                  boxShadow: hover ? mapId === item.roomId ? "0px 4px 24px rgba(0, 0, 0, 0.1)" : null : null,
+                  border: hover ? null : focus ? mapId === item.roomId ? "2px solid #501C90" : null : null
                 }}
               >
                 <div style={{position: "relative"}}>
-                  <img style={{width: "336px", height: "220px", padding: "8px"}} src={item.thumbnail_image}/>
-                  <div style={{width: "80px", height: "24px", backgroundColor: "#5E1CAF", color: "white", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px", position: "absolute", right: "20px", bottom: "20px", fontSize: "14px"}}>최대 {item.max_user_limit}인</div>
+                  <img style={{width: "336px", height: "220px", padding: "8px"}} src={item.image}/>
+                  <div style={{
+                    width: "80px",
+                    height: "24px",
+                    backgroundColor: "#5E1CAF",
+                    color: "white",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "12px",
+                    position: "absolute",
+                    right: "20px",
+                    bottom: "20px",
+                    fontSize: "14px"
+                  }}>최대 {item.userLimit}인
+                  </div>
                 </div>
                 <div style={{padding: "32px 20px"}}>
-                  <div style={{fontSize: "20px", fontWeight: "bold", color: "#3A3A3C"}}>{item.name}</div>
-                  <div style={{fontSize: "14px", color: "#636363", marginTop: "6px", lineHeight: "20px", width: "312px", marginBottom: "32px"}}>{item.description}</div>
+                  <div style={{fontSize: "20px", fontWeight: "bold", color: "#3A3A3C"}}>{item.roomName}</div>
+                  <div style={{
+                    fontSize: "14px",
+                    color: "#636363",
+                    marginTop: "6px",
+                    lineHeight: "20px",
+                    width: "312px",
+                    marginBottom: "32px"
+                  }}>{item.description}</div>
                 </div>
               </div>
             </div>
