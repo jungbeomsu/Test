@@ -10,7 +10,7 @@ const accountSlice = createSlice({
     nickname: null,
   },
   reducers: {
-    setAccount(state, action) {
+    setProfile(state, action) {
       const {accountId, accountType, characterId, userId, nickname} = action.payload
       state.accountId = accountId;
       state.accountType = accountType;
@@ -24,6 +24,6 @@ const accountSlice = createSlice({
   }
 })
 
-export const {setAccount, setUserId} = accountSlice.actions
+export const {setProfile, setUserId} = accountSlice.actions
 
 export default accountSlice.reducer
