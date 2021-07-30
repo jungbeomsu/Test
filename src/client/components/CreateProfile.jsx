@@ -3,7 +3,7 @@ import GameChangeCharacter from "./GameChangeCharacter";
 import {cloud, town} from "../resources/images";
 import {useHistory} from "react-router-dom";
 import {useDispatch} from "react-redux";
-import {setProfile} from "../redux/features/account/accountSlice";
+import {setProfile} from "../redux/features/common/commonSlice";
 import api from "../api/api";
 
 export default function CreateProfile() {

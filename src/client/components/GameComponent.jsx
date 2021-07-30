@@ -105,9 +105,9 @@ export default function GameComponent(props) {
         // if ("showHeader" in settings) {
         //   props.setShowHeader(settings["showHeader"]);
         // }
-        if ("hasLinks" in settings) {
-          props.setHasLinks(settings["hasLinks"]);
-        }
+        // if ("hasLinks" in settings) {
+        //   props.setHasLinks(settings["hasLinks"]);
+        // }
         // if ("name1" in settings) {
         //   props.setName1(settings["name1"]);
         // }
@@ -450,7 +450,7 @@ export default function GameComponent(props) {
               sendChatMessage={sendChatMessage}
               chatMessages={chatMessages}
               currentMap={currentMap}
-              hasLinks={props.hasLinks}
+              // hasLinks={props.hasLinks}
               name1={props.name1}
               name2={props.name2}
               url1={props.url1}

@@ -1,6 +1,6 @@
 import axios from "axios";
 import CentiToken from "../CentiToken";
-import {setUserId} from "../../redux/features/account/accountSlice";
+import {setUserId} from "../../redux/features/common/commonSlice";
 
 let dispatch;
 
