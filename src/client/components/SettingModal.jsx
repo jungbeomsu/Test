@@ -91,6 +91,8 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
     two: undefined,
   });
 
+  const test = "git Merge 를 위해 텍스트의 내용을 로컬에서 추가하였습니다"
+
 
   const [events, setEvents] = useState({
     one: () => {console.log('one button alert triggered')},
