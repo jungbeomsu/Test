@@ -6,6 +6,7 @@ import {useHistory} from "react-router-dom";
 import {makeId} from "../utils";
 import {useDispatch} from "react-redux";
 import api from "../api/api";
+import {setRoomId} from "../redux/features/common/commonSlice";
 
 export default function CreateSpace() {
   const [isMenu, setIsMenu] = useState(false);
@@ -14,7 +15,6 @@ export default function CreateSpace() {
   const [hasPassword, setHasPassword] = useState(false);
   const [presetId, setPresetId] = useState(undefined);
   const [roomList, setRoomList] = useState([]);
-
 
   const [inputs, setInputs] = useState({
     roomname: undefined,
@@ -50,8 +50,10 @@ export default function CreateSpace() {
   }
 
   const createNewRoom = () => {
-    api.createRoom(roomname, password, presetId, hasPassword, password)
-      .then(() => history.push({pathname: "/dashboard"}))
+    api.createRoom(roomname, password, presetId, hasPassword, password).then(res => {
+      dispatch(setRoomId(res.roomId));
+      history.push({pathname: `/room/${res.roomUrl}`});
+    })
   }
 
   return (
@@ -90,8 +92,10 @@ export default function CreateSpace() {
           <div style={{height: "800px", overflow: "scroll"}}>
             {roomList.map((roomCategory) => {
               return (
-                <Space roomCategory={roomCategory} setIsMenu={setIsMenu} setMenuTitle={setMenuTitle}
-                       setPresetId={setPresetId}/>
+                <div key={roomCategory.categoryId}>
+                  <Space roomCategory={roomCategory} setIsMenu={setIsMenu} setMenuTitle={setMenuTitle}
+                         setPresetId={setPresetId}/>
+                </div>
               )
             })}
           </div>
@@ -228,7 +232,6 @@ function Space({setIsMenu, setMenuTitle, setPresetId, roomCategory}) {
   const [mapId, setMapId] = useState(undefined);
 
   return (
-
     <div style={{marginBottom: "81px"}}>
       <div style={{color: "#1C1C1E", fontSize: "20px", fontWeight: "bold"}}>
         {roomCategory.categoryName} <span style={{color: "#AEAEAE"}}>{roomCategory.rooms.length}</span>
@@ -239,7 +242,7 @@ function Space({setIsMenu, setMenuTitle, setPresetId, roomCategory}) {
         {roomCategory.rooms.map((item => {
           return (
             <div
-              key={item.id}
+              key={item.roomId}
               onMouseLeave={() => {
                 setMapId(undefined)
                 setFocus(false)

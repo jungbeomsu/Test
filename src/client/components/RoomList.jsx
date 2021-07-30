@@ -1,7 +1,7 @@
 import {memberIcon} from "../resources/images";
 import React, {useState} from "react";
 
-export default function RoomList({roomCount, roomList, setTargetRoomUrl, activeUsers, targetRoomUrl}) {
+export default function RoomList({roomCount, roomList, setTargetRoomUrl, activeUsers, targetRoomUrl, setTargetRoomId}) {
 
   return (
     <>
@@ -9,11 +9,14 @@ export default function RoomList({roomCount, roomList, setTargetRoomUrl, activeU
         참여중인 공간 {roomCount}
       </div>
       <div style={{overflow: "scroll", height: "800px"}}>
-        {roomList.length > 0 && roomList.map((room, idx) => {
+        {roomList.length > 0 && roomList.map((room) => {
           return (
             <div
-              key={idx}
-              onClick={() => {setTargetRoomUrl(room.roomUrl)}}
+              key={room.roomId}
+              onClick={() => {
+                setTargetRoomUrl(room.roomUrl)
+                setTargetRoomId(room.roomId)
+              }}
               style={{marginBottom: "14px", overflow: "scroll"}}
             >
               <div style={{padding: "0 12px"}}>
