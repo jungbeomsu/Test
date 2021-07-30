@@ -20,6 +20,8 @@ export default function GameCanvas () {
 
   const GameBranchCommit = "게임 캔바스 컴포넌트에 커밋 변수를 추가했습니다"
 
+  const JIM_NAME = "짐이 추가해준 새로운 이름 변수입니다 잘사용하세요";
+
   function openModal(type) {
     switch(type) {
       case "invite":
