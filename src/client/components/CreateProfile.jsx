@@ -5,7 +5,7 @@ import {useHistory} from "react-router-dom";
 import api from "../api/api";
 import useProfile from "../hooks/useProfile";
 import {useDispatch} from "react-redux";
-import {setProfile} from "../redux/features/account/accountSlice";
+import {setProfile} from "../redux/features/common/commonSlice";
 
 export default function CreateProfile() {
   const [profile, _, onChange, onClick, onNicknameChange] = useProfile()

@@ -14,7 +14,9 @@ export default function GameCanvas () {
 
   const [settingIndex, setSettingIndex] = useState(1);
 
-  const accountData = useSelector(({account}) => account)
+  const common = useSelector(({common}) => common)
+
+  console.log(common)
 
   function openModal(type) {
     switch(type) {
@@ -55,7 +57,7 @@ export default function GameCanvas () {
                 openModal("setting")
               }}
               style={{lineHeight: "15px"}}>
-              {accountData.nickname}
+              {common.nickname}
               <div style={{color: "#C7C7C7", fontSize: "10px"}}>개인 설정 ></div>
             </div>
           </div>

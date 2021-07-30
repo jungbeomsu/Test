@@ -1,10 +1,17 @@
-import React, {useState, useEffect} from 'react';
-import {audio, camera, cloud, mediaSettingImageM, speaker, town} from "../resources/images";
+import React from 'react';
+import {audio, camera, mediaSettingImageM, speaker} from "../resources/images";
 import "./Setting.css";
+import api from "../api/api";
+import {useSelector} from "react-redux";
+
 export default function Setting({setIsSetting}) {
+  const roomId = useSelector(({common: {roomId}}) => roomId);
 
   const goToMainScreen = () => {
-    setIsSetting(true);
+    api.getRoom(roomId, "")
+      .then(() => {
+        setIsSetting(true);
+      })
   }
 
   return (

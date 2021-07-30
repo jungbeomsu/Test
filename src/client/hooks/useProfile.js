@@ -2,11 +2,11 @@ import {useCallback, useState} from "react";
 import {useSelector} from "react-redux";
 
 function useProfile() {
-  const account = useSelector(({account}) => account)
+  const common = useSelector(({common}) => common)
   const [profile, setProfile] = useState({
-    nickname: account.nickname || "내 이름은 지호에요",
-    tmpNickname: account.nickname || "내 이름은 지호에요",
-    characterId: account.characterId || 211,
+    nickname: common.nickname || "내 이름은 지호에요",
+    tmpNickname: common.nickname || "내 이름은 지호에요",
+    characterId: common.characterId || 211,
     nicknameChange: false
   })
 
@@ -17,9 +17,10 @@ function useProfile() {
   }, [profile.nickname])
 
   const onNicknameChange = useCallback(() => {
+
     setProfile(prevState => ({
       ...prevState,
-      nickname: prevState.tmpNickname,
+      ...(profile.nicknameChange ? {nickname: prevState.tmpNickname} : {}),
       nicknameChange: !profile.nicknameChange
     }))
   }, [profile.nicknameChange])

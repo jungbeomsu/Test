@@ -8,16 +8,22 @@ import CentiToken from "../api/CentiToken";
 import api from "../api/api";
 import RoomList from "./RoomList";
 import './Dashboard.css';
+import {setRoomId, setUserId} from "../redux/features/common/commonSlice";
+import {useDispatch} from "react-redux";
+
+const {Kakao} = window;
 
 export default function Dashboard(props) {
   const [nickname, setNickname] = useState(undefined);
   const [activeUsers, setActiveUsers] = useState({});
   const [roomCount, setRoomCount] = useState(undefined);
   const [roomList, setRoomList] = useState([]);
+  const [targetRoomId, setTargetRoomId] = useState(undefined);
   const [targetRoomUrl, setTargetRoomUrl] = useState('');
   const [hover, setHover] = useState(false);
 
   const history = useHistory();
+  const dispatch = useDispatch();
   const location = useLocation();
   let [randomId, _] = useState(makeId(16));
 
@@ -47,10 +53,11 @@ export default function Dashboard(props) {
 
   const goToMainScreen = () => {
     if(targetRoomUrl!== ''){
-      history.push({pathname: `/room/${targetRoomUrl}`})
+        dispatch(setRoomId(targetRoomId));
+        history.push({pathname: `/room/${targetRoomUrl}`});
     }
     else{
-      alert('targetRoomUrl is empty'); //TODO: 제외하기
+      alert('방을 선택해주세요!');
     }
   }
 
@@ -60,6 +67,15 @@ export default function Dashboard(props) {
     })?.roomUrl
 
     return activeUsers[roomUrl]
+  }
+
+  const logOut = () => {
+    console.log("로그아웃")
+    // TODO: dispatch 에러 해결하기
+    CentiToken.remove();
+    Kakao.Auth.logout();
+    dispatch(setUserId(null));
+    history.push({pathname: "/"})
   }
 
   return (
@@ -106,11 +122,13 @@ export default function Dashboard(props) {
                 <div style={{marginRight: "8px"}}>
                   {exitIconG}
                 </div>
-                로그아웃
+                <div onClick={logOut}>
+                  로그아웃
+                </div>
               </div>
             </div>
 
-            <RoomList roomCount={roomCount} roomList={roomList} setTargetRoomUrl={setTargetRoomUrl} activeUsers={activeUsers} targetRoomUrl={targetRoomUrl}/>
+            <RoomList roomCount={roomCount} roomList={roomList} setTargetRoomUrl={setTargetRoomUrl} activeUsers={activeUsers} targetRoomUrl={targetRoomUrl} setTargetRoomId={setTargetRoomId}/>
 
           </div>
           <div style={{width: "100%", display: "flex", justifyContent: "center"}}>
@@ -163,7 +181,7 @@ export default function Dashboard(props) {
                     {Array(getRoomActiveUsers(roomList)).fill(0).map((item, idx) => {
                       return (
 
-                        <div style={{display: "flex", alignItems: "center", padding: "10px 12px"}}>
+                        <div key={idx} style={{display: "flex", alignItems: "center", padding: "10px 12px"}}>
                           <div style={{position: "relative", display: "inline-block", marginRight: "8px"}}>
                             {profileIconL}
                             <div style={{
@@ -185,7 +203,7 @@ export default function Dashboard(props) {
                   </div>
                   :
 
-                  <div class="no-user">
+                  <div className="no-user">
                     <div style={{display: "flex", justifyContent: "center", marginBottom: "4px"}}>
                       {errorIcon}
                     </div>

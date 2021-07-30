@@ -22,8 +22,9 @@ import {
 import {useDispatch, useSelector} from "react-redux";
 import {room} from "../api/service/room";
 import {user} from "../api/service/user";
-import {setProfile} from "../redux/features/account/accountSlice";
 import useProfile from "../hooks/useProfile";
+import {setProfile} from "../redux/features/common/commonSlice";
+import useRoomInput from "../hooks/useRoomInput";
 
 // 공간설정
 const sampleArr = [
@@ -103,23 +104,13 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
   //   password: sampleData.password,
   // })
 
-  const {account, roomInfo} = useSelector(({account, roomInfo}) => ({
-    account,
-    roomInfo
-  }))
+  const Test = "갱신과 병합에 관한 git 테스트 중입니다 UseSelector 위에 위치합니다"
+
 
   const accountDispatch = useDispatch()
 
   const [{nickname, tmpNickname, characterId, nicknameChange}, _, onChange, onClick, onNicknameChange] = useProfile()
-
-  const [state, dispatch] = useReducer(reducer, {
-    room: {
-      name: roomInfo.name || null
-    }
-
-  })
-
-  const { room: {name}} = state
+  const [{name, tmpName, nameChange}, onRoomName, onRoomNameSave] = useRoomInput()
 
   useEffect(() => {
 
@@ -211,7 +202,6 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
               onClick={async () => {
 
                 const result = await user.updateProfile(nickname, characterId)
-                console.log(result)
 
                 accountDispatch(setProfile(result))
 
@@ -364,24 +354,24 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
               <div style={{position: "relative"}}>
                 <input
                   ref={inputRef}
-                  name="roomname"
-                  value={name}
-                  disabled={!roomnameChange}
+                  value={tmpName}
+                  disabled={!nameChange}
+                  onChange={onRoomName}
                   style={{
-                    border: roomnameChange ? "1px solid #5E1CAF" : "none",
+                    border: nameChange ? "1px solid #5E1CAF" : "none",
                     outline: "none",
                     width: "424px",
                     height: "30px",
-                    backgroundColor: roomnameChange ? "white" : "#F0F0F0",
+                    backgroundColor: nameChange ? "white" : "#F0F0F0",
                     borderRadius: "4px",
                     padding: "4px 16px",
-                    color: roomnameChange ? "#1C1C1E" : "#AEAEAE",
+                    color: nameChange ? "#1C1C1E" : "#AEAEAE",
                   }}
                   placeholder={"현재 공간의 이름"}
                 />
                 <div
                   onClick={() => {
-                    setInputChanges({...inputChanges, roomnameChange: !roomnameChange})
+                    onRoomNameSave()
                     inputRef.current.focus();
                   }}
                   style={{
@@ -393,7 +383,7 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
                     textDecoration: "underline"
                   }}
                 >
-                  {roomnameChange ? "저장" : "이름 변경"}
+                  {nameChange ? "저장" : "이름 변경"}
                 </div>
               </div>
             </div>

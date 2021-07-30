@@ -1,13 +1,14 @@
 import {createSlice} from '@reduxjs/toolkit';
 
-const accountSlice = createSlice({
-  name: 'account',
+const commonSlice = createSlice({
+  name: 'common',
   initialState: {
     accountId: null,
     accountType: null,
     characterId: null,
     userId: null,
     nickname: null,
+    roomId: null,
   },
   reducers: {
     setProfile(state, action) {
@@ -21,10 +22,13 @@ const accountSlice = createSlice({
     setUserId(state, action) {
 
       state.userId = action.payload;
+    },
+    setRoomId(state, action) {
+      state.roomId = action.payload;
     }
   }
 })
 
-export const {setProfile, setUserId} = accountSlice.actions
+export const {setProfile, setUserId, setRoomId} = commonSlice.actions
 
-export default accountSlice.reducer
+export default commonSlice.reducer

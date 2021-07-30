@@ -7,7 +7,7 @@ import api from "../api/api";
 
 import CentiToken from "../api/CentiToken";
 import {useDispatch, useSelector} from "react-redux";
-import {setUserId} from "../redux/features/account/accountSlice";
+import {setUserId} from "../redux/features/common/commonSlice";
 
 const {Kakao} = window;
 
@@ -170,7 +170,7 @@ export default function Homepage() {
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const userId = useSelector(({account: {userId}}) => userId)
+  const userId = useSelector(({common: {userId}}) => userId)
 
   const login = () => {
     Kakao.Auth.login({

@@ -35,7 +35,7 @@ export default function OneBtnPopup({message, showOneBtnPopup, setOneBtnPopup, e
             onClick={() => {
               setOneBtnPopup(false);
               event();
-              closeModal()
+              closeModalw()
             }}>
             확인
           </div>

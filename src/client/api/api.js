@@ -1,6 +1,6 @@
 import axios from "axios";
 import CentiToken from "./CentiToken";
-import {setUserId} from "../redux/features/account/accountSlice";
+import {setUserId} from "../redux/features/common/commonSlice";
 import moment from "moment";
 
 let dispatch;
@@ -135,7 +135,7 @@ const api = {
       "id": roomId,
       "password": passwd
     }
-    let data = await process(path, req);
+    let data = await processAuth(path, req);
     if (!data.result.is_success) {
       return null;
     }
@@ -149,7 +149,8 @@ const api = {
       roomId: data.room_id,
       status: data.status,
       createdAt: moment(data.created_at),
-      updatedAt: moment(data.updated_at)
+      updatedAt: moment(data.updated_at),
+      roomUrl: data.room_url,
     };
   },
 
@@ -202,7 +203,7 @@ const api = {
 
 
 
-  createRoom: async (name, purposeId, presetId, hasPassword, password, creatorId) => {
+  createRoom: async (name, purposeId, presetId, hasPassword, password) => {
 
     let path = '/v1/room/create';
     let req = {
@@ -211,13 +212,22 @@ const api = {
       preset_id : presetId,
       has_password : hasPassword,
       password : password,
-      creator_id : creatorId
     }
-    let data = await process(path, req);
+    let data = await processAuth(path, req);
     if (!data.result.is_success) {
-      return false;
+      return null;
     }
-    return true;
+    return {
+      creatorId: data.creator_id,
+      description: data.description,
+      hasPassword: data.has_password,
+      roomId: data.id,
+      roomName: data.name,
+      password: data.password,
+      presetId: data.preset_id,
+      purposeId: data.purpose_id,
+      roomUrl: data.room_url
+    }
   },
 
   removeRoom: async (roomId) => {
@@ -268,7 +278,38 @@ const api = {
         resource: el.resource
       }
     })
+  },
+
+
+
+  roomPreset: async () => {
+    let path = '/v1/setting/room_preset/get';
+    let data = await processAuth(path);
+    if (!data.result.is_success) {
+      return null;
+    }
+    return {
+      roomPresetList: data.room_preset_list.map(categoryList => {
+        return {
+          categoryId: categoryList.category_id,
+          categoryName: categoryList.category_name,
+          rooms: categoryList.rooms.map(room => {
+            return {
+              description: room.description,
+              roomId: room.id,
+              userLimit: room.max_user_limit,
+              roomName: room.name,
+              resource: room.resource,
+              image: room.thumbnail_image,
+            }
+          })
+        }
+      })
+    }
   }
+
+
+
 };
 
 export default api;
