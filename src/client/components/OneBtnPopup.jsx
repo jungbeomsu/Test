@@ -1,7 +1,7 @@
 import Modal from "react-modal";
 import React from "react";
 
-export default function OneBtnPopup({message, showOneBtnPopup, setOneBtnPopup, event}) {
+export default function OneBtnPopup({message, showOneBtnPopup, setOneBtnPopup, event, closeModal}) {
 
   return (
     <Modal
@@ -35,6 +35,7 @@ export default function OneBtnPopup({message, showOneBtnPopup, setOneBtnPopup, e
             onClick={() => {
               setOneBtnPopup(false);
               event();
+              closeModal()
             }}>
             확인
           </div>

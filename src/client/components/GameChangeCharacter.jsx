@@ -6,7 +6,7 @@ import { characterMap } from '../../common/maps';
 
 import './GameChangeCharacter.css';
 
-export default function GameChangeCharacter ({characterId, dispatch, currentMap}) {
+export default function GameChangeCharacter ({characterId, onClick, currentMap}) {
   if (characterId && currentMap && characterMap[currentMap]) {
 
     let ids = characterMap[currentMap];
@@ -19,7 +19,8 @@ export default function GameChangeCharacter ({characterId, dispatch, currentMap}
               <div key={id}>
                 <img
                   src={require(`../${characterIds[id]}`).default}
-                  onClick={() => dispatch({type: 'CHANGE_PROFILE', payload: {characterId: id}})}
+                  onClick={onClick}
+                  data-id={id}
                   className={classNames({"not-selected": id !== characterId})}
                 />
               </div>

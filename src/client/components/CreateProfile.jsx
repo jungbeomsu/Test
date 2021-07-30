@@ -2,27 +2,29 @@ import React, {useRef, useState} from 'react';
 import GameChangeCharacter from "./GameChangeCharacter";
 import {cloud, town} from "../resources/images";
 import {useHistory} from "react-router-dom";
+import api from "../api/api";
+import useProfile from "../hooks/useProfile";
 import {useDispatch} from "react-redux";
 import {setProfile} from "../redux/features/account/accountSlice";
-import api from "../api/api";
 
 export default function CreateProfile() {
-  const [nickname, setNickname] = useState("내 이름은 지호에요");
-  const [characterId, setCharacterId] = useState(211);
-  const [nicknameChange, setNicknameChange] = useState(false);
+  const [profile, _, onChange, onClick, onNicknameChange] = useProfile()
   const history = useHistory();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
   let currentMap = 301;
 
-  const goToTutorial = () => {
-    api.updateProfile(nickname, characterId)
-      .then(res => {
-        dispatch(setProfile(res));
-        history.push({pathname: "/tutorial"});
-      })
+  const {tmpNickname, nickname, characterId, nicknameChange} = profile
+
+  const goToTutorial = async () => {
+
+    const result = await api.updateProfile(nickname, characterId)
+
+    dispatch(setProfile(result))
+
+    history.push({pathname: "/tutorial"});
   }
 
-  const inputRef = useRef();
+  const inputRef = useRef(null);
 
   return (
     <div style={{
@@ -56,13 +58,12 @@ export default function CreateProfile() {
           <div style={{display: "flex", alignItems: "center",}}>
             <div style={{marginRight: "50px", fontSize: "14px"}}>닉네임</div>
             <div>
-
               <div style={{position: "relative", marginRight: "8px"}}>
                 <input
                   ref={inputRef}
                   name="nickname"
-                  onChange={(e) => setNickname(e.target.value)}
-                  value={nickname}
+                  onChange={onChange}
+                  value={tmpNickname}
                   disabled={!nicknameChange}
                   style={{
                     border: nicknameChange ? "1px solid #5E1CAF" : "none",
@@ -78,8 +79,8 @@ export default function CreateProfile() {
                 />
                 <div
                   onClick={() => {
-                    setNicknameChange(!nicknameChange);
-                    inputRef.current.focus();
+                      onNicknameChange()
+                      inputRef.current.focus();
                   }}
                   style={{
                     position: "absolute",
@@ -98,9 +99,10 @@ export default function CreateProfile() {
           <div style={{marginTop: "100px", display: "flex"}}>
             <div style={{fontSize: "14px", marginRight: "40px", marginTop: "8px"}}>캐릭터</div>
             <div>
+
               <GameChangeCharacter
-                setCharacterId={setCharacterId}
                 characterId={characterId}
+                onClick={onClick}
                 currentMap={currentMap}
               />
               <div style={{
@@ -125,10 +127,7 @@ export default function CreateProfile() {
             display: "flex",
             fontWeight: "bold"
           }}>
-            <div onClick={() => {
-              setCharacterId(characterId)
-              goToTutorial()
-            }} style={{fontSize: "20px", color: "white"}}> 프로필 저장
+            <div onClick={goToTutorial} style={{fontSize: "20px", color: "white"}}> 프로필 저장
             </div>
           </div>
         </div>

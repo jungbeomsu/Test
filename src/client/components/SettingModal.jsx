@@ -23,6 +23,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {room} from "../api/service/room";
 import {user} from "../api/service/user";
 import {setProfile} from "../redux/features/account/accountSlice";
+import useProfile from "../hooks/useProfile";
 
 // 공간설정
 const sampleArr = [
@@ -77,6 +78,7 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
   const [switchValue, setSwitchValue] = useState(false);
   const [hover, setHover] = useState(false);
 
+
   const [showTwoBtnPopup, setTwoBtnPopup] = useState(false);
   const [showOneBtnPopup, setOneBtnPopup] = useState(false);
 
@@ -95,44 +97,43 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
     two: () => {console.log('two button alert triggered')},
   });
 
-  const [inputs, setInputs] = useState({
-    nickname: sampleData.nickname,
-    roomname: sampleData.roomname,
-    password: sampleData.password,
-  })
+  // const [inputs, setInputs] = useState({
+  //   nickname: sampleData.nickname,
+  //   roomname: sampleData.roomname,
+  //   password: sampleData.password,
+  // })
 
   const {account, roomInfo} = useSelector(({account, roomInfo}) => ({
     account,
     roomInfo
   }))
 
+  console.log(account)
+
   const accountDispatch = useDispatch()
 
+  const [{nickname, tmpNickname, characterId, nicknameChange}, _, onChange, onClick, onNicknameChange] = useProfile()
+
   const [state, dispatch] = useReducer(reducer, {
-    profile: {
-      nickname: account.nickname,
-      characterId: account.characterId,
-      isChanging: false
-    },
     room: {
       name: roomInfo.name || null
     }
 
   })
 
-  const {profile: {nickname, isChanging, characterId}, room: {name}} = state
+  const { room: {name}} = state
 
   useEffect(() => {
 
   }, [])
 
-  const [inputChanges, setInputChanges] = useState({
-    nicknameChange: false,
-    roomnameChange: false,
-    passwordChange: false,
-  });
-
-  const {nicknameChange, roomnameChange, passwordChange} = inputChanges;
+  // const [inputChanges, setInputChanges] = useState({
+  //   nicknameChange: false,
+  //   roomnameChange: false,
+  //   passwordChange: false,
+  // });
+  //
+  // const {nicknameChange, roomnameChange, passwordChange} = inputChanges;
 
   // 게임 캐릭터 설정
 
@@ -161,26 +162,23 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
                 <input
                   ref={inputRef}
                   name="nickname"
-                  value={nickname}
-                  onChange={(e) => dispatch({type: 'CHANGE_PROFILE_VALUE', payload: {nickname: e.target.value}})}
-                  disabled={!isChanging}
+                  value={tmpNickname}
+                  onChange={onChange}
+                  disabled={!nicknameChange}
                   style={{
-                    border: isChanging ? "1px solid #5E1CAF" : "none",
+                    border: nicknameChange ? "1px solid #5E1CAF" : "none",
                     outline: "none",
                     width: "448px",
                     height: "30px",
-                    backgroundColor: isChanging ? "white" : "#F0F0F0",
+                    backgroundColor: nicknameChange ? "white" : "#F0F0F0",
                     borderRadius: "4px",
                     padding: "4px 16px",
-                    color: isChanging ? "#1C1C1E" : "#AEAEAE",
+                    color: nicknameChange ? "#1C1C1E" : "#AEAEAE",
                   }}
                   placeholder={"내 현재 닉네임이 들어갑니다. "}
                 />
                 <div
-                  onClick={() => {
-                    dispatch({type: 'CHANGE_PROFILE', payload: { isChanging: !isChanging }})
-                    inputRef.current.focus();
-                  }}
+                  onClick={onNicknameChange}
                   style={{
                     position: "absolute",
                     right: "16px",
@@ -190,7 +188,7 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
                     textDecoration:  "underline"
                   }}
                 >
-                  {isChanging ? "저장" : "닉네임 변경"}
+                  {nicknameChange ? "저장" : "닉네임 변경"}
                 </div>
               </div>
 
@@ -204,7 +202,7 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
                 <div style={{overflow: "scroll"}}>
                   {/* 게임 캐릭터 공간 */}
                   <GameChangeCharacter
-                    dispatch={dispatch}
+                    onClick={onClick}
                     characterId={characterId}
                     currentMap={currentMap}
                   />
@@ -212,11 +210,12 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
               </div>
             </div>
             <div
-              onClick={() => {
+              onClick={async () => {
 
-                user.updateProfile(nickname, characterId).then(({nickname, characterId}) => {
-                  accountDispatch(setProfile({...account, nickname, characterId}))
-                })
+                const result = await user.updateProfile(nickname, characterId)
+                console.log(result)
+
+                accountDispatch(setProfile(result))
 
                 setMessages({one: "변경 되었습니다"});
                 setOneBtnPopup(true);
@@ -701,7 +700,7 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
                 setIndexArr.map((item) => {
                   if (item.id === settingIndex) {
                     return (
-                      <div>
+                      <div key={item.id}>
                         {item.name}
                       </div>
                     )
@@ -725,6 +724,7 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
         setTwoBtnPopup={setTwoBtnPopup}
         setOneBtnPopup={setOneBtnPopup}
         showOneBtnPopup={showOneBtnPopup}
+        closeModal={closeModal}
         events={events}
       />
 

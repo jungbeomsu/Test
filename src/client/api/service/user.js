@@ -59,6 +59,8 @@ export const user = {
     if (!data.result.is_success) {
       return null;
     }
+
+    console.log(data)
     return {
       accountId: data.account_id,
       accountType: data.account_type,

@@ -15,6 +15,7 @@ import {useDispatch, useSelector} from "react-redux";
 import CentiToken from "./api/CentiToken";
 import api from "./api/api";
 import {setProfile} from "./redux/features/account/accountSlice";
+import {user} from "./api/service/user";
 
 let App = () => {
   const dispatch = useDispatch();
@@ -25,7 +26,7 @@ let App = () => {
       const userId = CentiToken.getUserId();
 
       if (userId) {
-        api.getProfile(userId).then((res) => dispatch(setProfile(res)));
+        user.getProfile(userId).then((res) => dispatch(setProfile(res)));
       }
     }
 
