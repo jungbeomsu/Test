@@ -16,7 +16,7 @@ export default function GameCanvas () {
 
   const common = useSelector(({common}) => common)
 
-  console.log(common)
+  const test = "이파일은 커밋을 추가하기위한 테스트 파일입니다"
 
   function openModal(type) {
     switch(type) {
