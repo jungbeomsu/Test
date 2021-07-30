@@ -22,6 +22,10 @@ export default function GameCanvas () {
 
   const JIM_NAME = "짐이 추가해준 새로운 이름 변수입니다 잘사용하세요";
 
+  const add_issuer_jb = '이슈러가 파일 추가하고 갑니다.'
+
+  const what = "gk 3번째가 수정"
+
   function openModal(type) {
     switch(type) {
       case "invite":
