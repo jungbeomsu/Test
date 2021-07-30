@@ -108,8 +108,6 @@ export default function SettingModal({modalIsOpen, closeModal, settingIndex, set
     roomInfo
   }))
 
-  console.log(account)
-
   const accountDispatch = useDispatch()
 
   const [{nickname, tmpNickname, characterId, nicknameChange}, _, onChange, onClick, onNicknameChange] = useProfile()

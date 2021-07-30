@@ -60,7 +60,6 @@ export const user = {
       return null;
     }
 
-    console.log(data)
     return {
       accountId: data.account_id,
       accountType: data.account_type,
