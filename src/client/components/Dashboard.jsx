@@ -72,10 +72,10 @@ export default function Dashboard(props) {
   const logOut = () => {
     console.log("로그아웃")
     // TODO: dispatch 에러 해결하기
-    // CentiToken.remove();
-    // Kakao.Auth.logout();
-    // dispatch(setUserId(null));
-    // history.push({pathname: "/"})
+    CentiToken.remove();
+    Kakao.Auth.logout();
+    dispatch(setUserId(null));
+    history.push({pathname: "/"})
   }
 
   return (
