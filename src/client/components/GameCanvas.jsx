@@ -16,16 +16,6 @@ export default function GameCanvas () {
 
   const common = useSelector(({common}) => common)
 
-  const test = "이파일은 커밋을 추가하기위한 테스트 파일입니다"
-
-  const GameBranchCommit = "게임 캔바스 컴포넌트에 커밋 변수를 추가했습니다"
-
-  const JIM_NAME = "짐이 추가해준 새로운 이름 변수입니다 잘사용하세요";
-
-  const add_issuer_jb = '이슈러가 파일 추가하고 갑니다.'
-
-  const what = "gk 3번째가 수정"
-
   function openModal(type) {
     switch(type) {
       case "invite":
