@@ -36,6 +36,8 @@ export default function GameCanvas () {
     }
   }
 
+  const name = "힘들다"
+
   return (
     <div style={{position: "relative", width: "100vw", height: "100vh"}} className="game-container">
       <Chatting />
