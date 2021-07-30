@@ -1,6 +1,6 @@
 import axios from "axios";
 import CentiToken from "./CentiToken";
-import {setUserId} from "../redux/features/account/accountSlice";
+import {setUserId} from "../redux/features/common/commonSlice";
 import moment from "moment";
 
 let dispatch;
@@ -135,7 +135,7 @@ const api = {
       "id": roomId,
       "password": passwd
     }
-    let data = await process(path, req);
+    let data = await processAuth(path, req);
     if (!data.result.is_success) {
       return null;
     }
@@ -149,7 +149,8 @@ const api = {
       roomId: data.room_id,
       status: data.status,
       createdAt: moment(data.created_at),
-      updatedAt: moment(data.updated_at)
+      updatedAt: moment(data.updated_at),
+      roomUrl: data.room_url,
     };
   },
 
@@ -290,7 +291,7 @@ const api = {
     return {
       roomPresetList: data.room_preset_list.map(categoryList => {
         return {
-          creatorId: categoryList.creator_id,
+          categoryId: categoryList.category_id,
           categoryName: categoryList.category_name,
           rooms: categoryList.rooms.map(room => {
             return {
