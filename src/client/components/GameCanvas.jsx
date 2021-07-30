@@ -36,7 +36,7 @@ export default function GameCanvas () {
     }
   }
 
-
+  const Tester = '테스터 변수 추가'
 
   return (
     <div style={{position: "relative", width: "100vw", height: "100vh"}} className="game-container">
