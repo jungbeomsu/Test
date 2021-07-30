@@ -18,6 +18,8 @@ export default function GameCanvas () {
 
   const test = "이파일은 커밋을 추가하기위한 테스트 파일입니다"
 
+  const GameBranchCommit = "게임 캔바스 컴포넌트에 커밋 변수를 추가했습니다"
+
   function openModal(type) {
     switch(type) {
       case "invite":
