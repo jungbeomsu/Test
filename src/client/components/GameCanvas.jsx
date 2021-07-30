@@ -22,7 +22,9 @@ export default function GameCanvas () {
 
   const JIM_NAME = "짐이 추가해준 새로운 이름 변수입니다 잘사용하세요";
 
-  console.log("그렇죠 이렇게 따른 안전한 작업 환경에서 서로 같은 파일을 복사해서 다른곳을 수정하는겁니다.")
+  const add_issuer_jb = '이슈러가 파일 추가하고 갑니다.'
+
+  const what = "gk 3번째가 수정"
 
   function openModal(type) {
     switch(type) {
