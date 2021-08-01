@@ -37,6 +37,7 @@ export default async function GetGameServerDataWithToken(
     });
   }
 
+
   const accessToken = await CentiToken.getAccessToken();
   if (accessToken) {
     const config = {
